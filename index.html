@@ -926,6 +926,76 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
   background: linear-gradient(145deg, var(--s2), rgba(52,211,153,.06));
   box-shadow: 0 0 12px rgba(52,211,153,.12);
 }
+
+/* V12 Photo Upload Styles */
+.image-upload-wrapper {
+  position: relative;
+  width: 100%;
+  height: 110px;
+  background: var(--s1);
+  border: 1px dashed var(--b2);
+  border-radius: var(--r1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  margin-top: 5px;
+}
+.image-upload-wrapper:hover {
+  border-color: var(--cyan);
+  background: var(--glass-hover);
+}
+.image-upload-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: var(--t3);
+  font-size: 0.72rem;
+  pointer-events: none;
+}
+.image-upload-placeholder .upload-icon {
+  font-size: 1.3rem;
+}
+.recipe-photo-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.btn-remove-photo {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(6, 9, 17, 0.85);
+  border: 1px solid var(--b2);
+  color: var(--t1);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+  font-weight: bold;
+  font-size: 0.65rem;
+  z-index: 5;
+}
+.btn-remove-photo:hover {
+  background: var(--red);
+  color: #0c1019;
+  border-color: var(--red);
+}
+.lib-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
 </style>
 </head>
 
@@ -977,6 +1047,18 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
       <div class="card-hd">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
         Configuración
+      </div>
+      <div class="fg">
+        <label class="fl">Foto de Elaboración</label>
+        <div class="image-upload-wrapper" id="img-upload-box" title="Haz clic para subir foto del plato">
+          <input type="file" id="recipe-photo-input" accept="image/*" style="display:none">
+          <div class="image-upload-placeholder" id="img-placeholder">
+            <span class="upload-icon">📸</span>
+            <span class="upload-text">Subir Imagen</span>
+          </div>
+          <img id="recipe-photo-preview" src="" alt="Vista previa" class="recipe-photo-preview" style="display:none" loading="lazy">
+          <button type="button" class="btn-remove-photo" id="btn-remove-photo" style="display:none" title="Eliminar foto">✕</button>
+        </div>
       </div>
       <div class="fg">
         <label class="fl">Nombre del Plato</label>
@@ -1207,7 +1289,19 @@ const F1  = v => Math.round(v * 10) / 10;
 const F2  = v => Math.round(v * 100) / 100;
 const uid = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`;
 
-// Master list of common hospitality ingredients
+// V12 Global Allergen definitions
+const ALLERGENS = {
+  gluten:     { emoji: '🌾', name: 'Gluten' },
+  dairy:      { emoji: '🥛', name: 'Lácteos' },
+  egg:        { emoji: '🥚', name: 'Huevo' },
+  fish:       { emoji: '🐟', name: 'Pescado' },
+  nuts:       { emoji: '🥜', name: 'Frutos Secos' },
+  crustacean: { emoji: '🦞', name: 'Crustáceos' },
+  soy:        { emoji: '🫘', name: 'Soja' },
+  sulfite:    { emoji: '🍷', name: 'Sulfitos' }
+};
+
+// Expanded Master list of common hospitality ingredients
 const INGREDIENTS_MASTER = [
   { name: 'Solomillo de Ternera', price: 29.50, category: 'protein', waste: 12, allergens: [] },
   { name: 'Pechuga de Pollo', price: 6.80, category: 'protein', waste: 5, allergens: [] },
@@ -1215,11 +1309,14 @@ const INGREDIENTS_MASTER = [
   { name: 'Atún Rojo de Almadraba', price: 34.00, category: 'protein', waste: 10, allergens: ['fish'] },
   { name: 'Langostinos Brutos', price: 14.50, category: 'protein', waste: 40, allergens: ['crustacean'] },
   { name: 'Huevo Campero M', price: 3.20, category: 'protein', waste: 11, allergens: ['egg'] },
+  { name: 'Bacalao Desalado', price: 24.50, category: 'protein', waste: 8, allergens: ['fish'] },
   { name: 'Tomate de Ensalada', price: 2.10, category: 'vegetable', waste: 8, allergens: [] },
   { name: 'Aguacate Hass', price: 5.50, category: 'vegetable', waste: 30, allergens: [] },
   { name: 'Cebolla Morada', price: 1.45, category: 'vegetable', waste: 10, allergens: [] },
   { name: 'Patata Monalisa', price: 1.20, category: 'vegetable', waste: 15, allergens: [] },
   { name: 'Pimiento Rojo Lamuyo', price: 2.60, category: 'vegetable', waste: 20, allergens: [] },
+  { name: 'Ajo Seco', price: 4.50, category: 'vegetable', waste: 15, allergens: [] },
+  { name: 'Limón Primofiori', price: 1.80, category: 'vegetable', waste: 45, allergens: [] },
   { name: 'Queso Parmesano Reggiano', price: 22.00, category: 'dairy', waste: 3, allergens: ['dairy'] },
   { name: 'Leche Entera UHT', price: 1.05, category: 'dairy', waste: 0, allergens: ['dairy'] },
   { name: 'Mantequilla 82% Grasa', price: 8.50, category: 'dairy', waste: 0, allergens: ['dairy'] },
@@ -1227,10 +1324,14 @@ const INGREDIENTS_MASTER = [
   { name: 'Aceite de Oliva Virgen Extra', price: 8.90, category: 'oil', waste: 0, allergens: [] },
   { name: 'Sal Fina de Mesa', price: 0.85, category: 'spice', waste: 0, allergens: [] },
   { name: 'Pimienta Negra Molida', price: 14.20, category: 'spice', waste: 0, allergens: [] },
+  { name: 'Nuez Pelada', price: 18.00, category: 'spice', waste: 0, allergens: ['nuts'] },
   { name: 'Harina de Trigo W200', price: 1.15, category: 'other', waste: 2, allergens: ['gluten'] },
   { name: 'Azúcar Blanquilla', price: 1.40, category: 'other', waste: 0, allergens: [] },
   { name: 'Vino Blanco de Cocina', price: 2.50, category: 'other', waste: 0, allergens: ['sulfite'] },
-  { name: 'Pan de Hamburguesa Brioche', price: 8.50, category: 'other', waste: 0, allergens: ['gluten', 'egg', 'dairy'] }
+  { name: 'Pan de Hamburguesa Brioche', price: 8.50, category: 'other', waste: 0, allergens: ['gluten', 'egg', 'dairy'] },
+  { name: 'Arroz Bomba', price: 3.20, category: 'other', waste: 0, allergens: [] },
+  { name: 'Salsa de Soja', price: 4.80, category: 'other', waste: 0, allergens: ['soy', 'gluten'] },
+  { name: 'Mostaza Antigua', price: 9.20, category: 'other', waste: 0, allergens: ['gluten'] }
 ];
 
 function debounce(fn, ms) {
@@ -1239,6 +1340,44 @@ function debounce(fn, ms) {
     clearTimeout(timer);
     timer = setTimeout(() => fn.apply(this, args), ms);
   };
+}
+
+// Client-side canvas image compression to fit localStorage limits safely
+function compressImage(file, callback) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+      
+      const MAX_LEN = 600;
+      if (width > height) {
+        if (width > MAX_LEN) {
+          height = Math.round(height * MAX_LEN / width);
+          width = MAX_LEN;
+        }
+      } else {
+        if (height > MAX_LEN) {
+          width = Math.round(width * MAX_LEN / height);
+          height = MAX_LEN;
+        }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Output as compact JPEG at 70% quality (~20KB-40KB base64)
+      const base64 = canvas.toDataURL('image/jpeg', 0.7);
+      callback(base64);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 /* Toast system */
@@ -1364,14 +1503,30 @@ class GC {
       document.getElementById('notes-section').classList.toggle('open');
     });
 
-    /* Inline table edit with focus preservation */
+    /* Inline table edit with focus preservation & value validation */
     const tbody = document.getElementById('tbl-body');
+    const focusAndSelect = (element) => {
+      if (!element) return;
+      element.focus();
+      try {
+        const range = document.createRange();
+        const sel = window.getSelection();
+        range.selectNodeContents(element);
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      } catch (err) {}
+    };
+
     tbody.addEventListener('focusout', e => {
       const el = e.target;
       if (!el.classList.contains('ec')) return;
       const ing = this.R.ingredients.find(i => i.id === el.dataset.id);
       if (!ing) return;
-      const val = parseFloat(el.innerText.replace(',', '.')) || 0;
+      
+      // Enforce positive values, clean up strings
+      let rawVal = parseFloat(el.innerText.trim().replace(',', '.')) || 0;
+      const val = Math.max(0, rawVal);
       const scale = this._scale();
       if (el.dataset.f === 'net')   ing.net = val / scale;
       if (el.dataset.f === 'price') ing.originalPrice = val;
@@ -1384,7 +1539,7 @@ class GC {
       this._autoSave();
     });
 
-    /* Key navigation and prevent newlines in editable cells */
+    /* Key navigation and prevent newlines in editable cells (Excel style) */
     tbody.addEventListener('keydown', e => {
       const el = e.target;
       if (!el.classList.contains('ec')) return;
@@ -1399,17 +1554,60 @@ class GC {
         if (nextTr) {
           const field = el.dataset.f;
           const nextEl = nextTr.querySelector(`.ec[data-f="${field}"]`);
-          if (nextEl) {
-            nextEl.focus();
-            // Move cursor to the end
-            try {
-              const range = document.createRange();
-              const sel = window.getSelection();
-              range.selectNodeContents(nextEl);
-              range.collapse(false);
-              sel.removeAllRanges();
-              sel.addRange(range);
-            } catch (err) {}
+          focusAndSelect(nextEl);
+        }
+      } else if (e.key === 'Tab') {
+        const tr = el.closest('tr');
+        const field = el.dataset.f;
+        let targetEl = null;
+
+        if (!e.shiftKey) {
+          if (field === 'net') {
+            targetEl = tr.querySelector('.ec[data-f="price"]');
+          } else {
+            const nextTr = tr.nextElementSibling;
+            if (nextTr) {
+              targetEl = nextTr.querySelector('.ec[data-f="net"]');
+            }
+          }
+        } else {
+          if (field === 'price') {
+            targetEl = tr.querySelector('.ec[data-f="net"]');
+          } else {
+            const prevTr = tr.previousElementSibling;
+            if (prevTr) {
+              targetEl = prevTr.querySelector('.ec[data-f="price"]');
+            }
+          }
+        }
+
+        if (targetEl) {
+          e.preventDefault();
+          focusAndSelect(targetEl);
+        }
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        const sel = window.getSelection();
+        if (sel.rangeCount > 0) {
+          const range = sel.getRangeAt(0);
+          const tr = el.closest('tr');
+          const field = el.dataset.f;
+          
+          if (e.key === 'ArrowLeft' && range.startOffset === 0 && range.endOffset === 0) {
+            if (field === 'price') {
+              const target = tr.querySelector('.ec[data-f="net"]');
+              if (target) {
+                e.preventDefault();
+                focusAndSelect(target);
+              }
+            }
+          } else if (e.key === 'ArrowRight' && range.startOffset === el.innerText.length && range.endOffset === el.innerText.length) {
+            if (field === 'net') {
+              const target = tr.querySelector('.ec[data-f="price"]');
+              if (target) {
+                e.preventDefault();
+                focusAndSelect(target);
+              }
+            }
           }
         }
       }
@@ -1455,6 +1653,43 @@ class GC {
     /* Mobile sidebar toggle */
     document.getElementById('bn-menu').addEventListener('click', () => this._toggleSidebar());
     document.getElementById('sidebar-overlay').addEventListener('click', () => this._toggleSidebar(false));
+
+    /* V12 Photo Upload trigger */
+    const uploadBox = document.getElementById('img-upload-box');
+    const photoInput = document.getElementById('recipe-photo-input');
+    uploadBox.addEventListener('click', e => {
+      if (e.target.closest('#btn-remove-photo')) return;
+      photoInput.click();
+    });
+
+    photoInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      if (!file.type.startsWith('image/')) {
+        toast('Solo se permiten imágenes', 'e');
+        return;
+      }
+      
+      compressImage(file, base64 => {
+        this.R.config.image = base64;
+        this.R.updatedAt = Date.now();
+        this._hydrateForm();
+        this._autoSave();
+        this._renderLib();
+        toast('Imagen optimizada ✓');
+      });
+      e.target.value = '';
+    });
+
+    /* V12 Remove image button */
+    document.getElementById('btn-remove-photo').addEventListener('click', () => {
+      this.R.config.image = '';
+      this.R.updatedAt = Date.now();
+      this._hydrateForm();
+      this._autoSave();
+      this._renderLib();
+      toast('Imagen eliminada');
+    });
   }
 
   /* ═══════════════════════════════════════════════
@@ -1498,25 +1733,80 @@ class GC {
 
     const update = () => {
       const q = input.value.trim().toLowerCase();
-      if (q.length < 2) { dropdown.classList.remove('show'); return; }
-
       const history = this._getIngredientHistory();
-      const matches = history.filter(h => h.name.toLowerCase().includes(q)).slice(0, 8);
+      let matches;
+
+      if (q.length === 0) {
+        // Show master ingredients on empty focus
+        matches = history.slice(0, 8);
+      } else {
+        matches = history.filter(h => h.name.toLowerCase().includes(q)).slice(0, 8);
+      }
+
       if (!matches.length) { dropdown.classList.remove('show'); return; }
 
       selectedIdx = -1;
+
+      // Determine active currency symbol for autocomplete items
+      const cur = (this.R && this.R.config && this.R.config.currency) ? this.R.config.currency : 'EUR';
+      let curSym = '€';
+      if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+      if (cur === 'PEN') curSym = 'S/.';
+
       dropdown.innerHTML = matches.map((m, i) =>
         `<div class="ac-item" data-idx="${i}" data-name="${m.name}" data-price="${m.price}" data-cat="${m.category}" data-allergens="${m.allergens || ''}">
           ${m.name}
-          <span class="ac-item-price">${F2(m.price)} €/kg</span>
+          <span class="ac-item-price">${F2(m.price)} ${curSym}/kg</span>
         </div>`
       ).join('');
       dropdown.classList.add('show');
     };
 
     input.addEventListener('input', debounce(update, 120));
-    input.addEventListener('focus', () => { if (input.value.trim().length >= 2) update(); });
-    input.addEventListener('blur', () => setTimeout(() => dropdown.classList.remove('show'), 180));
+    input.addEventListener('focus', () => { update(); });
+    
+    input.addEventListener('blur', () => {
+      setTimeout(() => {
+        dropdown.classList.remove('show');
+        
+        // Auto-populate on manual blur if it matches a master/history ingredient exactly
+        const val = input.value.trim().toLowerCase();
+        if (val) {
+          const master = this._getIngredientHistory().find(h => h.name.toLowerCase() === val);
+          if (master) {
+            const priceInput = document.getElementById('ing-price');
+            const catSelect = document.getElementById('ing-cat');
+            const wasteInput = document.getElementById('ing-waste');
+            
+            if (!priceInput.value || parseFloat(priceInput.value) === 0) {
+              priceInput.value = master.price;
+            }
+            if (catSelect.value === 'other') {
+              catSelect.value = master.category || 'other';
+            }
+            if (!wasteInput.value || parseFloat(wasteInput.value) === 0) {
+              const originalMaster = INGREDIENTS_MASTER.find(m => m.name.toLowerCase() === val);
+              if (originalMaster) {
+                wasteInput.value = originalMaster.waste || 0;
+              }
+            }
+            
+            // Check allergens if none are currently selected
+            const checkedAllergens = document.querySelectorAll('#ing-allergens-grid input[type="checkbox"]:checked');
+            if (checkedAllergens.length === 0 && master.allergens) {
+              const list = master.allergens.split(',');
+              list.forEach(a => {
+                const cb = document.querySelector(`#ing-allergens-grid input[value="${a}"]`);
+                if (cb) {
+                  cb.checked = true;
+                  cb.closest('.allergen-option').classList.add('selected');
+                }
+              });
+            }
+          }
+        }
+      }, 180);
+    });
 
     /* Keyboard nav in autocomplete */
     input.addEventListener('keydown', e => {
@@ -1735,7 +2025,7 @@ class GC {
   _renderLib() {
     const recipes = Object.values(this.db.recipes);
     const searchEl = document.getElementById('lib-search');
-    searchEl.style.display = recipes.length >= 3 ? 'block' : 'none';
+    searchEl.style.display = recipes.length >= 2 ? 'block' : 'none';
 
     const query = (searchEl.value || '').toLowerCase();
     const filtered = query ? recipes.filter(r => (r.config.dishName || '').toLowerCase().includes(query)) : recipes;
@@ -1753,13 +2043,26 @@ class GC {
                           fc <= goal * 1.15 ? 'var(--amber)' : 'var(--red)';
       const isActive = r.id === this.db.activeId;
 
+      // Extract unique allergens for this recipe
+      const recipeAllergens = new Set();
+      r.ingredients.forEach(i => {
+        if (i.allergens) i.allergens.forEach(a => recipeAllergens.add(a));
+      });
+      const allergenIcons = Array.from(recipeAllergens).map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : '').join('');
+      const allergenStr = allergenIcons ? ` · <span style="letter-spacing:1px">${allergenIcons}</span>` : '';
+
+      // V12 Thumbnail circular container or standard status colored indicator dot
+      const iconHtml = r.config.image ?
+        `<img class="lib-thumb" src="${r.config.image}" alt="" loading="lazy" style="border: 1px solid ${statusColor}">` :
+        `<span class="lib-dot" style="color:${statusColor};background:${statusColor}"></span>`;
+
       return `
         <div class="lib-item${isActive ? ' active' : ''}" onclick="gc.switchTo('${r.id}')">
           <div class="lib-item-main">
-            <span class="lib-dot" style="color:${statusColor};background:${statusColor}"></span>
+            ${iconHtml}
             <span class="lib-name">${r.config.dishName || 'Sin nombre'}</span>
           </div>
-          <div class="lib-meta">${r.ingredients.length} ing · ${EUR.format(cost)}</div>
+          <div class="lib-meta">${r.ingredients.length} ins · ${EUR.format(cost)}${allergenStr}</div>
         </div>`;
     }).join('');
   }
@@ -1794,17 +2097,6 @@ class GC {
     /* Calculate total for % column */
     const totalCost = ings.reduce((s, i) => s + i.cost * sc, 0);
 
-    const ALLERGEN_EMOJIS = {
-      gluten: '🌾',
-      dairy: '🥛',
-      egg: '🥚',
-      fish: '🐟',
-      nuts: '🥜',
-      crustacean: '🦞',
-      soy: '🫘',
-      sulfite: '🍷'
-    };
-
     /* Build rows using DocumentFragment for efficiency */
     const frag = document.createDocumentFragment();
     ings.forEach(ing => {
@@ -1816,9 +2108,12 @@ class GC {
       const tagCls = w === 0 ? 'tag-0' : w <= 15 ? 'tag-low' : 'tag-high';
       const catColor = (CATS[ing.category] || CATS.other).color;
 
-      // Render allergen badges
+      // Render allergen badges using global configuration mapping
       const allergenBadgesHtml = (ing.allergens && ing.allergens.length) ?
-        `<div class="allergen-badges">${ing.allergens.map(a => `<span class="allergen-badge active" title="${a}">${ALLERGEN_EMOJIS[a] || a}</span>`).join('')}</div>` : '';
+        `<div class="allergen-badges">${ing.allergens.map(a => {
+          const item = ALLERGENS[a] || { emoji: '⚠️', name: a };
+          return `<span class="allergen-badge active" title="${item.name}">${item.emoji}</span>`;
+        }).join('')}</div>` : '';
 
       const tr = document.createElement('tr');
       tr.setAttribute('draggable', 'true');
@@ -1959,13 +2254,14 @@ class GC {
 
     if (allAllergens.size > 0) {
       allergensContainer.style.display = 'block';
-      const ALLERGEN_NAMES = { gluten:'Gluten', dairy:'Lácteos', egg:'Huevo', fish:'Pescado', nuts:'Frutos Secos', crustacean:'Crustáceos', soy:'Soja', sulfite:'Sulfitos' };
-      const ALLERGEN_EMOJIS = { gluten:'🌾', dairy:'🥛', egg:'🥚', fish:'🐟', nuts:'🥜', crustacean:'🦞', soy:'🫘', sulfite:'🍷' };
       allergensContainer.innerHTML = `
         <div class="tinted" style="margin-top:10px;background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2)">
           <label class="fl" style="color:var(--purple);font-size:.65rem">⚠️ Alérgenos Declarados en la Ficha</label>
           <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">
-            ${Array.from(allAllergens).map(a => `<span class="tag tag-high" style="background:var(--purpleL);color:var(--purple);border-color:rgba(167,139,250,0.3);font-size:.7rem;padding:3px 8px">${ALLERGEN_EMOJIS[a]} ${ALLERGEN_NAMES[a]}</span>`).join('')}
+            ${Array.from(allAllergens).map(a => {
+              const item = ALLERGENS[a] || { emoji: '⚠️', name: a };
+              return `<span class="tag tag-high" style="background:var(--purpleL);color:var(--purple);border-color:rgba(167,139,250,0.3);font-size:.7rem;padding:3px 8px">${item.emoji} ${item.name}</span>`;
+            }).join('')}
           </div>
         </div>
       `;
@@ -2076,6 +2372,22 @@ class GC {
       notesSection.classList.add('open');
     } else {
       notesSection.classList.remove('open');
+    }
+
+    // Hydrate cover photo preview and control elements
+    const preview = document.getElementById('recipe-photo-preview');
+    const placeholder = document.getElementById('img-placeholder');
+    const removeBtn = document.getElementById('btn-remove-photo');
+    if (cfg.image) {
+      preview.src = cfg.image;
+      preview.style.display = 'block';
+      placeholder.style.display = 'none';
+      removeBtn.style.display = 'flex';
+    } else {
+      preview.src = '';
+      preview.style.display = 'none';
+      placeholder.style.display = 'flex';
+      removeBtn.style.display = 'none';
     }
   }
 
@@ -2391,10 +2703,8 @@ class GC {
     if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
     if (cur === 'PEN') curSym = 'S/.';
 
-    const ALLERGEN_EMOJIS = { gluten:'🌾', dairy:'🥛', egg:'🥚', fish:'🐟', nuts:'🥜', crustacean:'🦞', soy:'🫘', sulfite:'🍷' };
-
     const rows = ings.map(ing => {
-      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGEN_EMOJIS[a] || a).join(' ') : '';
+      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
         <tr>
           <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb">
@@ -2414,13 +2724,14 @@ class GC {
       if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
     });
 
-    const ALLERGEN_NAMES = { gluten:'Gluten', dairy:'Lácteos', egg:'Huevo', fish:'Pescado', nuts:'Frutos Secos', crustacean:'Crustáceos', soy:'Soja', sulfite:'Sulfitos' };
-
     const allergensPdfSection = allAllergens.size > 0 ? `
       <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:6px;padding:10px 12px;margin-bottom:12px">
         <div style="font-size:8px;font-weight:700;color:#6b21a8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Alérgenos Declarados en Ficha</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px">
-          ${Array.from(allAllergens).map(a => `<span style="display:inline-block;background:#f3e8ff;color:#6b21a8;border:1px solid #d8b4fe;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:bold;margin-right:4px;margin-bottom:2px">${ALLERGEN_EMOJIS[a]} ${ALLERGEN_NAMES[a]}</span>`).join('')}
+          ${Array.from(allAllergens).map(a => {
+            const item = ALLERGENS[a] || { emoji: '⚠️', name: a };
+            return `<span style="display:inline-block;background:#f3e8ff;color:#6b21a8;border:1px solid #d8b4fe;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:bold;margin-right:4px;margin-bottom:2px">${item.emoji} ${item.name}</span>`;
+          }).join('')}
         </div>
       </div>` : '';
 
@@ -2429,6 +2740,23 @@ class GC {
         <div style="font-size:8px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Notas de Elaboración</div>
         <div style="font-size:9px;color:#374151;white-space:pre-wrap;line-height:1.5">${cfg.notes}</div>
       </div>` : '';
+
+    const layoutSection = cfg.image ? `
+      <div style="display:table;width:100%;margin-bottom:12px;table-layout:fixed">
+        <div style="display:table-row">
+          <div style="display:table-cell;width:180px;vertical-align:top;padding-right:12px">
+            <img src="${cfg.image}" style="width:100%;height:120px;object-fit:cover;border-radius:6px;border:1px solid #ccc">
+          </div>
+          <div style="display:table-cell;vertical-align:top">
+            ${allergensPdfSection}
+            ${notesSection}
+          </div>
+        </div>
+      </div>` : `
+      <div>
+        ${allergensPdfSection}
+        ${notesSection}
+      </div>`;
 
     const html = `<div style="font-family:Arial,sans-serif;font-size:11px;color:#111;max-width:780px;margin:0 auto;padding:24px">
       <div style="border-bottom:3px solid #1C4B6E;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end">
@@ -2442,6 +2770,7 @@ class GC {
           <div>Raciones: ${port} · Escala: ×${sc} · Divisa: ${cur}</div>
         </div>
       </div>
+      ${layoutSection}
       <table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:16px">
         <thead>
           <tr style="background:#1C4B6E;color:white">
@@ -2461,8 +2790,6 @@ class GC {
           </tr>
         </tfoot>
       </table>
-      ${allergensPdfSection}
-      ${notesSection}
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
         ${[
           ['Costo / Ración', EUR.format(unit),  '#1C4B6E'],
@@ -2525,10 +2852,8 @@ class GC {
     if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
     if (cur === 'PEN') curSym = 'S/.';
 
-    const ALLERGEN_EMOJIS = { gluten:'🌾', dairy:'🥛', egg:'🥚', fish:'🐟', nuts:'🥜', crustacean:'🦞', soy:'🫘', sulfite:'🍷' };
-
     const rows = ings.map(ing => {
-      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGEN_EMOJIS[a] || a).join(' ') : '';
+      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
         <tr>
           <td style="border:1px solid #ccc;padding:5pt">
@@ -2548,17 +2873,20 @@ class GC {
       if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
     });
 
-    const ALLERGEN_NAMES = { gluten:'Gluten', dairy:'Lácteos', egg:'Huevo', fish:'Pescado', nuts:'Frutos Secos', crustacean:'Crustáceos', soy:'Soja', sulfite:'Sulfitos' };
-
     const allergensDocSection = allAllergens.size > 0 ? `
       <p style="font-size:10pt;font-weight:700;color:#6b21a8;margin:16pt 0 6pt">ALÉRGENOS DECLARADOS</p>
       <div style="background:#faf5ff;border:1px solid #e9d5ff;padding:8pt 10pt;border-radius:4pt;font-size:9.5pt;color:#6b21a8">
-        ${Array.from(allAllergens).map(a => `${ALLERGEN_EMOJIS[a]} ${ALLERGEN_NAMES[a]}`).join('  |  ')}
+        ${Array.from(allAllergens).map(a => `${ALLERGENS[a] ? ALLERGENS[a].emoji + ' ' + ALLERGENS[a].name : a}`).join('  |  ')}
       </div>` : '';
 
     const notesSection = cfg.notes && cfg.notes.trim() ? `
       <p style="font-size:10pt;font-weight:700;color:#1C4B6E;margin:16pt 0 6pt">NOTAS DE ELABORACIÓN</p>
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:8pt 10pt;border-radius:4pt;font-size:9pt;color:#374151;white-space:pre-wrap">${cfg.notes}</div>` : '';
+
+    const imageDocHtml = cfg.image ? `
+      <p style="text-align:center;margin-bottom:12pt">
+        <img src="${cfg.image}" style="max-height:120pt;border-radius:4pt" alt="Foto">
+      </p>` : '';
 
     const doc = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
       xmlns:w="urn:schemas-microsoft-com:office:word"
@@ -2582,6 +2910,7 @@ class GC {
         Raciones: ${port} · Escala: ×${sc} ·
         FC Objetivo: ${cfg.fcGoal}% · IGIC/IVA: ${cfg.taxRate}% · Divisa: ${cur}
       </p>
+      ${imageDocHtml}
       <p style="font-size:10pt;font-weight:700;color:#1C4B6E;margin:0 0 6pt">DESGLOSE DE INSUMOS</p>
       <table>
         <thead><tr>
@@ -2630,6 +2959,15 @@ class GC {
    INIT
    ═══════════════════════════════════════════════ */
 const gc = new GC();
+
+// Register Service Worker for offline capability when run from a local/web server
+if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(reg => console.log('GastroCost SW registered:', reg.scope))
+      .catch(err => console.warn('SW registration failed:', err));
+  });
+}
 </script>
 </body>
 </html>
