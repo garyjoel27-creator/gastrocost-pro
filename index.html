@@ -1022,7 +1022,8 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
       <button class="btn btn-ghost" id="btn-import" title="Importar backup JSON">📂 Importar</button>
       <button class="btn btn-ghost" id="btn-backup" title="Descargar backup JSON">💾 Backup</button>
       <button class="btn btn-green" id="btn-excel" title="Exportar Excel · Ctrl+E">📊 Excel</button>
-      <button class="btn btn-ghost" id="btn-pdf" title="Exportar PDF">📄 PDF</button>
+      <button class="btn btn-ghost" id="btn-pdf" title="Exportar PDF Financiero">📄 PDF Costes</button>
+      <button class="btn btn-ghost" id="btn-pdf-kitchen" title="Exportar Ficha Técnica de Cocina">🍳 Ficha Cocina</button>
       <button class="btn btn-ghost" id="btn-doc" title="Exportar Word">📝 Word</button>
     </div>
   </header>
@@ -1258,7 +1259,7 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
   <button onclick="gc._exportExcel()">
     <span class="bn-icon">📊</span><span>Excel</span>
   </button>
-  <button onclick="gc._exportPDF()">
+  <button onclick="gc.exportPDFChooser()">
     <span class="bn-icon">📄</span><span>PDF</span>
   </button>
   <button id="bn-menu">
@@ -1649,6 +1650,7 @@ class GC {
     /* Export buttons */
     document.getElementById('btn-excel').addEventListener('click', () => this._exportExcel());
     document.getElementById('btn-pdf').addEventListener('click', () => this._exportPDF());
+    document.getElementById('btn-pdf-kitchen').addEventListener('click', () => this._exportPDFKitchen());
     document.getElementById('btn-doc').addEventListener('click', () => this._exportDOC());
     document.getElementById('btn-backup').addEventListener('click', () => this._exportBackup());
     document.getElementById('btn-import').addEventListener('click', () => document.getElementById('fi-import').click());
@@ -2680,6 +2682,140 @@ class GC {
     ws['!cols'] = [{wch:28},{wch:10},{wch:16},{wch:16},{wch:10},{wch:15},{wch:15},{wch:15},{wch:12},{wch:13},{wch:8}];
     ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:10}}, {s:{r:1,c:0},e:{r:1,c:10}}];
     XLSX.utils.book_append_sheet(wb, ws, 'Comparativo');
+  }
+
+  exportPDFChooser() {
+    const choice = confirm("¿Deseas exportar la Ficha Técnica de Cocina? (Haz clic en Cancelar para exportar el Escandallo Financiero de Costes)");
+    if (choice) {
+      this._exportPDFKitchen();
+    } else {
+      this._exportPDF();
+    }
+  }
+
+  async _exportPDFKitchen() {
+    const btn = document.getElementById('btn-pdf-kitchen') || { set innerHTML(v){}, set disabled(v){} };
+    const orig = btn.innerHTML || '🍳 Ficha Cocina';
+    btn.innerHTML = '⏳ Generando…';
+    btn.disabled = true;
+
+    if (!await this._ensureHTML2PDF()) {
+      toast('Error al cargar html2pdf. Verifica tu conexión.', 'e');
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      return;
+    }
+
+    const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
+    const port = Math.max(cfg.portions, 1);
+
+    const rows = ings.map(ing => {
+      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
+      return `
+        <tr>
+          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;font-weight:bold;color:#334155">
+            ${ing.name}
+            ${ingAllergensStr ? `<span style="font-size:8px;margin-left:6px;vertical-align:middle">${ingAllergensStr}</span>` : ''}
+          </td>
+          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;text-align:right;font-family:monospace;font-size:11px;color:#0f172a;font-weight:600">
+            ${F1(ing.net*sc)} g
+          </td>
+        </tr>`;
+    }).join('');
+
+    const allAllergens = new Set();
+    ings.forEach(ing => {
+      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+    });
+
+    const allergensPdfSection = allAllergens.size > 0 ? `
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:6px;padding:12px;margin-bottom:16px">
+        <div style="font-size:8px;font-weight:700;color:#6b21a8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Alérgenos de la Ficha</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          ${Array.from(allAllergens).map(a => {
+            const item = ALLERGENS[a] || { emoji: '⚠️', name: a };
+            return `<span style="display:inline-block;background:#f3e8ff;color:#6b21a8;border:1px solid #d8b4fe;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:bold;margin-right:4px">${item.emoji} ${item.name}</span>`;
+          }).join('')}
+        </div>
+      </div>` : '';
+
+    const notesSection = cfg.notes && cfg.notes.trim() ? `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px">
+        <div style="font-size:9px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:2px solid #cbd5e1;padding-bottom:4px">Instrucciones de Elaboración</div>
+        <div style="font-size:10.5px;color:#334155;white-space:pre-wrap;line-height:1.6;font-family:Georgia,serif">${cfg.notes}</div>
+      </div>` : `
+      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;color:#64748b;font-style:italic;font-size:9.5px">
+        Sin instrucciones de elaboración registradas.
+      </div>`;
+
+    const imageSection = cfg.image ? `
+      <div style="margin-bottom:16px;text-align:center">
+        <img src="${cfg.image}" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;border:1px solid #cbd5e1" alt="Foto">
+      </div>` : '';
+
+    const html = `<div style="font-family:Arial,sans-serif;font-size:11px;color:#1e293b;max-width:780px;margin:0 auto;padding:24px;background:#ffffff">
+      <div style="border-bottom:4px solid #0f172a;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end">
+        <div>
+          <div style="font-size:7px;font-weight:800;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Ficha Técnica de Cocina · Chef Ejecutivo</div>
+          <div style="font-size:22px;font-weight:900;color:#0f172a;letter-spacing:-.5px">${cfg.dishName}</div>
+        </div>
+        <div style="text-align:right;font-size:9px;color:#64748b">
+          <div style="font-weight:800;color:#0f172a">GastroCost PRO V12</div>
+          <div>Fecha: ${new Date().toLocaleDateString('es-ES')}</div>
+          <div>Raciones: ${port} · Escala: ×${sc}</div>
+        </div>
+      </div>
+      
+      ${imageSection}
+      
+      <div style="display:table;width:100%;margin-bottom:16px;table-layout:fixed">
+        <div style="display:table-row">
+          <div style="display:table-cell;width:45%;vertical-align:top;padding-right:16px">
+            <div style="font-size:9px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:2px solid #0f172a;padding-bottom:4px">Ingredientes</div>
+            <table style="width:100%;border-collapse:collapse;font-size:10px">
+              <thead>
+                <tr style="background:#f1f5f9;color:#475569">
+                  <th style="padding:6px 8px;text-align:left;font-weight:700">Insumo</th>
+                  <th style="padding:6px 8px;text-align:right;font-weight:700">Cantidad (Neto)</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+          <div style="display:table-cell;width:55%;vertical-align:top">
+            ${allergensPdfSection}
+            ${notesSection}
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:20px;font-size:8px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:8px;text-align:center">
+        Documento técnico confidencial reservado para uso en cocina. GastroCost PRO V12
+      </div>
+    </div>`;
+
+    const wrap = document.getElementById('pdf-scratch');
+    wrap.innerHTML = html;
+    wrap.style.display = 'block';
+
+    try {
+      await html2pdf().set({
+        margin: 10,
+        filename: `Ficha_Cocina_${(cfg.dishName || 'receta').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`,
+        image: { type:'jpeg', quality:.98 },
+        html2canvas: { scale:2.5, useCORS:true },
+        jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
+      }).from(wrap.firstElementChild).save();
+      toast('Ficha de Cocina PDF generada ✓');
+    } catch (err) {
+      console.error(err);
+      toast('Error al generar PDF de cocina', 'e');
+    } finally {
+      wrap.innerHTML = '';
+      wrap.style.display = 'none';
+      btn.innerHTML = orig;
+      btn.disabled = false;
+    }
   }
 
   /* ═══════════════════════════════════════════════
