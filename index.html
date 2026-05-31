@@ -869,6 +869,63 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
    ═══════════════════════════════════════════════ */
 #pdf-scratch { display:none; }
 .visually-hidden { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0,0,0,0); }
+
+/* V12 Allergen styles */
+.allergen-badges { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
+.allergen-badge {
+  font-size: .52rem;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: .2px;
+  background: var(--s4);
+  color: var(--t3);
+  border: 1px solid var(--b1);
+}
+.allergen-badge.active {
+  background: var(--purpleL);
+  color: var(--purple);
+  border-color: rgba(167,139,250,.3);
+}
+.allergen-select-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
+  gap: 4px;
+  margin-top: 5px;
+}
+.allergen-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .7rem;
+  color: var(--t3);
+  cursor: pointer;
+  padding: 4px 6px;
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  border-radius: var(--r1);
+  user-select: none;
+  transition: all 0.15s var(--ease);
+}
+.allergen-option input { display: none; }
+.allergen-option.selected {
+  background: var(--purpleL);
+  color: var(--purple);
+  border-color: rgba(167,139,250,.4);
+}
+
+/* Simulator glow effects */
+.kpi.k-sim.danger-glow {
+  border-color: rgba(248,113,113,.4);
+  background: linear-gradient(145deg, var(--s2), rgba(248,113,113,.06));
+  box-shadow: 0 0 12px rgba(248,113,113,.12);
+}
+.kpi.k-sim.success-glow {
+  border-color: rgba(52,211,153,.4);
+  background: linear-gradient(145deg, var(--s2), rgba(52,211,153,.06));
+  box-shadow: 0 0 12px rgba(52,211,153,.12);
+}
 </style>
 </head>
 
@@ -935,16 +992,29 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
           <input class="fi cfg" data-k="taxRate" type="number" min="0" step="0.5">
         </div>
       </div>
-      <div class="fg">
-        <label class="fl">Food Cost Objetivo (%)</label>
-        <input class="fi cfg" data-k="fcGoal" type="number" min="1" max="100" step="0.5">
+      <div class="fg2">
+        <div class="fg">
+          <label class="fl">Food Cost Objetivo (%)</label>
+          <input class="fi cfg" data-k="fcGoal" type="number" min="1" max="100" step="0.5">
+        </div>
+        <div class="fg">
+          <label class="fl">Divisa / Moneda</label>
+          <select class="fi cfg" data-k="currency" id="cfg-currency">
+            <option value="EUR">Euro (€)</option>
+            <option value="USD">Dólar ($)</option>
+            <option value="MXN">Peso Mex. ($)</option>
+            <option value="COP">Peso Col. ($)</option>
+            <option value="ARS">Peso Arg. ($)</option>
+            <option value="PEN">Sol Peruano (S/.)</option>
+          </select>
+        </div>
       </div>
       <div class="tinted">
         <label class="fl">🚀 Multiplicador de Producción</label>
         <input class="fi" id="cfg-scale" type="number" min="1" step="0.5" value="1">
       </div>
       <div class="tinted-a">
-        <label class="fl">🎯 Simulador PVP Manual (€)</label>
+        <label class="fl">🎯 Simulador PVP Manual (<span class="curr-sym">€</span>)</label>
         <input class="fi fi-amber cfg" data-k="customPVP" type="number" min="0" step="0.5" placeholder="Ej. 18.50">
         <div id="sim-note" style="margin-top:6px;font-size:.66rem;color:var(--t4)">Introduce un PVP para simular márgenes</div>
       </div>
@@ -1000,10 +1070,23 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
             </div>
           </div>
           <div class="fg">
-            <label class="fl">Precio de Mercado (€ / kg o L)</label>
+            <label class="fl">Precio de Mercado (<span class="curr-sym">€</span> / kg o L)</label>
             <input class="fi" id="ing-price" type="number" required step="any" min="0.001" placeholder="28.00">
           </div>
-          <button type="submit" class="btn btn-primary" style="width:100%">+ Añadir Insumo</button>
+          <div class="fg">
+            <label class="fl">Alérgenos</label>
+            <div class="allergen-select-grid" id="ing-allergens-grid">
+              <label class="allergen-option" data-a="gluten"><input type="checkbox" value="gluten">🌾 Glut</label>
+              <label class="allergen-option" data-a="dairy"><input type="checkbox" value="dairy">🥛 Láct</label>
+              <label class="allergen-option" data-a="egg"><input type="checkbox" value="egg">🥚 Huevo</label>
+              <label class="allergen-option" data-a="fish"><input type="checkbox" value="fish">🐟 Pesc</label>
+              <label class="allergen-option" data-a="nuts"><input type="checkbox" value="nuts">🥜 Frut</label>
+              <label class="allergen-option" data-a="crustacean"><input type="checkbox" value="crustacean">🦞 Crus</label>
+              <label class="allergen-option" data-a="soy"><input type="checkbox" value="soy">🫘 Soja</label>
+              <label class="allergen-option" data-a="sulfite"><input type="checkbox" value="sulfite">🍷 Sulf</label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px">+ Añadir Insumo</button>
         </form>
 
         <!-- Ingredients table -->
@@ -1016,8 +1099,8 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
                 <th>Neto × escala</th>
                 <th>Merma</th>
                 <th>Bruto</th>
-                <th>€ / kg</th>
-                <th>Costo</th>
+                <th><span class="curr-sym">€</span> / kg</th>
+                <th>Costo (<span class="curr-sym">€</span>)</th>
                 <th>% Costo</th>
                 <th style="width:32px"></th>
               </tr>
@@ -1109,10 +1192,46 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
 /* ═══════════════════════════════════════════════
    UTILITIES
    ═══════════════════════════════════════════════ */
-const EUR = new Intl.NumberFormat('es-ES', { style:'currency', currency:'EUR', minimumFractionDigits:2 });
+// Dynamic currency formatter proxy targeting active recipe configuration
+const CURR = {
+  format(v) {
+    const cur = (window.gc && window.gc.R && window.gc.R.config && window.gc.R.config.currency) ? window.gc.R.config.currency : 'EUR';
+    let locale = 'es-ES';
+    if (cur === 'USD') locale = 'en-US';
+    return new Intl.NumberFormat(locale, { style:'currency', currency:cur, minimumFractionDigits:2 }).format(v);
+  }
+};
+const EUR = CURR; // Retain EUR name to preserve backward compatibility in formatting calls
+
 const F1  = v => Math.round(v * 10) / 10;
 const F2  = v => Math.round(v * 100) / 100;
 const uid = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,7)}`;
+
+// Master list of common hospitality ingredients
+const INGREDIENTS_MASTER = [
+  { name: 'Solomillo de Ternera', price: 29.50, category: 'protein', waste: 12, allergens: [] },
+  { name: 'Pechuga de Pollo', price: 6.80, category: 'protein', waste: 5, allergens: [] },
+  { name: 'Lomo de Salmón Fresco', price: 18.20, category: 'protein', waste: 18, allergens: ['fish'] },
+  { name: 'Atún Rojo de Almadraba', price: 34.00, category: 'protein', waste: 10, allergens: ['fish'] },
+  { name: 'Langostinos Brutos', price: 14.50, category: 'protein', waste: 40, allergens: ['crustacean'] },
+  { name: 'Huevo Campero M', price: 3.20, category: 'protein', waste: 11, allergens: ['egg'] },
+  { name: 'Tomate de Ensalada', price: 2.10, category: 'vegetable', waste: 8, allergens: [] },
+  { name: 'Aguacate Hass', price: 5.50, category: 'vegetable', waste: 30, allergens: [] },
+  { name: 'Cebolla Morada', price: 1.45, category: 'vegetable', waste: 10, allergens: [] },
+  { name: 'Patata Monalisa', price: 1.20, category: 'vegetable', waste: 15, allergens: [] },
+  { name: 'Pimiento Rojo Lamuyo', price: 2.60, category: 'vegetable', waste: 20, allergens: [] },
+  { name: 'Queso Parmesano Reggiano', price: 22.00, category: 'dairy', waste: 3, allergens: ['dairy'] },
+  { name: 'Leche Entera UHT', price: 1.05, category: 'dairy', waste: 0, allergens: ['dairy'] },
+  { name: 'Mantequilla 82% Grasa', price: 8.50, category: 'dairy', waste: 0, allergens: ['dairy'] },
+  { name: 'Nata Líquida 35% MG', price: 4.60, category: 'dairy', waste: 0, allergens: ['dairy'] },
+  { name: 'Aceite de Oliva Virgen Extra', price: 8.90, category: 'oil', waste: 0, allergens: [] },
+  { name: 'Sal Fina de Mesa', price: 0.85, category: 'spice', waste: 0, allergens: [] },
+  { name: 'Pimienta Negra Molida', price: 14.20, category: 'spice', waste: 0, allergens: [] },
+  { name: 'Harina de Trigo W200', price: 1.15, category: 'other', waste: 2, allergens: ['gluten'] },
+  { name: 'Azúcar Blanquilla', price: 1.40, category: 'other', waste: 0, allergens: [] },
+  { name: 'Vino Blanco de Cocina', price: 2.50, category: 'other', waste: 0, allergens: ['sulfite'] },
+  { name: 'Pan de Hamburguesa Brioche', price: 8.50, category: 'other', waste: 0, allergens: ['gluten', 'egg', 'dairy'] }
+];
 
 function debounce(fn, ms) {
   let timer;
@@ -1178,12 +1297,12 @@ class GC {
   /* ── Default database ── */
   _defaultDB() {
     return {
-      version: 11,
+      version: 12,
       activeId: 'r0',
       recipes: {
         'r0': {
           id: 'r0',
-          config: { dishName:'Nueva Elaboración', portions:10, taxRate:7, fcGoal:28, customPVP:0, notes:'' },
+          config: { dishName:'Nueva Elaboración', portions:10, taxRate:7, fcGoal:28, customPVP:0, notes:'', currency:'EUR' },
           ingredients: [],
           createdAt: Date.now(),
           updatedAt: Date.now()
@@ -1206,6 +1325,14 @@ class GC {
       this._addIng();
     });
 
+    /* Allergen checkbox visual toggle */
+    document.getElementById('ing-allergens-grid').addEventListener('change', e => {
+      const label = e.target.closest('.allergen-option');
+      if (label) {
+        label.classList.toggle('selected', e.target.checked);
+      }
+    });
+
     /* Config inputs — debounced */
     const debouncedRender = debounce(() => this._renderKPIs(), 300);
     document.querySelectorAll('.cfg').forEach(el => {
@@ -1219,7 +1346,11 @@ class GC {
         }
         this.R.config[k] = v;
         this.R.updatedAt = Date.now();
-        debouncedRender();
+        if (k === 'currency') {
+          this._render(); // Refresh currency symbols throughout UI
+        } else {
+          debouncedRender();
+        }
         if (k === 'dishName') this._renderLib();
         this._autoSave();
       });
@@ -1233,7 +1364,7 @@ class GC {
       document.getElementById('notes-section').classList.toggle('open');
     });
 
-    /* Inline table edit */
+    /* Inline table edit with focus preservation */
     const tbody = document.getElementById('tbl-body');
     tbody.addEventListener('focusout', e => {
       const el = e.target;
@@ -1247,15 +1378,40 @@ class GC {
       ing.gross = ing.net / (1 - ing.waste / 100);
       ing.cost  = (ing.gross / 1000) * ing.originalPrice;
       this.R.updatedAt = Date.now();
-      this._renderKPIs();
+      
+      // Perform a full render but preserve focus to keep all formulas/bars synced
+      this._render();
       this._autoSave();
     });
 
-    /* Prevent newlines in editable cells */
+    /* Key navigation and prevent newlines in editable cells */
     tbody.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && e.target.classList.contains('ec')) {
+      const el = e.target;
+      if (!el.classList.contains('ec')) return;
+
+      if (e.key === 'Enter') {
         e.preventDefault();
-        e.target.blur();
+        el.blur();
+      } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        const tr = el.closest('tr');
+        const nextTr = e.key === 'ArrowDown' ? tr.nextElementSibling : tr.previousElementSibling;
+        if (nextTr) {
+          const field = el.dataset.f;
+          const nextEl = nextTr.querySelector(`.ec[data-f="${field}"]`);
+          if (nextEl) {
+            nextEl.focus();
+            // Move cursor to the end
+            try {
+              const range = document.createRange();
+              const sel = window.getSelection();
+              range.selectNodeContents(nextEl);
+              range.collapse(false);
+              sel.removeAllRanges();
+              sel.addRange(range);
+            } catch (err) {}
+          }
+        }
       }
     });
 
@@ -1350,7 +1506,7 @@ class GC {
 
       selectedIdx = -1;
       dropdown.innerHTML = matches.map((m, i) =>
-        `<div class="ac-item" data-idx="${i}" data-name="${m.name}" data-price="${m.price}" data-cat="${m.category}">
+        `<div class="ac-item" data-idx="${i}" data-name="${m.name}" data-price="${m.price}" data-cat="${m.category}" data-allergens="${m.allergens || ''}">
           ${m.name}
           <span class="ac-item-price">${F2(m.price)} €/kg</span>
         </div>`
@@ -1396,20 +1552,49 @@ class GC {
     document.getElementById('ing-name').value = data.name;
     document.getElementById('ing-price').value = data.price;
     if (data.cat) document.getElementById('ing-cat').value = data.cat;
+    
+    // Clear existing selections
+    document.querySelectorAll('#ing-allergens-grid input[type="checkbox"]').forEach(cb => {
+      cb.checked = false;
+      cb.closest('.allergen-option').classList.remove('selected');
+    });
+    
+    // Auto-select corresponding allergens
+    if (data.allergens) {
+      const list = data.allergens.split(',');
+      list.forEach(a => {
+        const cb = document.querySelector(`#ing-allergens-grid input[value="${a}"]`);
+        if (cb) {
+          cb.checked = true;
+          cb.closest('.allergen-option').classList.add('selected');
+        }
+      });
+    }
   }
 
   _getIngredientHistory() {
     const seen = new Map();
+    
+    // 1. Populate with master list
+    INGREDIENTS_MASTER.forEach(m => {
+      seen.set(m.name.toLowerCase(), {
+        name: m.name,
+        price: m.price,
+        category: m.category,
+        allergens: m.allergens ? m.allergens.join(',') : ''
+      });
+    });
+    
+    // 2. Combine with user history
     Object.values(this.db.recipes).forEach(r => {
       r.ingredients.forEach(ing => {
         const key = ing.name.toLowerCase();
-        if (!seen.has(key)) {
-          seen.set(key, {
-            name: ing.name,
-            price: ing.originalPrice,
-            category: ing.category || 'other'
-          });
-        }
+        seen.set(key, {
+          name: ing.name,
+          price: ing.originalPrice,
+          category: ing.category || 'other',
+          allergens: ing.allergens ? ing.allergens.join(',') : ''
+        });
       });
     });
     return Array.from(seen.values());
@@ -1501,19 +1686,26 @@ class GC {
     const price = parseFloat(document.getElementById('ing-price').value);
     const cat   = document.getElementById('ing-cat').value;
 
+    const allergenBoxes = document.querySelectorAll('#ing-allergens-grid input[type="checkbox"]:checked');
+    const allergens = Array.from(allergenBoxes).map(cb => cb.value);
+
     if (!name || isNaN(net) || isNaN(price)) return;
     if (waste >= 100) { toast('Merma debe ser 0–99%', 'e'); return; }
 
     const gross = net / (1 - waste / 100);
     const cost  = (gross / 1000) * price;
 
-    const newIng = { id:uid(), name, net, waste, gross, cost, originalPrice:price, category:cat };
+    const newIng = { id:uid(), name, net, waste, gross, cost, originalPrice:price, category:cat, allergens };
     this.R.ingredients.push(newIng);
     this.R.updatedAt = Date.now();
 
     document.getElementById('form-ing').reset();
     document.getElementById('ing-waste').value = 0;
     document.getElementById('ing-cat').value = 'other';
+    document.querySelectorAll('#ing-allergens-grid input[type="checkbox"]').forEach(cb => {
+      cb.checked = false;
+      cb.closest('.allergen-option').classList.remove('selected');
+    });
     document.getElementById('ing-name').focus();
 
     this._render();
@@ -1579,6 +1771,11 @@ class GC {
     const tbodyEl = document.getElementById('tbl-body');
     const tfootEl = document.getElementById('tbl-foot');
 
+    // Save active element for focus preservation
+    const activeEl = document.activeElement;
+    const activeId = (activeEl && activeEl.classList.contains('ec')) ? activeEl.dataset.id : null;
+    const activeField = (activeEl && activeEl.classList.contains('ec')) ? activeEl.dataset.f : null;
+
     if (!ings.length) {
       tbodyEl.innerHTML = `
         <tr><td colspan="9">
@@ -1597,6 +1794,17 @@ class GC {
     /* Calculate total for % column */
     const totalCost = ings.reduce((s, i) => s + i.cost * sc, 0);
 
+    const ALLERGEN_EMOJIS = {
+      gluten: '🌾',
+      dairy: '🥛',
+      egg: '🥚',
+      fish: '🐟',
+      nuts: '🥜',
+      crustacean: '🦞',
+      soy: '🫘',
+      sulfite: '🍷'
+    };
+
     /* Build rows using DocumentFragment for efficiency */
     const frag = document.createDocumentFragment();
     ings.forEach(ing => {
@@ -1608,16 +1816,23 @@ class GC {
       const tagCls = w === 0 ? 'tag-0' : w <= 15 ? 'tag-low' : 'tag-high';
       const catColor = (CATS[ing.category] || CATS.other).color;
 
+      // Render allergen badges
+      const allergenBadgesHtml = (ing.allergens && ing.allergens.length) ?
+        `<div class="allergen-badges">${ing.allergens.map(a => `<span class="allergen-badge active" title="${a}">${ALLERGEN_EMOJIS[a] || a}</span>`).join('')}</div>` : '';
+
       const tr = document.createElement('tr');
       tr.setAttribute('draggable', 'true');
       tr.dataset.id = ing.id;
       tr.innerHTML = `
         <td><span class="drag-h" title="Arrastra para reordenar">⠿</span></td>
-        <td><div class="ing-name"><span class="cat-dot" style="background:${catColor}"></span>${ing.name}</div></td>
+        <td>
+          <div class="ing-name"><span class="cat-dot" style="background:${catColor}"></span>${ing.name}</div>
+          ${allergenBadgesHtml}
+        </td>
         <td><span class="ec" contenteditable="true" data-id="${ing.id}" data-f="net">${F1(sNet)}</span> g</td>
         <td><span class="tag ${tagCls}">${w}%</span></td>
         <td style="color:var(--t3);font-family:var(--mono);font-size:.76rem">${F1(sGross)} g</td>
-        <td><span class="ec" contenteditable="true" data-id="${ing.id}" data-f="price">${F2(ing.originalPrice)}</span> €</td>
+        <td><span class="ec" contenteditable="true" data-id="${ing.id}" data-f="price">${F2(ing.originalPrice)}</span> <span class="curr-sym-inline"></span></td>
         <td style="color:var(--green);font-family:var(--mono);font-weight:600">${EUR.format(sCost)}</td>
         <td><div class="cost-pct"><span class="cost-pct-val">${F1(pct)}%</span><div class="cost-pct-bar" style="width:${pct}%"></div></div></td>
         <td><button class="btn-del" data-id="${ing.id}" title="Eliminar">✕</button></td>`;
@@ -1627,6 +1842,13 @@ class GC {
     tbodyEl.innerHTML = '';
     tbodyEl.appendChild(frag);
 
+    // Apply currency symbol text to inline currency spans in table
+    const cur = (this.R.config.currency) ? this.R.config.currency : 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+    if (cur === 'PEN') curSym = 'S/.';
+    tbodyEl.querySelectorAll('.curr-sym-inline').forEach(el => el.textContent = curSym);
+
     tfootEl.innerHTML = `
       <tr>
         <td colspan="6" style="color:var(--t4);font-size:.63rem;text-transform:uppercase;letter-spacing:.5px">
@@ -1635,6 +1857,22 @@ class GC {
         <td style="color:var(--amber);font-family:var(--mono)">${EUR.format(totalCost)}</td>
         <td colspan="2" style="color:var(--t4);font-family:var(--mono);font-size:.72rem">100%</td>
       </tr>`;
+
+    // Restore active edit focus and cursor position
+    if (activeId && activeField) {
+      const elToFocus = tbodyEl.querySelector(`.ec[data-id="${activeId}"][data-f="${activeField}"]`);
+      if (elToFocus) {
+        elToFocus.focus();
+        try {
+          const range = document.createRange();
+          const sel = window.getSelection();
+          range.selectNodeContents(elToFocus);
+          range.collapse(false);
+          sel.removeAllRanges();
+          sel.addRange(range);
+        } catch (err) {}
+      }
+    }
   }
 
   /* ── KPIs ── */
@@ -1642,6 +1880,13 @@ class GC {
     const cfg = this.R.config;
     const sc  = this._scale();
     const ings = this.R.ingredients;
+
+    // Refresh currency symbols throughout the UI
+    const cur = cfg.currency || 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+    if (cur === 'PEN') curSym = 'S/.';
+    document.querySelectorAll('.curr-sym').forEach(el => el.textContent = curSym);
 
     const lote = ings.reduce((s, i) => s + i.cost * sc, 0);
     const port = Math.max(cfg.portions, 1);
@@ -1698,24 +1943,66 @@ class GC {
       alertEl.style.display = 'none';
     }
 
-    /* PVP Manual Simulator */
+    /* Recipe allergens summary banner (V12) */
+    const allAllergens = new Set();
+    ings.forEach(ing => {
+      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+    });
+
+    const allergensContainer = document.getElementById('recipe-allergens-summary') || (() => {
+      const div = document.createElement('div');
+      div.id = 'recipe-allergens-summary';
+      div.style.marginTop = '10px';
+      alertEl.after(div);
+      return div;
+    })();
+
+    if (allAllergens.size > 0) {
+      allergensContainer.style.display = 'block';
+      const ALLERGEN_NAMES = { gluten:'Gluten', dairy:'Lácteos', egg:'Huevo', fish:'Pescado', nuts:'Frutos Secos', crustacean:'Crustáceos', soy:'Soja', sulfite:'Sulfitos' };
+      const ALLERGEN_EMOJIS = { gluten:'🌾', dairy:'🥛', egg:'🥚', fish:'🐟', nuts:'🥜', crustacean:'🦞', soy:'🫘', sulfite:'🍷' };
+      allergensContainer.innerHTML = `
+        <div class="tinted" style="margin-top:10px;background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.2)">
+          <label class="fl" style="color:var(--purple);font-size:.65rem">⚠️ Alérgenos Declarados en la Ficha</label>
+          <div style="display:flex;flex-wrap:wrap;gap:5px;margin-top:6px">
+            ${Array.from(allAllergens).map(a => `<span class="tag tag-high" style="background:var(--purpleL);color:var(--purple);border-color:rgba(167,139,250,0.3);font-size:.7rem;padding:3px 8px">${ALLERGEN_EMOJIS[a]} ${ALLERGEN_NAMES[a]}</span>`).join('')}
+          </div>
+        </div>
+      `;
+    } else {
+      allergensContainer.innerHTML = '';
+      allergensContainer.style.display = 'none';
+    }
+
+    /* PVP Manual Simulator with glowing semaphores (V12) */
     const cPVP = parseFloat(cfg.customPVP) || 0;
+    const simKpi = document.querySelector('.kpi.k-sim');
     if (cPVP > 0 && unit > 0) {
       const pvpNetM = cPVP / (1 + cfg.taxRate / 100);
       const simMarg = pvpNetM - unit;
       const simFC   = F1((unit / pvpNetM) * 100);
       document.getElementById('k-sim').textContent   = EUR.format(simMarg);
-      document.getElementById('k-sim').className     = `kpi-val ${simMarg >= 0 ? 'c-amber' : 'c-red'}`;
+      document.getElementById('k-sim').className     = `kpi-val ${simMarg >= 0 ? 'c-green' : 'c-red'}`;
       document.getElementById('k-sim-sub').textContent = `FC ${simFC}% · Lote: ${EUR.format(simMarg * port)}`;
       document.getElementById('sim-note').innerHTML  =
-        `<span style="color:${simMarg >= 0 ? 'var(--amber)' : 'var(--red)'};font-weight:600">
+        `<span style="color:${simMarg >= 0 ? 'var(--green)' : 'var(--red)'};font-weight:600">
           Margen: ${EUR.format(simMarg)} · FC: ${simFC}%
         </span><br>Beneficio lote (${port} rac.): ${EUR.format(simMarg * port)}`;
+      
+      // Update glow classes
+      if (simMarg >= 0) {
+        simKpi.classList.add('success-glow');
+        simKpi.classList.remove('danger-glow');
+      } else {
+        simKpi.classList.add('danger-glow');
+        simKpi.classList.remove('success-glow');
+      }
     } else {
       document.getElementById('k-sim').textContent     = '—';
       document.getElementById('k-sim').className       = 'kpi-val c-amber';
       document.getElementById('k-sim-sub').textContent  = 'Introduce un PVP manual';
       document.getElementById('sim-note').textContent   = 'Introduce un PVP para simular márgenes';
+      simKpi.classList.remove('success-glow', 'danger-glow');
     }
   }
 
@@ -1732,7 +2019,7 @@ class GC {
     const id = uid();
     this.db.recipes[id] = {
       id,
-      config: { dishName:'Nueva Ficha', portions:1, taxRate:7, fcGoal:28, customPVP:0, notes:'' },
+      config: { dishName:'Nueva Ficha', portions:1, taxRate:7, fcGoal:28, customPVP:0, notes:'', currency:'EUR' },
       ingredients: [],
       createdAt: Date.now(),
       updatedAt: Date.now()
@@ -1751,7 +2038,7 @@ class GC {
     this.db.recipes[id] = {
       id,
       config: { ...src.config, dishName: src.config.dishName + ' (copia)' },
-      ingredients: src.ingredients.map(i => ({ ...i, id: uid() })),
+      ingredients: src.ingredients.map(i => ({ ...i, id: uid(), allergens: i.allergens ? [...i.allergens] : [] })),
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
@@ -1819,13 +2106,15 @@ class GC {
   }
 
   _migrateV10(data) {
-    data.version = 11;
+    data.version = 12;
     Object.values(data.recipes).forEach(r => {
       if (!r.config.notes) r.config.notes = '';
+      if (!r.config.currency) r.config.currency = 'EUR';
       if (!r.createdAt) r.createdAt = Date.now();
       if (!r.updatedAt) r.updatedAt = Date.now();
       r.ingredients.forEach(ing => {
         if (!ing.category) ing.category = 'other';
+        if (!ing.allergens) ing.allergens = [];
       });
     });
     return data;
@@ -1834,10 +2123,12 @@ class GC {
   _ensureSchema(data) {
     Object.values(data.recipes).forEach(r => {
       if (!r.config.notes) r.config.notes = '';
+      if (!r.config.currency) r.config.currency = 'EUR';
       if (!r.createdAt) r.createdAt = Date.now();
       if (!r.updatedAt) r.updatedAt = Date.now();
       r.ingredients.forEach(ing => {
         if (!ing.category) ing.category = 'other';
+        if (!ing.allergens) ing.allergens = [];
       });
     });
     return data;
@@ -1958,6 +2249,11 @@ class GC {
     const cfg = recipe.config, ings = recipe.ingredients, sc = this._scale();
     const shName = (cfg.dishName || 'Ficha').slice(0, 28).replace(/[:\\/?*[\]]/g, '_');
 
+    const cur = cfg.currency || 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+    if (cur === 'PEN') curSym = 'S/.';
+
     const DR = 5, n = ings.length, TR = DR + n, AF = TR + 2;
     const rRac = AF+1, rLote = AF+2, rUnit = AF+3, rFC = AF+4;
     const rPVPN = AF+5, rIGIC = AF+6, rPVPT = AF+7;
@@ -1965,22 +2261,22 @@ class GC {
 
     const aoa = [];
     aoa.push([`ESCANDALLO — ${(cfg.dishName || '').toUpperCase()}`]);
-    aoa.push([`Generado: ${new Date().toLocaleDateString('es-ES')} · Escala: ×${sc} · FC Obj: ${cfg.fcGoal}% · IGIC/IVA: ${cfg.taxRate}%`]);
+    aoa.push([`Generado: ${new Date().toLocaleDateString('es-ES')} · Escala: ×${sc} · FC Obj: ${cfg.fcGoal}% · IGIC/IVA: ${cfg.taxRate}% · Divisa: ${cur}`]);
     aoa.push([]);
-    aoa.push(['INGREDIENTE', 'NETO PLAN. (g)', 'MERMA (%)', 'BRUTO REAL (g)', 'PRECIO (€/kg)', 'COSTO LOTE (€)']);
-    ings.forEach(ing => aoa.push([ing.name, ing.net * sc, ing.waste, null, ing.originalPrice, null]));
-    aoa.push(['TOTAL LOTE', null, null, null, null, null]);
+    aoa.push(['INGREDIENTE', 'NETO PLAN. (g)', 'MERMA (%)', 'BRUTO REAL (g)', `PRECIO (${curSym}/kg)`, `COSTO LOTE (${curSym})`, 'ALÉRGENOS']);
+    ings.forEach(ing => aoa.push([ing.name, ing.net * sc, ing.waste, null, ing.originalPrice, null, ing.allergens ? ing.allergens.join(', ').toUpperCase() : '']));
+    aoa.push(['TOTAL LOTE', null, null, null, null, null, '']);
     aoa.push([]);
-    aoa.push(['ANÁLISIS FINANCIERO', 'VALOR', '', '', '', '']);
+    aoa.push(['ANÁLISIS FINANCIERO', 'VALOR', '', '', '', '', '']);
     aoa.push(['Raciones Base', cfg.portions]);
-    aoa.push(['Costo Lote (€)', null]);
-    aoa.push(['Costo por Ración (€)', null]);
+    aoa.push([`Costo Lote (${curSym})`, null]);
+    aoa.push([`Costo por Ración (${curSym})`, null]);
     aoa.push(['Food Cost Objetivo (%)', cfg.fcGoal]);
-    aoa.push(['PVP Neto sin impuesto (€)', null]);
+    aoa.push([`PVP Neto sin impuesto (${curSym})`, null]);
     aoa.push(['IGIC / IVA (%)', cfg.taxRate]);
-    aoa.push(['PVP Carta con impuesto (€)', null]);
-    aoa.push(['Margen Bruto / Ración (€)', null]);
-    aoa.push(['Beneficio Total Lote (€)', null]);
+    aoa.push([`PVP Carta con impuesto (${curSym})`, null]);
+    aoa.push([`Margen Bruto / Ración (${curSym})`, null]);
+    aoa.push([`Beneficio Total Lote (${curSym})`, null]);
     aoa.push(['Margen (%)', null]);
 
     /* Add notes row if present */
@@ -1996,7 +2292,7 @@ class GC {
     for (let i = 0; i < n; i++) {
       const row = DR + i;
       ws[`D${row}`] = { t:'n', f:`B${row}/(1-C${row}/100)`, z:'#,##0.0' };
-      ws[`F${row}`] = { t:'n', f:`D${row}/1000*E${row}`,    z:'#,##0.00\\ "€"' };
+      ws[`F${row}`] = { t:'n', f:`D${row}/1000*E${row}`,    z:`#,##0.00\\ "${curSym}"` };
     }
 
     /* Formulas: total row */
@@ -2004,16 +2300,16 @@ class GC {
       const lastIng = DR + n - 1;
       ws[`B${TR}`] = { t:'n', f:`SUM(B${DR}:B${lastIng})`, z:'#,##0.0' };
       ws[`D${TR}`] = { t:'n', f:`SUM(D${DR}:D${lastIng})`, z:'#,##0.0' };
-      ws[`F${TR}`] = { t:'n', f:`SUM(F${DR}:F${lastIng})`, z:'#,##0.00\\ "€"' };
+      ws[`F${TR}`] = { t:'n', f:`SUM(F${DR}:F${lastIng})`, z:`#,##0.00\\ "${curSym}"` };
     }
 
     /* Formulas: financial analysis */
-    ws[`B${rLote}`] = { t:'n', f:`F${TR}`,                                          z:'#,##0.00\\ "€"' };
-    ws[`B${rUnit}`] = { t:'n', f:`B${rLote}/B${rRac}`,                              z:'#,##0.000\\ "€"' };
-    ws[`B${rPVPN}`] = { t:'n', f:`IF(B${rFC}>0,B${rUnit}/(B${rFC}/100),0)`,         z:'#,##0.00\\ "€"' };
-    ws[`B${rPVPT}`] = { t:'n', f:`B${rPVPN}*(1+B${rIGIC}/100)`,                     z:'#,##0.00\\ "€"' };
-    ws[`B${rMrgU}`] = { t:'n', f:`B${rPVPN}-B${rUnit}`,                             z:'#,##0.00\\ "€"' };
-    ws[`B${rBenL}`] = { t:'n', f:`B${rMrgU}*B${rRac}`,                              z:'#,##0.00\\ "€"' };
+    ws[`B${rLote}`] = { t:'n', f:`F${TR}`,                                          z:`#,##0.00\\ "${curSym}"` };
+    ws[`B${rUnit}`] = { t:'n', f:`B${rLote}/B${rRac}`,                              z:`#,##0.000\\ "${curSym}"` };
+    ws[`B${rPVPN}`] = { t:'n', f:`IF(B${rFC}>0,B${rUnit}/(B${rFC}/100),0)`,         z:`#,##0.00\\ "${curSym}"` };
+    ws[`B${rPVPT}`] = { t:'n', f:`B${rPVPN}*(1+B${rIGIC}/100)`,                     z:`#,##0.00\\ "${curSym}"` };
+    ws[`B${rMrgU}`] = { t:'n', f:`B${rPVPN}-B${rUnit}`,                             z:`#,##0.00\\ "${curSym}"` };
+    ws[`B${rBenL}`] = { t:'n', f:`B${rMrgU}*B${rRac}`,                              z:`#,##0.00\\ "${curSym}"` };
     ws[`B${rMrgP}`] = { t:'n', f:`IF(B${rPVPN}>0,(B${rMrgU}/B${rPVPN})*100,0)`,     z:'0.0\\%' };
 
     /* Formats */
@@ -2021,15 +2317,15 @@ class GC {
       const r = DR + i;
       if (ws[`B${r}`]) ws[`B${r}`].z = '#,##0.0';
       if (ws[`C${r}`]) ws[`C${r}`].z = '0.0"%"';
-      if (ws[`E${r}`]) ws[`E${r}`].z = '#,##0.00\\ "€"';
+      if (ws[`E${r}`]) ws[`E${r}`].z = `#,##0.00\\ "${curSym}"`;
     }
 
-    ws['!cols'] = [{wch:32},{wch:18},{wch:13},{wch:18},{wch:15},{wch:18}];
+    ws['!cols'] = [{wch:32},{wch:18},{wch:13},{wch:18},{wch:15},{wch:18},{wch:20}];
     ws['!merges'] = [
-      {s:{r:0,c:0}, e:{r:0,c:5}},
-      {s:{r:1,c:0}, e:{r:1,c:5}}
+      {s:{r:0,c:0}, e:{r:0,c:6}},
+      {s:{r:1,c:0}, e:{r:1,c:6}}
     ];
-    ws['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:aoa.length-1, c:5}});
+    ws['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:aoa.length-1, c:6}});
     XLSX.utils.book_append_sheet(wb, ws, shName);
   }
 
@@ -2037,9 +2333,9 @@ class GC {
     const sc = this._scale();
     const aoa = [
       ['COMPARATIVO DE FICHAS TÉCNICAS'],
-      [`GastroCost PRO V11 · ${new Date().toLocaleDateString('es-ES')}`],
+      [`GastroCost PRO V12 · ${new Date().toLocaleDateString('es-ES')}`],
       [],
-      ['Plato','Raciones','Costo Lote (€)','Costo/Ración (€)','FC Obj (%)','PVP Neto (€)','PVP+IGIC (€)','Margen (€)','Margen (%)','Ingredientes']
+      ['Plato','Raciones','Costo Lote','Costo/Ración','FC Obj (%)','PVP Neto','PVP+Impuesto','Margen','Margen (%)','Ingredientes','Divisa']
     ];
     recipes.forEach(r => {
       const c = r.config, ings = r.ingredients;
@@ -2050,11 +2346,17 @@ class GC {
       const pvpT = pvpN * (1 + c.taxRate / 100);
       const marg = pvpN - unit;
       const mPct = pvpN > 0 ? (marg / pvpN) * 100 : 0;
-      aoa.push([c.dishName, port, lote, unit, c.fcGoal, pvpN, pvpT, marg, mPct, ings.length]);
+      
+      const cur = c.currency || 'EUR';
+      let curSym = '€';
+      if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+      if (cur === 'PEN') curSym = 'S/.';
+      
+      aoa.push([c.dishName, port, `${F2(lote)} ${curSym}`, `${F2(unit)} ${curSym}`, c.fcGoal, `${F2(pvpN)} ${curSym}`, `${F2(pvpT)} ${curSym}`, `${F2(marg)} ${curSym}`, mPct, ings.length, cur]);
     });
     const ws = XLSX.utils.aoa_to_sheet(aoa);
-    ws['!cols'] = [{wch:28},{wch:10},{wch:16},{wch:16},{wch:10},{wch:15},{wch:15},{wch:15},{wch:12},{wch:13}];
-    ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:9}}, {s:{r:1,c:0},e:{r:1,c:9}}];
+    ws['!cols'] = [{wch:28},{wch:10},{wch:16},{wch:16},{wch:10},{wch:15},{wch:15},{wch:15},{wch:12},{wch:13},{wch:8}];
+    ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:10}}, {s:{r:1,c:0},e:{r:1,c:10}}];
     XLSX.utils.book_append_sheet(wb, ws, 'Comparativo');
   }
 
@@ -2084,15 +2386,43 @@ class GC {
     const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
     const fcCol = fcR <= cfg.fcGoal ? '#059669' : fcR <= cfg.fcGoal * 1.15 ? '#d97706' : '#dc2626';
 
-    const rows = ings.map(ing => `
-      <tr>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb">${ing.name}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${F1(ing.net*sc)} g</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${ing.waste}%</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${F1(ing.gross*sc)} g</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${F2(ing.originalPrice)} €/kg</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:700;color:#065f46">${EUR.format(ing.cost*sc)}</td>
-      </tr>`).join('');
+    const cur = cfg.currency || 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+    if (cur === 'PEN') curSym = 'S/.';
+
+    const ALLERGEN_EMOJIS = { gluten:'🌾', dairy:'🥛', egg:'🥚', fish:'🐟', nuts:'🥜', crustacean:'🦞', soy:'🫘', sulfite:'🍷' };
+
+    const rows = ings.map(ing => {
+      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGEN_EMOJIS[a] || a).join(' ') : '';
+      return `
+        <tr>
+          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb">
+            ${ing.name}
+            ${ingAllergensStr ? `<span style="font-size:7.5px;margin-left:5px;vertical-align:middle">${ingAllergensStr}</span>` : ''}
+          </td>
+          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${F1(ing.net*sc)} g</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${ing.waste}%</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${F1(ing.gross*sc)} g</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${F2(ing.originalPrice)} ${curSym}/kg</td>
+          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:700;color:#065f46">${EUR.format(ing.cost*sc)}</td>
+        </tr>`;
+    }).join('');
+
+    const allAllergens = new Set();
+    ings.forEach(ing => {
+      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+    });
+
+    const ALLERGEN_NAMES = { gluten:'Gluten', dairy:'Lácteos', egg:'Huevo', fish:'Pescado', nuts:'Frutos Secos', crustacean:'Crustáceos', soy:'Soja', sulfite:'Sulfitos' };
+
+    const allergensPdfSection = allAllergens.size > 0 ? `
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:6px;padding:10px 12px;margin-bottom:12px">
+        <div style="font-size:8px;font-weight:700;color:#6b21a8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Alérgenos Declarados en Ficha</div>
+        <div style="display:flex;flex-wrap:wrap;gap:4px">
+          ${Array.from(allAllergens).map(a => `<span style="display:inline-block;background:#f3e8ff;color:#6b21a8;border:1px solid #d8b4fe;padding:2px 6px;border-radius:4px;font-size:8px;font-weight:bold;margin-right:4px;margin-bottom:2px">${ALLERGEN_EMOJIS[a]} ${ALLERGEN_NAMES[a]}</span>`).join('')}
+        </div>
+      </div>` : '';
 
     const notesSection = cfg.notes && cfg.notes.trim() ? `
       <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px 12px;margin-bottom:12px">
@@ -2107,9 +2437,9 @@ class GC {
           <div style="font-size:20px;font-weight:900;color:#111;letter-spacing:-.5px">${cfg.dishName}</div>
         </div>
         <div style="text-align:right;font-size:9px;color:#6b7280">
-          <div style="font-weight:700">GastroCost PRO V11</div>
+          <div style="font-weight:700">GastroCost PRO V12</div>
           <div>${new Date().toLocaleDateString('es-ES')}</div>
-          <div>Raciones: ${port} · Escala: ×${sc}</div>
+          <div>Raciones: ${port} · Escala: ×${sc} · Divisa: ${cur}</div>
         </div>
       </div>
       <table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:16px">
@@ -2119,7 +2449,7 @@ class GC {
             <th style="padding:7px 8px;text-align:right">Neto (g)</th>
             <th style="padding:7px 8px;text-align:right">Merma</th>
             <th style="padding:7px 8px;text-align:right">Bruto (g)</th>
-            <th style="padding:7px 8px;text-align:right">€/kg</th>
+            <th style="padding:7px 8px;text-align:right">${curSym}/kg</th>
             <th style="padding:7px 8px;text-align:right">Costo Lote</th>
           </tr>
         </thead>
@@ -2131,6 +2461,7 @@ class GC {
           </tr>
         </tfoot>
       </table>
+      ${allergensPdfSection}
       ${notesSection}
       <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
         ${[
@@ -2149,7 +2480,7 @@ class GC {
         PVP Neto: <b>${EUR.format(pvpN)}</b> · Beneficio Lote: <b>${EUR.format(marg*port)}</b>
       </div>
       <div style="margin-top:14px;font-size:8px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:8px">
-        GastroCost PRO V11 · Documento generado el ${new Date().toLocaleDateString('es-ES')}
+        GastroCost PRO V12 · Documento generado el ${new Date().toLocaleDateString('es-ES')}
       </div>
     </div>`;
 
@@ -2189,15 +2520,41 @@ class GC {
     const marg = pvpN - unit;
     const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
 
-    const rows = ings.map(ing => `
-      <tr>
-        <td style="border:1px solid #ccc;padding:5pt">${ing.name}</td>
-        <td style="border:1px solid #ccc;padding:5pt;text-align:right">${F1(ing.net*sc)} g</td>
-        <td style="border:1px solid #ccc;padding:5pt;text-align:right">${ing.waste}%</td>
-        <td style="border:1px solid #ccc;padding:5pt;text-align:right">${F1(ing.gross*sc)} g</td>
-        <td style="border:1px solid #ccc;padding:5pt;text-align:right">${F2(ing.originalPrice)} €/kg</td>
-        <td style="border:1px solid #ccc;padding:5pt;text-align:right;font-weight:bold">${EUR.format(ing.cost*sc)}</td>
-      </tr>`).join('');
+    const cur = cfg.currency || 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+    if (cur === 'PEN') curSym = 'S/.';
+
+    const ALLERGEN_EMOJIS = { gluten:'🌾', dairy:'🥛', egg:'🥚', fish:'🐟', nuts:'🥜', crustacean:'🦞', soy:'🫘', sulfite:'🍷' };
+
+    const rows = ings.map(ing => {
+      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGEN_EMOJIS[a] || a).join(' ') : '';
+      return `
+        <tr>
+          <td style="border:1px solid #ccc;padding:5pt">
+            ${ing.name}
+            ${ingAllergensStr ? `<span style="font-size:8pt;color:#555;margin-left:5px">(${ingAllergensStr})</span>` : ''}
+          </td>
+          <td style="border:1px solid #ccc;padding:5pt;text-align:right">${F1(ing.net*sc)} g</td>
+          <td style="border:1px solid #ccc;padding:5pt;text-align:right">${ing.waste}%</td>
+          <td style="border:1px solid #ccc;padding:5pt;text-align:right">${F1(ing.gross*sc)} g</td>
+          <td style="border:1px solid #ccc;padding:5pt;text-align:right">${F2(ing.originalPrice)} ${curSym}/kg</td>
+          <td style="border:1px solid #ccc;padding:5pt;text-align:right;font-weight:bold">${EUR.format(ing.cost*sc)}</td>
+        </tr>`;
+    }).join('');
+
+    const allAllergens = new Set();
+    ings.forEach(ing => {
+      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+    });
+
+    const ALLERGEN_NAMES = { gluten:'Gluten', dairy:'Lácteos', egg:'Huevo', fish:'Pescado', nuts:'Frutos Secos', crustacean:'Crustáceos', soy:'Soja', sulfite:'Sulfitos' };
+
+    const allergensDocSection = allAllergens.size > 0 ? `
+      <p style="font-size:10pt;font-weight:700;color:#6b21a8;margin:16pt 0 6pt">ALÉRGENOS DECLARADOS</p>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;padding:8pt 10pt;border-radius:4pt;font-size:9.5pt;color:#6b21a8">
+        ${Array.from(allAllergens).map(a => `${ALLERGEN_EMOJIS[a]} ${ALLERGEN_NAMES[a]}`).join('  |  ')}
+      </div>` : '';
 
     const notesSection = cfg.notes && cfg.notes.trim() ? `
       <p style="font-size:10pt;font-weight:700;color:#1C4B6E;margin:16pt 0 6pt">NOTAS DE ELABORACIÓN</p>
@@ -2223,13 +2580,13 @@ class GC {
       <p class="meta">
         ${new Date().toLocaleDateString('es-ES')} ·
         Raciones: ${port} · Escala: ×${sc} ·
-        FC Objetivo: ${cfg.fcGoal}% · IGIC/IVA: ${cfg.taxRate}%
+        FC Objetivo: ${cfg.fcGoal}% · IGIC/IVA: ${cfg.taxRate}% · Divisa: ${cur}
       </p>
       <p style="font-size:10pt;font-weight:700;color:#1C4B6E;margin:0 0 6pt">DESGLOSE DE INSUMOS</p>
       <table>
         <thead><tr>
           <th>Ingrediente</th><th>Neto (g)</th><th>Merma (%)</th>
-          <th>Bruto (g)</th><th>Precio €/kg</th><th>Costo Lote</th>
+          <th>Bruto (g)</th><th>Precio ${curSym}/kg</th><th>Costo Lote</th>
         </tr></thead>
         <tbody>${rows}</tbody>
         <tfoot>
@@ -2239,6 +2596,7 @@ class GC {
           </tr>
         </tfoot>
       </table>
+      ${allergensDocSection}
       ${notesSection}
       <p style="font-size:10pt;font-weight:700;color:#1C4B6E;margin:18pt 0 6pt">ANÁLISIS FINANCIERO</p>
       <table style="width:55%">
@@ -2256,7 +2614,7 @@ class GC {
             <td style="border:1px solid #ccc;padding:5pt">${v}</td>
           </tr>`).join('')}
       </table>
-      <p class="footer">GastroCost PRO V11 · Generado el ${new Date().toLocaleDateString('es-ES')}</p>
+      <p class="footer">GastroCost PRO V12 · Generado el ${new Date().toLocaleDateString('es-ES')}</p>
     </body></html>`;
 
     const blob = new Blob([doc], { type:'application/msword;charset=utf-8' });
@@ -2265,7 +2623,6 @@ class GC {
     a.download = `Escandallo_${(cfg.dishName || 'ficha').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
     a.click();
     URL.revokeObjectURL(a.href);
-    toast('Word exportado ✓');
   }
 }
 
