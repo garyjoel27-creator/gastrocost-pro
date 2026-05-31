@@ -1000,6 +1000,276 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
   object-fit: cover;
   flex-shrink: 0;
 }
+
+/* V12 Tabs Layout CSS */
+.tabs-nav {
+  display: flex;
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  padding: 4px;
+  border-radius: var(--r2);
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--t3);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: .8rem;
+  border-radius: var(--r1);
+  cursor: pointer;
+  transition: all .2s var(--ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.tab-btn:hover {
+  color: var(--t1);
+  background: var(--glass-hover);
+}
+.tab-btn.active {
+  color: #060911;
+  background: linear-gradient(135deg, var(--cyan), var(--cyanD));
+  box-shadow: 0 2px 8px rgba(34,211,238,.2);
+}
+.tab-content {
+  display: none;
+  animation: tab-fade .35s var(--ease) forwards;
+}
+.tab-content.active {
+  display: block;
+}
+@keyframes tab-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Category segmented cost bar */
+.cost-segment-bar {
+  display: flex;
+  height: 24px;
+  border-radius: var(--r1);
+  overflow: hidden;
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  margin-top: 10px;
+  position: relative;
+}
+.cost-segment {
+  height: 100%;
+  transition: all .4s var(--ease);
+  position: relative;
+  cursor: pointer;
+}
+.cost-segment:hover {
+  filter: brightness(1.15);
+}
+.cost-legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.cost-legend-item {
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: var(--r1);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: .75rem;
+}
+.cost-legend-lbl {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--t4);
+}
+.cost-legend-val {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--t1);
+}
+.cost-legend-pct {
+  font-size: .62rem;
+  color: var(--t3);
+  font-family: var(--mono);
+}
+
+/* Executive Consulting styling */
+.consulting-box {
+  background: linear-gradient(135deg, rgba(34,211,238,0.03), rgba(167,139,250,0.03));
+  border: 1px solid var(--b1);
+  border-radius: var(--r3);
+  padding: 18px;
+  margin-top: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.consulting-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 4px; height: 100%;
+  background: linear-gradient(180deg, var(--cyan), var(--purple));
+}
+.consulting-title {
+  font-size: .7rem;
+  font-weight: 800;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.consulting-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.consulting-tip {
+  font-size: .78rem;
+  line-height: 1.5;
+  color: var(--t2);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.consulting-tip svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Kitchen tab styling */
+.kitchen-view {
+  background: #ffffff;
+  color: #1e293b;
+  border-radius: var(--r3);
+  box-shadow: var(--sh2);
+  overflow: hidden;
+  border: 1px solid var(--b2);
+}
+.kitchen-view-header {
+  padding: 20px 24px;
+  background: #0f172a;
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.kitchen-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+.kitchen-meta {
+  font-size: .78rem;
+  color: #94a3b8;
+  font-family: var(--mono);
+}
+.kitchen-body {
+  padding: 24px;
+}
+.kitchen-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 768px) {
+  .kitchen-grid { grid-template-columns: 1fr; }
+}
+.kitchen-section-title {
+  font-size: .85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #0f172a;
+  border-bottom: 2px solid #0f172a;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+.kitchen-ing-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: #e2e8f0;
+  border-radius: var(--r1);
+  overflow: hidden;
+}
+.kitchen-ing-row {
+  background: #ffffff;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background .12s;
+  cursor: pointer;
+  user-select: none;
+}
+.kitchen-ing-row:hover {
+  background: #f8fafc;
+}
+.kitchen-ing-row.checked {
+  background: #f1f5f9;
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+.kitchen-ing-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.kitchen-checkbox {
+  width: 16px; height: 16px;
+  border: 2px solid #cbd5e1;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .65rem;
+  color: #ffffff;
+  transition: all .15s;
+}
+.kitchen-ing-row.checked .kitchen-checkbox {
+  background: #10b981;
+  border-color: #10b981;
+}
+.kitchen-ing-qty {
+  font-family: var(--mono);
+  font-weight: 600;
+  font-size: .8rem;
+}
+.kitchen-photo-box {
+  width: 100%;
+  height: 200px;
+  border-radius: var(--r2);
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  margin-bottom: 16px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: .8rem;
+}
+.kitchen-photo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 </style>
 </head>
 
@@ -1118,128 +1388,234 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
   </aside>
 
   <!-- ═══════ MAIN ═══════ -->
-  <main style="display:flex;flex-direction:column;gap:16px">
+  <main style="display:flex;flex-direction:column;gap:12px">
 
-    <!-- Ingredients -->
-    <div class="card">
-      <div class="card-hd">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-        Desglose de Insumos
-      </div>
-      <div class="form-table-split">
+    <!-- V12 Tabs Navigation -->
+    <div class="tabs-nav">
+      <button class="tab-btn active" data-tab="tab-escandallo" type="button">📋 Ficha Costes</button>
+      <button class="tab-btn" data-tab="tab-cocina" type="button">🍳 Ficha Cocina</button>
+      <button class="tab-btn" data-tab="tab-finanzas" type="button">📊 Finanzas</button>
+    </div>
 
-        <!-- Add ingredient form -->
-        <form id="form-ing">
-          <div class="fg ac-wrap">
-            <label class="fl">Ingrediente / Material</label>
-            <input class="fi" id="ing-name" type="text" required autocomplete="off" placeholder="Ej. Atún rojo">
-            <div class="ac-dd" id="ac-dd"></div>
-          </div>
-          <div class="fg">
-            <label class="fl">Categoría</label>
-            <select class="fi" id="ing-cat">
-              <option value="protein">🥩 Proteínas</option>
-              <option value="vegetable">🥬 Vegetales</option>
-              <option value="dairy">🧀 Lácteos</option>
-              <option value="spice">🌶️ Especias / Condimentos</option>
-              <option value="oil">🫒 Aceites / Grasas</option>
-              <option value="other" selected>📦 Otros</option>
-            </select>
-          </div>
-          <div class="fg2">
-            <div class="fg">
-              <label class="fl">Cantidad Neta (g/ml)</label>
-              <input class="fi" id="ing-net" type="number" required step="any" min="0.01" placeholder="200">
-            </div>
-            <div class="fg">
-              <label class="fl">Merma (%)</label>
-              <input class="fi" id="ing-waste" type="number" min="0" max="99" value="0" placeholder="0">
-            </div>
-          </div>
-          <div class="fg">
-            <label class="fl">Precio de Mercado (<span class="curr-sym">€</span> / kg o L)</label>
-            <input class="fi" id="ing-price" type="number" required step="any" min="0.001" placeholder="28.00">
-          </div>
-          <div class="fg">
-            <label class="fl">Alérgenos</label>
-            <div class="allergen-select-grid" id="ing-allergens-grid">
-              <label class="allergen-option" data-a="gluten"><input type="checkbox" value="gluten">🌾 Glut</label>
-              <label class="allergen-option" data-a="dairy"><input type="checkbox" value="dairy">🥛 Láct</label>
-              <label class="allergen-option" data-a="egg"><input type="checkbox" value="egg">🥚 Huevo</label>
-              <label class="allergen-option" data-a="fish"><input type="checkbox" value="fish">🐟 Pesc</label>
-              <label class="allergen-option" data-a="nuts"><input type="checkbox" value="nuts">🥜 Frut</label>
-              <label class="allergen-option" data-a="crustacean"><input type="checkbox" value="crustacean">🦞 Crus</label>
-              <label class="allergen-option" data-a="soy"><input type="checkbox" value="soy">🫘 Soja</label>
-              <label class="allergen-option" data-a="sulfite"><input type="checkbox" value="sulfite">🍷 Sulf</label>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px">+ Añadir Insumo</button>
-        </form>
-
-        <!-- Ingredients table -->
-        <div class="tbl-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th style="width:28px"></th>
-                <th>Ingrediente</th>
-                <th>Neto × escala</th>
-                <th>Merma</th>
-                <th>Bruto</th>
-                <th><span class="curr-sym">€</span> / kg</th>
-                <th>Costo (<span class="curr-sym">€</span>)</th>
-                <th>% Costo</th>
-                <th style="width:32px"></th>
-              </tr>
-            </thead>
-            <tbody id="tbl-body"></tbody>
-            <tfoot id="tbl-foot"></tfoot>
-          </table>
+    <!-- TAB 1: ESCANDALLO -->
+    <div id="tab-escandallo" class="tab-content active">
+      <!-- Ingredients -->
+      <div class="card">
+        <div class="card-hd">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+          Desglose de Insumos
         </div>
+        <div class="form-table-split">
 
+          <!-- Add ingredient form -->
+          <form id="form-ing">
+            <div class="fg ac-wrap">
+              <label class="fl">Ingrediente / Material</label>
+              <input class="fi" id="ing-name" type="text" required autocomplete="off" placeholder="Ej. Atún rojo">
+              <div class="ac-dd" id="ac-dd"></div>
+            </div>
+            <div class="fg">
+              <label class="fl">Categoría</label>
+              <select class="fi" id="ing-cat">
+                <option value="protein">🥩 Proteínas</option>
+                <option value="vegetable">🥬 Vegetales</option>
+                <option value="dairy">🧀 Lácteos</option>
+                <option value="spice">🌶️ Especias / Condimentos</option>
+                <option value="oil">🫒 Aceites / Grasas</option>
+                <option value="other" selected>📦 Otros</option>
+              </select>
+            </div>
+            <div class="fg2">
+              <div class="fg">
+                <label class="fl">Cantidad Neta (g/ml)</label>
+                <input class="fi" id="ing-net" type="number" required step="any" min="0.01" placeholder="200">
+              </div>
+              <div class="fg">
+                <label class="fl">Merma (%)</label>
+                <input class="fi" id="ing-waste" type="number" min="0" max="99" value="0" placeholder="0">
+              </div>
+            </div>
+            <div class="fg">
+              <label class="fl">Precio de Mercado (<span class="curr-sym">€</span> / kg o L)</label>
+              <input class="fi" id="ing-price" type="number" required step="any" min="0.001" placeholder="28.00">
+            </div>
+            <div class="fg">
+              <label class="fl">Alérgenos</label>
+              <div class="allergen-select-grid" id="ing-allergens-grid">
+                <label class="allergen-option" data-a="gluten"><input type="checkbox" value="gluten">🌾 Glut</label>
+                <label class="allergen-option" data-a="dairy"><input type="checkbox" value="dairy">🥛 Láct</label>
+                <label class="allergen-option" data-a="egg"><input type="checkbox" value="egg">🥚 Huevo</label>
+                <label class="allergen-option" data-a="fish"><input type="checkbox" value="fish">🐟 Pesc</label>
+                <label class="allergen-option" data-a="nuts"><input type="checkbox" value="nuts">🥜 Frut</label>
+                <label class="allergen-option" data-a="crustacean"><input type="checkbox" value="crustacean">🦞 Crus</label>
+                <label class="allergen-option" data-a="soy"><input type="checkbox" value="soy">🫘 Soja</label>
+                <label class="allergen-option" data-a="sulfite"><input type="checkbox" value="sulfite">🍷 Sulf</label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px">+ Añadir Insumo</button>
+          </form>
+
+          <!-- Ingredients table -->
+          <div class="tbl-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:28px"></th>
+                  <th>Ingrediente</th>
+                  <th>Neto × escala</th>
+                  <th>Merma</th>
+                  <th>Bruto</th>
+                  <th><span class="curr-sym">€</span> / kg</th>
+                  <th>Costo (<span class="curr-sym">€</span>)</th>
+                  <th>% Costo</th>
+                  <th style="width:32px"></th>
+                </tr>
+              </thead>
+              <tbody id="tbl-body"></tbody>
+              <tfoot id="tbl-foot"></tfoot>
+            </table>
+          </div>
+
+        </div>
       </div>
     </div>
 
-    <!-- KPIs -->
-    <div class="card">
-      <div class="card-hd">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        Motor Financiero
-      </div>
-      <div class="kpi-grid">
-        <div class="kpi">
-          <div class="kpi-lbl">Costo Lote</div>
-          <div class="kpi-val c-cyan" id="k-lote">0,00 €</div>
-          <div class="kpi-sub" id="k-scale-lbl">Escala ×1</div>
+    <!-- TAB 2: FICHA DE COCINA (INTERACTIVE MIS EN PLACE & PREVIEW) -->
+    <div id="tab-cocina" class="tab-content">
+      <div class="kitchen-view">
+        <div class="kitchen-view-header">
+          <div class="kitchen-title" id="kview-title">Nombre del Plato</div>
+          <div class="kitchen-meta" id="kview-meta">Raciones: 10 | Moneda: EUR</div>
         </div>
-        <div class="kpi">
-          <div class="kpi-lbl">Costo / Ración</div>
-          <div class="kpi-val c-dim" id="k-unit">0,00 €</div>
-          <div class="kpi-sub" id="k-portions-lbl">— raciones</div>
-        </div>
-        <div class="kpi k-pvp">
-          <div class="kpi-lbl">PVP Carta (con impuesto)</div>
-          <div class="kpi-val c-green" id="k-pvp">0,00 €</div>
-          <div class="kpi-sub" id="k-pvp-net">Neto: 0,00 €</div>
-        </div>
-        <div class="kpi k-margin">
-          <div class="kpi-lbl">Margen Bruto / Ración</div>
-          <div class="kpi-val c-purple" id="k-margin">0,00 €</div>
-          <div class="kpi-sub" id="k-margin-batch">Lote: 0,00 €</div>
-        </div>
-        <div class="kpi k-fc">
-          <div class="kpi-lbl">Food Cost Real</div>
-          <div class="kpi-val c-cyan" id="k-fc">0%</div>
-          <div class="bar-track"><div class="bar-fill" id="k-fc-bar" style="width:0%"></div></div>
-          <div class="kpi-sub" id="k-fc-goal">Objetivo: —%</div>
-        </div>
-        <div class="kpi k-sim">
-          <div class="kpi-lbl">Simulación PVP Manual</div>
-          <div class="kpi-val c-amber" id="k-sim">—</div>
-          <div class="kpi-sub" id="k-sim-sub">Introduce un PVP manual</div>
+        <div class="kitchen-body">
+          <div class="kitchen-grid">
+            <!-- Col 1: Checklist -->
+            <div>
+              <div class="kitchen-section-title">Ingredientes para Preparación</div>
+              <div style="font-size: 0.72rem; color: #64748b; margin-bottom: 8px">
+                💡 Haz clic en un ingrediente para tacharlo durante el mise en place.
+              </div>
+              <div class="kitchen-ing-list" id="kview-ing-list">
+                <!-- Javascript populated -->
+              </div>
+            </div>
+            <!-- Col 2: Info & instructions -->
+            <div>
+              <div class="kitchen-photo-box" id="kview-photo-box">
+                <!-- Javascript image/placeholder -->
+              </div>
+              <div class="kitchen-section-title">Instrucciones y Método</div>
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: var(--r2); padding: 14px; font-size: .85rem; line-height: 1.5; color: #334155; white-space: pre-wrap; font-family: Georgia, serif; min-height: 100px" id="kview-notes">
+                Sin instrucciones registradas.
+              </div>
+              <div class="kitchen-section-title" style="margin-top: 16px">Alérgenos Declarados</div>
+              <div id="kview-allergens" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px">
+                <!-- Javascript populated -->
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-      <div id="alert" style="display:none"></div>
+    </div>
+
+    <!-- TAB 3: FINANZAS Y ANALISIS DE MARGENES -->
+    <div id="tab-finanzas" class="tab-content">
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <!-- KPIs -->
+        <div class="card">
+          <div class="card-hd">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Motor Financiero
+          </div>
+          <div class="kpi-grid">
+            <div class="kpi">
+              <div class="kpi-lbl">Costo Lote</div>
+              <div class="kpi-val c-cyan" id="k-lote">0,00 €</div>
+              <div class="kpi-sub" id="k-scale-lbl">Escala ×1</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-lbl">Costo / Ración</div>
+              <div class="kpi-val c-dim" id="k-unit">0,00 €</div>
+              <div class="kpi-sub" id="k-portions-lbl">— raciones</div>
+            </div>
+            <div class="kpi k-pvp">
+              <div class="kpi-lbl">PVP Carta (con impuesto)</div>
+              <div class="kpi-val c-green" id="k-pvp">0,00 €</div>
+              <div class="kpi-sub" id="k-pvp-net">Neto: 0,00 €</div>
+            </div>
+            <div class="kpi k-margin">
+              <div class="kpi-lbl">Margen Bruto / Ración</div>
+              <div class="kpi-val c-purple" id="k-margin">0,00 €</div>
+              <div class="kpi-sub" id="k-margin-batch">Lote: 0,00 €</div>
+            </div>
+            <div class="kpi k-fc">
+              <div class="kpi-lbl">Food Cost Real</div>
+              <div class="kpi-val c-cyan" id="k-fc">0%</div>
+              <div class="bar-track"><div class="bar-fill" id="k-fc-bar" style="width:0%"></div></div>
+              <div class="kpi-sub" id="k-fc-goal">Objetivo: —%</div>
+            </div>
+            <div class="kpi k-sim">
+              <div class="kpi-lbl">Simulación PVP Manual</div>
+              <div class="kpi-val c-amber" id="k-sim">—</div>
+              <div class="kpi-sub" id="k-sim-sub">Introduce un PVP manual</div>
+            </div>
+          </div>
+          <div id="alert" style="display:none;margin-top:12px"></div>
+        </div>
+
+        <!-- Advanced cost & break-even panel -->
+        <div class="card">
+          <div class="card-hd">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Análisis de Margen y Umbral Operativo
+          </div>
+
+          <!-- Seg bar cost breakdown -->
+          <label class="fl">Estructura de Costes de la Receta</label>
+          <div class="cost-segment-bar" id="finance-cost-bar"></div>
+          <div class="cost-legend-grid" id="finance-legend"></div>
+
+          <!-- Break-even inputs -->
+          <div style="margin-top: 20px; border-top: 1px solid var(--b1); padding-top: 16px">
+            <label class="fl" style="color:var(--cyan)">Simulador de Punto de Equilibrio Operativo</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px">
+              <div class="fg">
+                <label class="fl">Costes Fijos Cocina (Mensual)</label>
+                <input class="fi" id="fin-fixed-costs" type="number" min="0" step="10" placeholder="Ej. 3000">
+              </div>
+              <div class="fg">
+                <label class="fl">Ventas Estimadas (Platos/Mes)</label>
+                <input class="fi" id="fin-target-sales" type="number" min="1" step="10" placeholder="Ej. 500">
+              </div>
+            </div>
+            
+            <div class="kpi-grid" style="margin-top: 10px; grid-template-columns: 1fr 1fr">
+              <div class="kpi" style="padding: 12px 14px; background: var(--s1)">
+                <div class="kpi-lbl">Margen Contribución Unitario</div>
+                <div class="kpi-val" id="fin-mcu" style="font-size: 1.15rem; color: var(--green)">0,00 €</div>
+                <div class="kpi-sub" id="fin-mcu-pct">Ratio: 0%</div>
+              </div>
+              <div class="kpi" style="padding: 12px 14px; background: var(--s1)">
+                <div class="kpi-lbl">Umbral Rentabilidad (Ventas)</div>
+                <div class="kpi-val" id="fin-be-units" style="font-size: 1.15rem; color: var(--purple)">0 raciones</div>
+                <div class="kpi-sub" id="fin-be-revenue">Facturación BE: 0,00 €</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Consulting block -->
+          <div class="consulting-box">
+            <div class="consulting-title">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 12 6zm-1 5h2v6h-2z"/></svg>
+              Recomendaciones de Consultoría de Chef Ejecutivo
+            </div>
+            <div class="consulting-tips" id="consulting-tips-list">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+        </div>
+      </div>
     </div>
 
   </main>
@@ -1702,6 +2078,37 @@ class GC {
       this._renderLib();
       toast('Imagen eliminada');
     });
+
+    /* V12 Tab switching click listeners */
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        btn.classList.add('active');
+        const targetTab = document.getElementById(btn.dataset.tab);
+        if (targetTab) targetTab.classList.add('active');
+        
+        this._renderActiveTab();
+      });
+    });
+
+    /* V12 Financial simulator input listeners */
+    const finFixed = document.getElementById('fin-fixed-costs');
+    const finTarget = document.getElementById('fin-target-sales');
+    if (finFixed && finTarget) {
+      const renderFinance = debounce(() => this._renderFinanceTab(), 200);
+      finFixed.addEventListener('input', () => {
+        this.R.config.fixedCosts = parseFloat(finFixed.value) || 0;
+        this._autoSave();
+        renderFinance();
+      });
+      finTarget.addEventListener('input', () => {
+        this.R.config.targetSales = parseFloat(finTarget.value) || 1;
+        this._autoSave();
+        renderFinance();
+      });
+    }
   }
 
   /* ═══════════════════════════════════════════════
@@ -2031,6 +2438,7 @@ class GC {
     this._renderLib();
     this._renderTable();
     this._renderKPIs();
+    this._renderActiveTab();
   }
 
   /* ── Library ── */
@@ -2305,12 +2713,266 @@ class GC {
         simKpi.classList.add('danger-glow');
         simKpi.classList.remove('success-glow');
       }
-    } else {
-      document.getElementById('k-sim').textContent     = '—';
-      document.getElementById('k-sim').className       = 'kpi-val c-amber';
-      document.getElementById('k-sim-sub').textContent  = 'Introduce un PVP manual';
-      document.getElementById('sim-note').textContent   = 'Introduce un PVP para simular márgenes';
-      simKpi.classList.remove('success-glow', 'danger-glow');
+    }
+  }
+
+  /* V12 Active Tab Rendering Helpers */
+  _renderActiveTab() {
+    const activeBtn = document.querySelector('.tab-btn.active');
+    if (!activeBtn) return;
+    const tabId = activeBtn.dataset.tab;
+    if (tabId === 'tab-cocina') {
+      this._renderKitchenTab();
+    } else if (tabId === 'tab-finanzas') {
+      this._renderFinanceTab();
+    }
+  }
+
+  _renderKitchenTab() {
+    const cfg = this.R.config;
+    const sc = this._scale();
+    const ings = this.R.ingredients;
+    const port = Math.max(cfg.portions, 1);
+    
+    // Update header
+    const titleEl = document.getElementById('kview-title');
+    if (titleEl) titleEl.textContent = cfg.dishName || 'Sin nombre';
+    
+    const metaEl = document.getElementById('kview-meta');
+    if (metaEl) {
+      const cur = cfg.currency || 'EUR';
+      let curSym = '€';
+      if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+      if (cur === 'PEN') curSym = 'S/.';
+      metaEl.textContent = `Raciones: ${port} | Escala: ×${sc} | Moneda: ${cur} (${curSym})`;
+    }
+    
+    // Ingredients check list
+    const ingListEl = document.getElementById('kview-ing-list');
+    if (ingListEl) {
+      if (ings.length === 0) {
+        ingListEl.innerHTML = `
+          <div style="background: #ffffff; padding: 20px; text-align: center; color: #64748b; font-style: italic; font-size: .8rem">
+            No hay ingredientes agregados a la receta.
+          </div>`;
+      } else {
+        ingListEl.innerHTML = ings.map((ing, idx) => {
+          const allergenEmojis = ing.allergens && ing.allergens.length 
+            ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : '').join('')
+            : '';
+          const allergenStr = allergenEmojis ? ` <span style="font-size: .65rem">${allergenEmojis}</span>` : '';
+          
+          return `
+            <div class="kitchen-ing-row" data-idx="${idx}">
+              <div class="kitchen-ing-left">
+                <div class="kitchen-checkbox">✓</div>
+                <span class="kitchen-ing-name" style="font-weight: 600; color: #1e293b">${ing.name}${allergenStr}</span>
+              </div>
+              <span class="kitchen-ing-qty" style="color: #475569">${F1(ing.net * sc)} g/ml</span>
+            </div>`;
+        }).join('');
+        
+        // Add click events to rows
+        ingListEl.querySelectorAll('.kitchen-ing-row').forEach(row => {
+          row.addEventListener('click', () => {
+            row.classList.toggle('checked');
+          });
+        });
+      }
+    }
+    
+    // Image box
+    const photoBoxEl = document.getElementById('kview-photo-box');
+    if (photoBoxEl) {
+      if (cfg.image) {
+        photoBoxEl.innerHTML = `<img src="${cfg.image}" alt="Plato" loading="lazy">`;
+      } else {
+        photoBoxEl.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 40px 0">
+            <span style="font-size: 2rem">📸</span>
+            <span>Sin imagen de elaboración subida</span>
+          </div>`;
+      }
+    }
+    
+    // Notes
+    const notesEl = document.getElementById('kview-notes');
+    if (notesEl) {
+      notesEl.textContent = cfg.notes && cfg.notes.trim() ? cfg.notes : 'Sin instrucciones de elaboración registradas.';
+    }
+    
+    // Allergens
+    const allergensEl = document.getElementById('kview-allergens');
+    if (allergensEl) {
+      const allAllergens = new Set();
+      ings.forEach(ing => {
+        if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+      });
+      
+      if (allAllergens.size === 0) {
+        allergensEl.innerHTML = `<span style="font-size: .8rem; color: #64748b; font-style: italic">Libre de alérgenos declarados.</span>`;
+      } else {
+        allergensEl.innerHTML = Array.from(allAllergens).map(a => {
+          const item = ALLERGENS[a] || { emoji: '⚠️', name: a };
+          return `<span class="tag tag-high" style="background:#f3e8ff;color:#6b21a8;border-color:#e9d5ff;font-size:.7rem;padding:3px 8px">${item.emoji} ${item.name}</span>`;
+        }).join('');
+      }
+    }
+  }
+
+  _renderFinanceTab() {
+    const cfg = this.R.config;
+    const sc = this._scale();
+    const ings = this.R.ingredients;
+    const port = Math.max(cfg.portions, 1);
+    
+    const lote = ings.reduce((s, i) => s + i.cost * sc, 0);
+    const unit = lote / port;
+    
+    // Calculate categories costs
+    const catCosts = {
+      protein: 0,
+      vegetable: 0,
+      dairy: 0,
+      spice: 0,
+      oil: 0,
+      other: 0
+    };
+    
+    ings.forEach(ing => {
+      const cat = ing.category || 'other';
+      if (catCosts[cat] !== undefined) {
+        catCosts[cat] += ing.cost * sc;
+      } else {
+        catCosts['other'] += ing.cost * sc;
+      }
+    });
+    
+    const totalCost = Object.values(catCosts).reduce((a, b) => a + b, 0);
+    
+    // Segmented bar
+    const barEl = document.getElementById('finance-cost-bar');
+    const legendEl = document.getElementById('finance-legend');
+    
+    if (barEl && legendEl) {
+      if (totalCost === 0) {
+        barEl.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: .65rem; color: var(--t4); padding-top:4px">Sin insumos para analizar</div>`;
+        legendEl.innerHTML = '';
+      } else {
+        // Render bar segments
+        barEl.innerHTML = Object.entries(catCosts).map(([cat, val]) => {
+          const pct = totalCost > 0 ? (val / totalCost) * 100 : 0;
+          if (pct === 0) return '';
+          const info = CATEGORIES[cat] || { color: '#8494b4', label: cat };
+          return `<div class="cost-segment" style="width: ${pct}%; background: ${info.color}" title="${info.label}: ${EUR.format(val)} (${F1(pct)}%)"></div>`;
+        }).join('');
+        
+        // Render legend cards
+        legendEl.innerHTML = Object.entries(catCosts).map(([cat, val]) => {
+          const pct = totalCost > 0 ? (val / totalCost) * 100 : 0;
+          if (pct === 0) return '';
+          const info = CATEGORIES[cat] || { color: '#8494b4', label: cat };
+          return `
+            <div class="cost-legend-item">
+              <span class="cost-legend-lbl">
+                <span style="width: 6px; height: 6px; border-radius: 50%; background: ${info.color}; display: inline-block"></span>
+                ${info.label}
+              </span>
+              <span class="cost-legend-val">${EUR.format(val)}</span>
+              <span class="cost-legend-pct">${F1(pct)}% del total</span>
+            </div>`;
+        }).join('');
+      }
+    }
+    
+    // Read Break-Even Simulator values from configuration or defaults
+    const fixedCostsInput = document.getElementById('fin-fixed-costs');
+    const targetSalesInput = document.getElementById('fin-target-sales');
+    
+    if (fixedCostsInput && targetSalesInput) {
+      // Sync if they have stored values
+      if (cfg.fixedCosts === undefined) cfg.fixedCosts = 3000;
+      if (cfg.targetSales === undefined) cfg.targetSales = 500;
+      
+      const fixedCosts = parseFloat(fixedCostsInput.value) || 0;
+      const targetSales = parseFloat(targetSalesInput.value) || 1;
+      
+      // Save changes back to config
+      cfg.fixedCosts = fixedCosts;
+      cfg.targetSales = targetSales;
+      
+      // Break-even calculations
+      const pvp = parseFloat(cfg.customPVP) || 0;
+      const pvpNet = pvp / (1 + (cfg.taxRate || 0) / 100);
+      
+      const mcu = pvpNet - unit;
+      const ratio = pvpNet > 0 ? (mcu / pvpNet) : 0;
+      const beUnits = mcu > 0 ? Math.ceil(fixedCosts / mcu) : 0;
+      const beRevenue = beUnits * pvp;
+      
+      document.getElementById('fin-mcu').textContent = EUR.format(mcu);
+      document.getElementById('fin-mcu').className = `kpi-val ${mcu >= 0 ? 'c-green' : 'c-red'}`;
+      document.getElementById('fin-mcu-pct').textContent = `Ratio: ${F1(ratio * 100)}%`;
+      
+      document.getElementById('fin-be-units').textContent = beUnits > 0 ? `${beUnits} raciones` : 'No alcanzable';
+      document.getElementById('fin-be-revenue').textContent = beUnits > 0 ? `Facturación BE: ${EUR.format(beRevenue)}` : 'Sin margen positivo';
+    }
+    
+    // Generate consulting tips list
+    const tipsListEl = document.getElementById('consulting-tips-list');
+    if (tipsListEl) {
+      const tips = [];
+      
+      if (ings.length === 0) {
+        tips.push(`Añade ingredientes a tu receta para obtener diagnósticos y recomendaciones de rentabilidad.`);
+      } else {
+        // Find highest cost ingredient
+        let highestIng = null;
+        let highestCost = -1;
+        ings.forEach(ing => {
+          if (ing.cost > highestCost) {
+            highestCost = ing.cost;
+            highestIng = ing;
+          }
+        });
+        
+        if (highestIng) {
+          const ingPct = totalCost > 0 ? (highestIng.cost * sc / totalCost) * 100 : 0;
+          tips.push(`<strong>Materias primas clave</strong>: El insumo con mayor impacto en el costo es <strong>${highestIng.name}</strong>, representando un <strong>${F1(ingPct)}%</strong> del coste total del plato. Considera vigilar sus mermas o negociar precio con el proveedor.`);
+        }
+        
+        // Food Cost vs goal
+        const pvp = parseFloat(cfg.customPVP) || 0;
+        const pvpNet = pvp / (1 + cfg.taxRate/100);
+        const fcRound = pvpNet > 0 ? F1((unit / pvpNet) * 100) : 0;
+        const goal = cfg.fcGoal || 28;
+        if (pvp > 0) {
+          if (pvpNet < unit) {
+            tips.push(`<strong style="color:var(--red)">¡Alerta Crítica de Pérdidas!</strong> El precio de venta configurado está por debajo del costo unitario. Estás perdiendo <strong>${EUR.format(unit - pvpNet)}</strong> por ración vendida. Incrementa urgentemente el PVP manual.`);
+          } else if (fcRound > goal) {
+            const suggestedPvpN = unit / (goal / 100);
+            const suggestedPvpT = suggestedPvpN * (1 + cfg.taxRate / 100);
+            tips.push(`<strong style="color:var(--amber)">Costo Objetivo Excedido</strong>: El costo real (${fcRound}%) supera el objetivo de ${goal}%. Para restaurar tu margen, deberías ajustar el PVP manual del plato a por lo menos <strong>${EUR.format(suggestedPvpT)}</strong> (neto: ${EUR.format(suggestedPvpN)}) o reducir la cantidad de insumos.`);
+          } else {
+            tips.push(`<strong style="color:var(--green)">Salud Financiera</strong>: El plato cumple con el costo objetivo. Tu margen de contribución del <strong>${F1((1 - (unit/pvpNet)) * 100)}%</strong> es óptimo para amortizar los gastos fijos del restaurante.`);
+          }
+        } else {
+          tips.push(`<strong>Configura el PVP del plato</strong>: Introduce un precio de venta para analizar márgenes de contribución, ratios de rentabilidad y simular el punto de equilibrio operativo.`);
+        }
+        
+        // Category distribution analysis
+        const proteinPct = totalCost > 0 ? (catCosts.protein / totalCost) * 100 : 0;
+        if (proteinPct > 65) {
+          tips.push(`<strong>Alta dependencia proteica</strong>: Las proteínas concentran el ${F1(proteinPct)}% del costo total. Considera acompañamientos más económicos (guarniciones de vegetales o tubérculos) para equilibrar el coste medio del plato.`);
+        }
+      }
+      
+      tipsListEl.innerHTML = tips.map(tip => `
+        <div class="consulting-tip">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--cyan);margin-top:2px"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/></svg>
+          <span>${tip}</span>
+        </div>
+      `).join('');
     }
   }
 
@@ -2401,6 +3063,12 @@ class GC {
       placeholder.style.display = 'flex';
       removeBtn.style.display = 'none';
     }
+
+    // V12 Hydrate financial simulator inputs
+    const finFixed = document.getElementById('fin-fixed-costs');
+    const finTarget = document.getElementById('fin-target-sales');
+    if (finFixed) finFixed.value = cfg.fixedCosts ?? 3000;
+    if (finTarget) finTarget.value = cfg.targetSales ?? 500;
   }
 
   /* ═══════════════════════════════════════════════
