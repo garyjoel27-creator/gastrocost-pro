@@ -1456,7 +1456,7 @@ class GC {
 
   /* ── Getters ── */
   get R() { return this.db.recipes[this.db.activeId]; }
-  _scale() { return parseFloat(document.getElementById('cfg-scale').value) || 1; }
+  _scale() { return Math.max(0.01, parseFloat(document.getElementById('cfg-scale').value) || 1); }
 
   /* ═══════════════════════════════════════════════
      EVENT BINDING
@@ -1486,6 +1486,12 @@ class GC {
           v = el.value;
         } else {
           v = el.type === 'number' ? (parseFloat(el.value) || 0) : el.value;
+          if (el.type === 'number') {
+            if (k === 'portions')  v = Math.max(1, Math.round(v));
+            if (k === 'taxRate')   v = Math.max(0, v);
+            if (k === 'fcGoal')    v = Math.max(0.1, Math.min(100, v));
+            if (k === 'customPVP') v = Math.max(0, v);
+          }
         }
         this.R.config[k] = v;
         this.R.updatedAt = Date.now();
