@@ -3466,6 +3466,16 @@ class GC {
     wrap.innerHTML = html;
     wrap.style.display = 'block';
 
+    // V12.2 Wait for all base64 images to load/decode fully before html2pdf capture
+    const imgsToLoad = wrap.querySelectorAll('img');
+    await Promise.all(Array.from(imgsToLoad).map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }));
+
     try {
       await html2pdf().set({
         margin: 10,
@@ -3628,6 +3638,16 @@ class GC {
     const wrap = document.getElementById('pdf-scratch');
     wrap.innerHTML = html;
     wrap.style.display = 'block';
+
+    // V12.2 Wait for all base64 images to load/decode fully before html2pdf capture
+    const imgsToLoad = wrap.querySelectorAll('img');
+    await Promise.all(Array.from(imgsToLoad).map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }));
 
     try {
       await html2pdf().set({
