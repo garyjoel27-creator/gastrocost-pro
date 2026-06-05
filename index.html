@@ -1156,7 +1156,205 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
   font-size: 0.72rem;
   pointer-events: none;
 }
-.im/* Kitchen tab styling */
+.image-upload-placeholder .upload-icon {
+  font-size: 1.3rem;
+}
+.recipe-photo-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.btn-remove-photo {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: rgba(6, 9, 17, 0.85);
+  border: 1px solid var(--b2);
+  color: var(--t1);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+  font-weight: bold;
+  font-size: 0.65rem;
+  z-index: 5;
+}
+.btn-remove-photo:hover {
+  background: var(--red);
+  color: #0c1019;
+  border-color: var(--red);
+}
+.lib-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* V12 Tabs Layout CSS */
+.tabs-nav {
+  display: flex;
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  padding: 4px;
+  border-radius: var(--r2);
+  gap: 4px;
+  margin-bottom: 12px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  color: var(--t3);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: .8rem;
+  border-radius: var(--r1);
+  cursor: pointer;
+  transition: all .2s var(--ease);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.tab-icon {
+  flex-shrink: 0;
+  stroke: currentColor;
+  transition: transform .2s var(--ease);
+}
+.tab-btn:hover .tab-icon {
+  transform: scale(1.1);
+}
+.tab-btn:hover {
+  color: var(--t1);
+  background: var(--glass-hover);
+}
+.tab-btn.active {
+  color: #060911;
+  background: linear-gradient(135deg, var(--cyan), var(--cyanD));
+  box-shadow: 0 2px 8px rgba(34,211,238,.2);
+}
+.tab-content {
+  display: none;
+  animation: tab-fade .35s var(--ease) forwards;
+}
+.tab-content.active {
+  display: block;
+}
+@keyframes tab-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Category segmented cost bar */
+.cost-segment-bar {
+  display: flex;
+  height: 24px;
+  border-radius: var(--r1);
+  overflow: hidden;
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  margin-top: 10px;
+  position: relative;
+}
+.cost-segment {
+  height: 100%;
+  transition: all .4s var(--ease);
+  position: relative;
+  cursor: pointer;
+}
+.cost-segment:hover {
+  filter: brightness(1.15);
+}
+.cost-legend-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.cost-legend-item {
+  background: var(--s2);
+  border: 1px solid var(--b1);
+  border-radius: var(--r1);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: .75rem;
+}
+.cost-legend-lbl {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--t4);
+}
+.cost-legend-val {
+  font-family: var(--mono);
+  font-weight: 700;
+  color: var(--t1);
+}
+.cost-legend-pct {
+  font-size: .62rem;
+  color: var(--t3);
+  font-family: var(--mono);
+}
+
+/* Executive Consulting styling */
+.consulting-box {
+  background: linear-gradient(135deg, rgba(34,211,238,0.03), rgba(167,139,250,0.03));
+  border: 1px solid var(--b1);
+  border-radius: var(--r3);
+  padding: 18px;
+  margin-top: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.consulting-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; width: 4px; height: 100%;
+  background: linear-gradient(180deg, var(--cyan), var(--purple));
+}
+.consulting-title {
+  font-size: .7rem;
+  font-weight: 800;
+  color: var(--cyan);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.consulting-tips {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.consulting-tip {
+  font-size: .78rem;
+  line-height: 1.5;
+  color: var(--t2);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.consulting-tip svg {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+/* Kitchen tab styling */
 .kitchen-view {
   background: var(--kit-bg, #ffffff);
   color: var(--kit-text, #1e293b);
@@ -1264,6 +1462,17 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
   overflow: hidden;
   border: 1px solid var(--b2);
   margin-bottom: 16px;
+  background: var(--kit-row-hover, #f8fafc);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--t4);
+  font-size: .8rem;
+}
+.kitchen-photo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .kitchen-notes-box {
   background: var(--kit-row-hover, #f8fafc);
@@ -1276,208 +1485,6 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
   white-space: pre-wrap;
   font-family: Georgia, serif;
   min-height: 100px;
-}tness(1.15);
-}
-.cost-legend-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 8px;
-  margin-top: 12px;
-}
-.cost-legend-item {
-  background: var(--s2);
-  border: 1px solid var(--b1);
-  border-radius: var(--r1);
-  padding: 8px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: .75rem;
-}
-.cost-legend-lbl {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  font-size: .65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--t4);
-}
-.cost-legend-val {
-  font-family: var(--mono);
-  font-weight: 700;
-  color: var(--t1);
-}
-.cost-legend-pct {
-  font-size: .62rem;
-  color: var(--t3);
-  font-family: var(--mono);
-}
-
-/* Executive Consulting styling */
-.consulting-box {
-  background: linear-gradient(135deg, rgba(34,211,238,0.03), rgba(167,139,250,0.03));
-  border: 1px solid var(--b1);
-  border-radius: var(--r3);
-  padding: 18px;
-  margin-top: 16px;
-  position: relative;
-  overflow: hidden;
-}
-.consulting-box::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; width: 4px; height: 100%;
-  background: linear-gradient(180deg, var(--cyan), var(--purple));
-}
-.consulting-title {
-  font-size: .7rem;
-  font-weight: 800;
-  color: var(--cyan);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.consulting-tips {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.consulting-tip {
-  font-size: .78rem;
-  line-height: 1.5;
-  color: var(--t2);
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-}
-.consulting-tip svg {
-  margin-top: 2px;
-  flex-shrink: 0;
-}
-
-/* Kitchen tab styling */
-.kitchen-view {
-  background: #ffffff;
-  color: #1e293b;
-  border-radius: var(--r3);
-  box-shadow: var(--sh2);
-  overflow: hidden;
-  border: 1px solid var(--b2);
-}
-.kitchen-view-header {
-  padding: 20px 24px;
-  background: #0f172a;
-  color: #ffffff;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.kitchen-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  letter-spacing: -0.5px;
-}
-.kitchen-meta {
-  font-size: .78rem;
-  color: #94a3b8;
-  font-family: var(--mono);
-}
-.kitchen-body {
-  padding: 24px;
-}
-.kitchen-grid {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr;
-  gap: 24px;
-}
-@media (max-width: 768px) {
-  .kitchen-grid { grid-template-columns: 1fr; }
-}
-.kitchen-section-title {
-  font-size: .85rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: #0f172a;
-  border-bottom: 2px solid #0f172a;
-  padding-bottom: 6px;
-  margin-bottom: 12px;
-}
-.kitchen-ing-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  background: #e2e8f0;
-  border-radius: var(--r1);
-  overflow: hidden;
-}
-.kitchen-ing-row {
-  background: #ffffff;
-  padding: 10px 14px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  transition: background .12s;
-  cursor: pointer;
-  user-select: none;
-}
-.kitchen-ing-row:hover {
-  background: #f8fafc;
-}
-.kitchen-ing-row.checked {
-  background: #f1f5f9;
-  text-decoration: line-through;
-  color: #94a3b8;
-}
-.kitchen-ing-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.kitchen-checkbox {
-  width: 16px; height: 16px;
-  border: 2px solid #cbd5e1;
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: .65rem;
-  color: #ffffff;
-  transition: all .15s;
-}
-.kitchen-ing-row.checked .kitchen-checkbox {
-  background: #10b981;
-  border-color: #10b981;
-}
-.kitchen-ing-qty {
-  font-family: var(--mono);
-  font-weight: 600;
-  font-size: .8rem;
-}
-.kitchen-photo-box {
-  width: 100%;
-  height: 200px;
-  border-radius: var(--r2);
-  overflow: hidden;
-  border: 1px solid #cbd5e1;
-  margin-bottom: 16px;
-  background: #f8fafc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #94a3b8;
-  font-size: .8rem;
-}
-.kitchen-photo-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 /* V12.3 Export Modal Premium Styles */
@@ -1746,12 +1753,23 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
   <!-- ═══════ MAIN ═══════ -->
   <main style="display:flex;flex-direction:column;gap:12px">
 
-    <!-- V12 Tabs Navigation -->
     <div class="tabs-nav">
-      <button class="tab-btn active" data-tab="tab-escandallo" type="button">📋 Ficha Costes</button>
-      <button class="tab-btn" data-tab="tab-cocina" type="button">🍳 Ficha Cocina</button>
-      <button class="tab-btn" data-tab="tab-finanzas" type="button">📊 Finanzas</button>
-      <button class="tab-btn" data-tab="tab-catalogo" type="button">🗂️ Catálogo</button>
+      <button class="tab-btn active" data-tab="tab-escandallo" type="button">
+        <svg class="tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect><line x1="9" y1="14" x2="15" y2="14"></line><line x1="9" y1="18" x2="13" y2="18"></line><line x1="9" y1="10" x2="15" y2="10"></line></svg>
+        <span>Ficha Costes</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-cocina" type="button">
+        <svg class="tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7a4 4 0 0 0 4 4h0a4 4 0 0 0 4-4V2M6 2v4M9 2v4M7 13v8M21 2v10h-3V2zM19 12v9"></path></svg>
+        <span>Ficha Cocina</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-finanzas" type="button">
+        <svg class="tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        <span>Finanzas</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-catalogo" type="button">
+        <svg class="tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg>
+        <span>Catálogo</span>
+      </button>
     </div>
 
     <!-- TAB 1: ESCANDALLO -->
