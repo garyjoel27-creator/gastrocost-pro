@@ -1253,49 +1253,100 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
   to { opacity: 1; transform: none; }
 }
 
-/* Category segmented cost bar */
-.cost-segment-bar {
-  display: flex;
-  height: 24px;
-  border-radius: var(--r1);
-  overflow: hidden;
-  background: var(--s1);
-  border: 1px solid var(--b1);
+/* Cost breakdown Donut Chart V13.2 */
+.finance-chart-section {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  align-items: center;
   margin-top: 10px;
+}
+@media (max-width: 600px) {
+  .finance-chart-section {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    gap: 16px;
+  }
+}
+.donut-chart-container {
+  width: 100%;
+  max-width: 180px;
+  aspect-ratio: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   position: relative;
 }
-.cost-segment {
+.donut-chart {
+  width: 100%;
   height: 100%;
-  transition: all .4s var(--ease);
-  position: relative;
-  cursor: pointer;
 }
-.cost-segment:hover {
-  filter: brightness(1.15);
+.donut-segment {
+  transition: stroke-width 0.25s var(--ease), stroke 0.25s var(--ease), filter 0.25s var(--ease);
+  cursor: pointer;
+  transform: rotate(-90deg);
+  transform-origin: 50px 50px;
+}
+.donut-segment:hover,
+.donut-segment.highlighted {
+  stroke-width: 13;
+  filter: brightness(1.1);
+}
+.donut-center-lbl {
+  font-size: 5.5px;
+  fill: var(--t4);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-family: var(--sans);
+  pointer-events: none;
+}
+.donut-center-val {
+  font-size: 9.5px;
+  fill: var(--t1);
+  font-weight: 800;
+  font-family: var(--mono);
+  pointer-events: none;
 }
 .cost-legend-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 8px;
-  margin-top: 12px;
+  width: 100%;
 }
 .cost-legend-item {
   background: var(--s2);
   border: 1px solid var(--b1);
   border-radius: var(--r1);
-  padding: 8px 10px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
   gap: 2px;
   font-size: .75rem;
+  cursor: pointer;
+  transition: border-color 0.25s var(--ease), background 0.25s var(--ease), transform 0.2s;
+}
+.cost-legend-item:hover,
+.cost-legend-item.highlighted {
+  background: var(--s3);
+  transform: translateY(-1px);
 }
 .cost-legend-lbl {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   font-size: .65rem;
   font-weight: 700;
   text-transform: uppercase;
+  color: var(--t4);
+}
+.cost-legend-val {
+  font-weight: 700;
+  color: var(--t1);
+  font-family: var(--mono);
+}
+.cost-legend-pct {
+  font-size: 0.65rem;
   color: var(--t4);
 }
 .cost-legend-val {
@@ -1950,10 +2001,19 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
             Análisis de Margen y Umbral Operativo
           </div>
 
-          <!-- Seg bar cost breakdown -->
+          <!-- Donut chart breakdown V13.2 -->
           <label class="fl">Estructura de Costes de la Receta</label>
-          <div class="cost-segment-bar" id="finance-cost-bar"></div>
-          <div class="cost-legend-grid" id="finance-legend"></div>
+          <div class="finance-chart-section">
+            <div class="donut-chart-container">
+              <svg viewBox="0 0 100 100" class="donut-chart" id="finance-donut-chart">
+                <circle cx="50" cy="50" r="30" fill="transparent" stroke="var(--s3)" stroke-width="10"></circle>
+                <g id="donut-segments"></g>
+                <text x="50" y="47" class="donut-center-lbl" id="donut-center-lbl" text-anchor="middle">Total Coste</text>
+                <text x="50" y="58" class="donut-center-val" id="donut-center-val" text-anchor="middle">0,00 €</text>
+              </svg>
+            </div>
+            <div class="cost-legend-grid" id="finance-legend"></div>
+          </div>
 
           <!-- Break-even inputs -->
           <div style="margin-top: 20px; border-top: 1px solid var(--b1); padding-top: 16px">
@@ -3665,38 +3725,128 @@ class GC {
     
     const totalCost = Object.values(catCosts).reduce((a, b) => a + b, 0);
     
-    // Segmented bar
-    const barEl = document.getElementById('finance-cost-bar');
+    // Donut chart y leyendas V13.2
+    const segmentsEl = document.getElementById('donut-segments');
     const legendEl = document.getElementById('finance-legend');
+    const centerValEl = document.getElementById('donut-center-val');
+    const centerLblEl = document.getElementById('donut-center-lbl');
     
-    if (barEl && legendEl) {
+    if (centerValEl) {
+      centerValEl.textContent = EUR.format(totalCost);
+    }
+    if (centerLblEl) {
+      centerLblEl.textContent = 'Total Coste';
+    }
+    
+    if (segmentsEl && legendEl) {
       if (totalCost === 0) {
-        barEl.innerHTML = `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: .65rem; color: var(--t4); padding-top:4px">Sin insumos para analizar</div>`;
-        legendEl.innerHTML = '';
+        segmentsEl.innerHTML = `
+          <circle cx="50" cy="50" r="30" fill="transparent" stroke="var(--s3)" stroke-width="10"></circle>
+        `;
+        legendEl.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; color: var(--t4); font-size: 0.8rem; padding: 20px 0;">
+            Sin insumos para analizar. Agrega ingredientes en la Ficha de Costes.
+          </div>`;
       } else {
-        // Render bar segments
-        barEl.innerHTML = Object.entries(catCosts).map(([cat, val]) => {
-          const pct = totalCost > 0 ? (val / totalCost) * 100 : 0;
+        const C = 2 * Math.PI * 30; // ~188.4955
+        let accumulatedPct = 0;
+        
+        // Render segments
+        const segmentsHTML = Object.entries(catCosts).map(([cat, val]) => {
+          const pct = (val / totalCost) * 100;
           if (pct === 0) return '';
+          
           const info = CATS[cat] || { color: '#8494b4', label: cat };
-          return `<div class="cost-segment" style="width: ${pct}%; background: ${info.color}" title="${info.label}: ${EUR.format(val)} (${F1(pct)}%)"></div>`;
+          const strokeLength = (pct / 100) * C;
+          const strokeOffset = -(accumulatedPct / 100) * C;
+          
+          accumulatedPct += pct;
+          
+          return `
+            <circle class="donut-segment" 
+                    data-cat="${cat}" 
+                    cx="50" 
+                    cy="50" 
+                    r="30" 
+                    fill="transparent" 
+                    stroke="${info.color}" 
+                    stroke-width="10" 
+                    stroke-dasharray="${strokeLength} ${C}" 
+                    stroke-dashoffset="${strokeOffset}"
+                    title="${info.label}: ${EUR.format(val)} (${F1(pct)}%)">
+            </circle>`;
         }).join('');
         
+        segmentsEl.innerHTML = segmentsHTML;
+        
         // Render legend cards
-        legendEl.innerHTML = Object.entries(catCosts).map(([cat, val]) => {
-          const pct = totalCost > 0 ? (val / totalCost) * 100 : 0;
+        const legendHTML = Object.entries(catCosts).map(([cat, val]) => {
+          const pct = (val / totalCost) * 100;
           if (pct === 0) return '';
           const info = CATS[cat] || { color: '#8494b4', label: cat };
           return `
-            <div class="cost-legend-item">
+            <div class="cost-legend-item" data-cat="${cat}" style="border-left: 3px solid ${info.color}">
               <span class="cost-legend-lbl">
-                <span style="width: 6px; height: 6px; border-radius: 50%; background: ${info.color}; display: inline-block"></span>
                 ${info.label}
               </span>
               <span class="cost-legend-val">${EUR.format(val)}</span>
               <span class="cost-legend-pct">${F1(pct)}% del total</span>
             </div>`;
         }).join('');
+        
+        legendEl.innerHTML = legendHTML;
+        
+        // Add interactive listeners
+        const segments = segmentsEl.querySelectorAll('.donut-segment');
+        const legendItems = legendEl.querySelectorAll('.cost-legend-item');
+        
+        const highlightCategory = (cat) => {
+          const val = catCosts[cat] || 0;
+          const pct = totalCost > 0 ? (val / totalCost) * 100 : 0;
+          const info = CATS[cat] || { color: '#8494b4', label: cat };
+          
+          // Actualizar centro del donut
+          if (centerLblEl) centerLblEl.textContent = info.label;
+          if (centerValEl) centerValEl.textContent = EUR.format(val);
+          
+          // Resaltar segmento
+          segments.forEach(seg => {
+            if (seg.getAttribute('data-cat') === cat) {
+              seg.classList.add('highlighted');
+            } else {
+              seg.classList.remove('highlighted');
+            }
+          });
+          
+          // Resaltar leyenda
+          legendItems.forEach(item => {
+            if (item.getAttribute('data-cat') === cat) {
+              item.classList.add('highlighted');
+            } else {
+              item.classList.remove('highlighted');
+            }
+          });
+        };
+        
+        const resetHighlight = () => {
+          if (centerLblEl) centerLblEl.textContent = 'Total Coste';
+          if (centerValEl) centerValEl.textContent = EUR.format(totalCost);
+          
+          segments.forEach(seg => seg.classList.remove('highlighted'));
+          legendItems.forEach(item => item.classList.remove('highlighted'));
+        };
+        
+        segments.forEach(seg => {
+          const cat = seg.getAttribute('data-cat');
+          seg.addEventListener('mouseenter', () => highlightCategory(cat));
+          seg.addEventListener('mouseleave', resetHighlight);
+        });
+        
+        legendItems.forEach(item => {
+          const cat = item.getAttribute('data-cat');
+          item.addEventListener('mouseenter', () => highlightCategory(cat));
+          item.addEventListener('mouseleave', resetHighlight);
+        });
       }
     }
     
