@@ -1526,10 +1526,16 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
       <button class="tab-btn active" data-tab="tab-escandallo" type="button">📋 Ficha Costes</button>
       <button class="tab-btn" data-tab="tab-cocina" type="button">🍳 Ficha Cocina</button>
       <button class="tab-btn" data-tab="tab-finanzas" type="button">📊 Finanzas</button>
+      <button class="tab-btn" data-tab="tab-catalogo" type="button">🗂️ Catálogo</button>
     </div>
 
     <!-- TAB 1: ESCANDALLO -->
     <div id="tab-escandallo" class="tab-content active">
+      <!-- V13 Centralized prices sync banner alert -->
+      <div id="sync-prices-banner" class="alert alert-warn" style="display:none;margin-bottom:12px;cursor:pointer" onclick="gc._syncRecipePrices()">
+        <span>⚠️ Hay insumos con precios desactualizados en el catálogo maestro. Haz clic aquí para sincronizar esta receta.</span>
+        <button class="btn btn-primary" style="margin-left:auto;padding:4px 8px;font-size:0.65rem;pointer-events:none">🔄 Sincronizar</button>
+      </div>
       <!-- Ingredients -->
       <div class="card">
         <div class="card-hd">
@@ -1745,6 +1751,84 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
             </div>
           </div>
 
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: CATALOGO MAESTRO (V13) -->
+    <div id="tab-catalogo" class="tab-content">
+      <div class="card">
+        <div class="card-hd">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Administración del Catálogo Maestro
+        </div>
+        <div class="form-table-split">
+          <!-- Formulario agregar insumo maestro -->
+          <form id="form-cat-add">
+            <div class="fg">
+              <label class="fl">Nombre del Insumo</label>
+              <input class="fi" id="cat-add-name" type="text" required placeholder="Ej. Trufa Negra Fresca">
+            </div>
+            <div class="fg">
+              <label class="fl">Categoría</label>
+              <select class="fi" id="cat-add-cat">
+                <option value="protein">🥩 Proteínas</option>
+                <option value="vegetable">🥬 Vegetales</option>
+                <option value="dairy">🧀 Lácteos</option>
+                <option value="spice">🌶️ Especias / Condimentos</option>
+                <option value="oil">🫒 Aceites / Grasas</option>
+                <option value="other" selected>📦 Otros</option>
+              </select>
+            </div>
+            <div class="fg2">
+              <div class="fg">
+                <label class="fl">Merma por Defecto (%)</label>
+                <input class="fi" id="cat-add-waste" type="number" min="0" max="99" value="0">
+              </div>
+              <div class="fg">
+                <label class="fl">Precio Maestro (<span class="curr-sym">€</span>/kg)</label>
+                <input class="fi" id="cat-add-price" type="number" required step="any" min="0.001" placeholder="95.00">
+              </div>
+            </div>
+            <div class="fg">
+              <label class="fl">Alérgenos</label>
+              <div class="allergen-select-grid" id="cat-add-allergens-grid">
+                <label class="allergen-option" data-a="gluten"><input type="checkbox" value="gluten">🌾 Glut</label>
+                <label class="allergen-option" data-a="dairy"><input type="checkbox" value="dairy">🥛 Láct</label>
+                <label class="allergen-option" data-a="egg"><input type="checkbox" value="egg">🥚 Huevo</label>
+                <label class="allergen-option" data-a="fish"><input type="checkbox" value="fish">🐟 Pesc</label>
+                <label class="allergen-option" data-a="nuts"><input type="checkbox" value="nuts">🥜 Frut</label>
+                <label class="allergen-option" data-a="crustacean"><input type="checkbox" value="crustacean">🦞 Crus</label>
+                <label class="allergen-option" data-a="soy"><input type="checkbox" value="soy">🫘 Soja</label>
+                <label class="allergen-option" data-a="sulfite"><input type="checkbox" value="sulfite">🍷 Sulf</label>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px">+ Crear Insumo Maestro</button>
+          </form>
+
+          <!-- Tabla del catálogo con buscador -->
+          <div>
+            <div class="fg" style="margin-bottom:12px">
+              <input class="lib-search" id="cat-search" type="text" placeholder="Buscar en el catálogo maestro..." style="margin-bottom:0;display:block">
+            </div>
+            <div class="tbl-wrap" style="max-height: 480px; overflow-y: auto">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Nombre Insumo</th>
+                    <th>Categoría</th>
+                    <th>Merma (%)</th>
+                    <th>Precio Maestro (<span class="curr-sym">€</span>/kg)</th>
+                    <th>Alérgenos</th>
+                    <th style="width:32px"></th>
+                  </tr>
+                </thead>
+                <tbody id="cat-tbl-body">
+                  <!-- Javascript populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1987,7 +2071,7 @@ class GC {
   /* ── Default database ── */
   _defaultDB() {
     return {
-      version: 12,
+      version: 13,
       activeId: 'r0',
       recipes: {
         'r0': {
@@ -1997,7 +2081,15 @@ class GC {
           createdAt: Date.now(),
           updatedAt: Date.now()
         }
-      }
+      },
+      catalog: INGREDIENTS_MASTER.map(item => ({
+        id: uid(),
+        name: item.name,
+        price: item.price,
+        category: item.category,
+        waste: item.waste,
+        allergens: item.allergens ? [...item.allergens] : []
+      }))
     };
   }
 
@@ -2314,6 +2406,61 @@ class GC {
         renderFinance();
       });
     }
+
+    /* V13 Catalog Event Listeners */
+    const catForm = document.getElementById('form-cat-add');
+    if (catForm) {
+      catForm.addEventListener('submit', e => {
+        e.preventDefault();
+        this._addCatalogItem();
+      });
+    }
+
+    const catSearchInput = document.getElementById('cat-search');
+    if (catSearchInput) {
+      catSearchInput.addEventListener('input', debounce(() => this._renderCatalogTab(), 150));
+    }
+
+    const catAllergensGrid = document.getElementById('cat-add-allergens-grid');
+    if (catAllergensGrid) {
+      catAllergensGrid.addEventListener('change', e => {
+        const label = e.target.closest('.allergen-option');
+        if (label) {
+          label.classList.toggle('selected', e.target.checked);
+        }
+      });
+    }
+
+    const catTbody = document.getElementById('cat-tbl-body');
+    if (catTbody) {
+      catTbody.addEventListener('focusout', e => {
+        const el = e.target;
+        if (!el.classList.contains('ec')) return;
+        const item = this.db.catalog.find(c => c.id === el.dataset.id);
+        if (!item) return;
+
+        let rawVal = parseFloat(el.innerText.trim().replace(',', '.')) || 0;
+        const val = Math.max(0, rawVal);
+        if (el.dataset.f === 'price') {
+          item.price = val;
+        } else if (el.dataset.f === 'waste') {
+          item.waste = Math.min(99, val);
+        }
+
+        this._renderCatalogTab();
+        this._autoSave();
+      });
+
+      catTbody.addEventListener('keydown', e => {
+        const el = e.target;
+        if (!el.classList.contains('ec')) return;
+
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          el.blur();
+        }
+      });
+    }
   }
 
   /* ═══════════════════════════════════════════════
@@ -2409,7 +2556,7 @@ class GC {
               catSelect.value = master.category || 'other';
             }
             if (!wasteInput.value || parseFloat(wasteInput.value) === 0) {
-              const originalMaster = INGREDIENTS_MASTER.find(m => m.name.toLowerCase() === val);
+              const originalMaster = (this.db.catalog || []).find(m => m.name.toLowerCase() === val);
               if (originalMaster) {
                 wasteInput.value = originalMaster.waste || 0;
               }
@@ -2489,26 +2636,30 @@ class GC {
   _getIngredientHistory() {
     const seen = new Map();
     
-    // 1. Populate with master list
-    INGREDIENTS_MASTER.forEach(m => {
-      seen.set(m.name.toLowerCase(), {
-        name: m.name,
-        price: m.price,
-        category: m.category,
-        allergens: m.allergens ? m.allergens.join(',') : ''
+    // 1. Populate with DB catalog list
+    if (this.db.catalog) {
+      this.db.catalog.forEach(m => {
+        seen.set(m.name.toLowerCase(), {
+          name: m.name,
+          price: m.price,
+          category: m.category,
+          allergens: m.allergens ? m.allergens.join(',') : ''
+        });
       });
-    });
+    }
     
     // 2. Combine with user history
     Object.values(this.db.recipes).forEach(r => {
       r.ingredients.forEach(ing => {
         const key = ing.name.toLowerCase();
-        seen.set(key, {
-          name: ing.name,
-          price: ing.originalPrice,
-          category: ing.category || 'other',
-          allergens: ing.allergens ? ing.allergens.join(',') : ''
-        });
+        if (!seen.has(key)) {
+          seen.set(key, {
+            name: ing.name,
+            price: ing.originalPrice,
+            category: ing.category || 'other',
+            allergens: ing.allergens ? ing.allergens.join(',') : ''
+          });
+        }
       });
     });
     return Array.from(seen.values());
@@ -2612,6 +2763,22 @@ class GC {
     const newIng = { id:uid(), name, net, waste, gross, cost, originalPrice:price, category:cat, allergens };
     this.R.ingredients.push(newIng);
     this.R.updatedAt = Date.now();
+
+    // Check if ingredient exists in catalog (case-insensitive name match)
+    if (this.db.catalog) {
+      const existsInCatalog = this.db.catalog.some(item => item.name.trim().toLowerCase() === name.toLowerCase());
+      if (!existsInCatalog) {
+        this.db.catalog.push({
+          id: uid(),
+          name: name,
+          price: price,
+          category: cat,
+          waste: waste,
+          allergens: allergens ? [...allergens] : []
+        });
+        toast(`"${name}" añadido automáticamente al Catálogo Maestro ✓`);
+      }
+    }
 
     document.getElementById('form-ing').reset();
     document.getElementById('ing-waste').value = 0;
@@ -2740,6 +2907,28 @@ class GC {
           return `<span class="allergen-badge active" title="${item.name}">${item.emoji}</span>`;
         }).join('')}</div>` : '';
 
+      // Check for price mismatch against database catalog
+      const catalogItem = this.db.catalog ? this.db.catalog.find(c => c.name.trim().toLowerCase() === ing.name.trim().toLowerCase()) : null;
+      const priceMismatch = catalogItem && Math.abs(catalogItem.price - ing.originalPrice) > 0.001;
+      
+      let priceCellHtml = '';
+      if (priceMismatch) {
+        priceCellHtml = `
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+            <div>
+              <span class="ec" style="border: 1px solid rgba(251,191,36,.5); background: rgba(251,191,36,.06); color: var(--amber); font-weight: 600" contenteditable="true" data-id="${ing.id}" data-f="price">${F2(ing.originalPrice)}</span>
+              <span class="curr-sym-inline" style="color:var(--amber)"></span>
+            </div>
+            <div class="cat-price-diff" style="font-size:0.62rem;color:var(--amber);opacity:0.85;font-family:var(--mono)">Catálogo: ${F2(catalogItem.price)}<span class="curr-sym-inline"></span></div>
+          </div>
+        `;
+      } else {
+        priceCellHtml = `
+          <span class="ec" contenteditable="true" data-id="${ing.id}" data-f="price">${F2(ing.originalPrice)}</span>
+          <span class="curr-sym-inline"></span>
+        `;
+      }
+
       const tr = document.createElement('tr');
       tr.setAttribute('draggable', 'true');
       tr.dataset.id = ing.id;
@@ -2752,7 +2941,7 @@ class GC {
         <td><span class="ec" contenteditable="true" data-id="${ing.id}" data-f="net">${F1(sNet)}</span> g</td>
         <td><span class="tag ${tagCls}">${w}%</span></td>
         <td style="color:var(--t3);font-family:var(--mono);font-size:.76rem">${F1(sGross)} g</td>
-        <td><span class="ec" contenteditable="true" data-id="${ing.id}" data-f="price">${F2(ing.originalPrice)}</span> <span class="curr-sym-inline"></span></td>
+        <td>${priceCellHtml}</td>
         <td style="color:var(--green);font-family:var(--mono);font-weight:600">${EUR.format(sCost)}</td>
         <td><div class="cost-pct"><span class="cost-pct-val">${F1(pct)}%</span><div class="cost-pct-bar" style="width:${pct}%"></div></div></td>
         <td><button class="btn-del" data-id="${ing.id}" title="Eliminar">✕</button></td>`;
@@ -2919,6 +3108,19 @@ class GC {
         simKpi.classList.remove('success-glow');
       }
     }
+
+    // Check for any price mismatch in the recipe and toggle V13 sync banner
+    let hasMismatch = false;
+    if (this.db.catalog) {
+      hasMismatch = ings.some(ing => {
+        const catalogItem = this.db.catalog.find(c => c.name.trim().toLowerCase() === ing.name.trim().toLowerCase());
+        return catalogItem && Math.abs(catalogItem.price - ing.originalPrice) > 0.001;
+      });
+    }
+    const syncBanner = document.getElementById('sync-prices-banner');
+    if (syncBanner) {
+      syncBanner.style.display = hasMismatch ? 'flex' : 'none';
+    }
   }
 
   /* V12 Active Tab Rendering Helpers */
@@ -2930,6 +3132,158 @@ class GC {
       this._renderKitchenTab();
     } else if (tabId === 'tab-finanzas') {
       this._renderFinanceTab();
+    } else if (tabId === 'tab-catalogo') {
+      this._renderCatalogTab();
+    }
+  }
+
+  /* ═══════════════════════════════════════════════
+     V13 CATALOG OPERATIONS
+     ═══════════════════════════════════════════════ */
+  _renderCatalogTab() {
+    const searchVal = (document.getElementById('cat-search').value || '').trim().toLowerCase();
+    const tbody = document.getElementById('cat-tbl-body');
+    if (!tbody) return;
+
+    if (!this.db.catalog || !this.db.catalog.length) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center;padding:24px;color:var(--t4)">
+            El catálogo maestro está vacío. Agrega tu primer insumo usando el formulario de la izquierda.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    const filtered = searchVal 
+      ? this.db.catalog.filter(item => item.name.toLowerCase().includes(searchVal))
+      : this.db.catalog;
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center;padding:24px;color:var(--t4)">
+            No se encontraron insumos que coincidan con la búsqueda.
+          </td>
+        </tr>`;
+      return;
+    }
+
+    const cur = (this.R && this.R.config && this.R.config.currency) ? this.R.config.currency : 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+    if (cur === 'PEN') curSym = 'S/.';
+
+    tbody.innerHTML = filtered.map(item => {
+      const allergenBadges = item.allergens && item.allergens.length 
+        ? item.allergens.map(a => ALLERGENS[a] ? `<span class="allergen-badge active" title="${ALLERGENS[a].name}">${ALLERGENS[a].emoji}</span>` : a).join('')
+        : '<span style="color:var(--t4);font-size:0.7rem">—</span>';
+      
+      const catInfo = CATS[item.category] || { label: 'Otros', color: '#8494b4' };
+
+      return `
+        <tr data-id="${item.id}">
+          <td style="font-weight:600;color:var(--t1)">${item.name}</td>
+          <td>
+            <span class="tag" style="background:${catInfo.color}15;color:${catInfo.color};border:1px solid ${catInfo.color}40">
+              ${catInfo.label}
+            </span>
+          </td>
+          <td><span class="ec" contenteditable="true" data-id="${item.id}" data-f="waste">${item.waste}%</span></td>
+          <td><span class="ec" contenteditable="true" data-id="${item.id}" data-f="price">${F2(item.price)}</span> ${curSym}</td>
+          <td>
+            <div style="display:flex;gap:3px;flex-wrap:wrap">
+              ${allergenBadges}
+            </div>
+          </td>
+          <td><button class="btn-del" onclick="gc._deleteCatalogItem('${item.id}')" title="Eliminar del catálogo">✕</button></td>
+        </tr>`;
+    }).join('');
+  }
+
+  _deleteCatalogItem(id) {
+    const item = this.db.catalog.find(c => c.id === id);
+    if (!item) return;
+    if (!confirm(`¿Eliminar "${item.name}" del Catálogo Maestro? (Permanecerá como ingrediente libre en las recetas existentes)`)) return;
+
+    this.db.catalog = this.db.catalog.filter(c => c.id !== id);
+    this._renderCatalogTab();
+    this._autoSave();
+    toast('Insumo maestro eliminado del catálogo');
+  }
+
+  _addCatalogItem() {
+    const nameInput = document.getElementById('cat-add-name');
+    const priceInput = document.getElementById('cat-add-price');
+    const wasteInput = document.getElementById('cat-add-waste');
+    const catSelect = document.getElementById('cat-add-cat');
+    
+    const name = nameInput.value.trim();
+    const price = parseFloat(priceInput.value);
+    const waste = parseFloat(wasteInput.value) || 0;
+    const cat = catSelect.value;
+
+    const allergenBoxes = document.querySelectorAll('#cat-add-allergens-grid input[type="checkbox"]:checked');
+    const allergens = Array.from(allergenBoxes).map(cb => cb.value);
+
+    if (!name || isNaN(price)) return;
+    if (waste >= 100) { toast('Merma debe ser 0–99%', 'e'); return; }
+
+    const exists = this.db.catalog.some(c => c.name.toLowerCase() === name.toLowerCase());
+    if (exists) {
+      toast(`El insumo "${name}" ya existe en el catálogo`, 'e');
+      return;
+    }
+
+    const newItem = {
+      id: uid(),
+      name,
+      price,
+      waste,
+      category: cat,
+      allergens
+    };
+
+    this.db.catalog.push(newItem);
+    this._autoSave();
+    
+    nameInput.value = '';
+    priceInput.value = '';
+    wasteInput.value = 0;
+    catSelect.value = 'other';
+    document.querySelectorAll('#cat-add-allergens-grid input[type="checkbox"]').forEach(cb => {
+      cb.checked = false;
+      cb.closest('.allergen-option').classList.remove('selected');
+    });
+
+    this._renderCatalogTab();
+    toast(`"${name}" añadido al catálogo maestro ✓`);
+  }
+
+  _syncRecipePrices() {
+    if (!this.db.catalog) return;
+    let updatedCount = 0;
+    this.R.ingredients.forEach(ing => {
+      const catalogItem = this.db.catalog.find(c => c.name.trim().toLowerCase() === ing.name.trim().toLowerCase());
+      if (catalogItem) {
+        if (Math.abs(ing.originalPrice - catalogItem.price) > 0.001) {
+          ing.originalPrice = catalogItem.price;
+          updatedCount++;
+        }
+        ing.allergens = catalogItem.allergens ? [...catalogItem.allergens] : [];
+        ing.gross = ing.net / (1 - ing.waste / 100);
+        ing.cost  = (ing.gross / 1000) * ing.originalPrice;
+      }
+    });
+
+    if (updatedCount > 0) {
+      this.R.updatedAt = Date.now();
+      this._render();
+      this._autoSave();
+      toast(`Sincronizados ${updatedCount} insumo(s) con el catálogo maestro ✓`);
+    } else {
+      this._render();
+      toast('Todos los insumos ya están actualizados.');
     }
   }
 
@@ -3316,7 +3670,17 @@ class GC {
   }
 
   _migrateV10(data) {
-    data.version = 12;
+    data.version = 13;
+    if (!data.catalog) {
+      data.catalog = INGREDIENTS_MASTER.map(item => ({
+        id: uid(),
+        name: item.name,
+        price: item.price,
+        category: item.category,
+        waste: item.waste,
+        allergens: item.allergens ? [...item.allergens] : []
+      }));
+    }
     Object.values(data.recipes).forEach(r => {
       if (!r.config.notes) r.config.notes = '';
       if (!r.config.currency) r.config.currency = 'EUR';
@@ -3331,6 +3695,21 @@ class GC {
   }
 
   _ensureSchema(data) {
+    data.version = 13;
+    if (!data.catalog) {
+      data.catalog = INGREDIENTS_MASTER.map(item => ({
+        id: uid(),
+        name: item.name,
+        price: item.price,
+        category: item.category,
+        waste: item.waste,
+        allergens: item.allergens ? [...item.allergens] : []
+      }));
+    } else {
+      data.catalog.forEach(item => {
+        if (!item.id) item.id = uid();
+      });
+    }
     Object.values(data.recipes).forEach(r => {
       if (!r.config.notes) r.config.notes = '';
       if (!r.config.currency) r.config.currency = 'EUR';
