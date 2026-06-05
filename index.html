@@ -1673,6 +1673,242 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
     transform: translateY(0);
   }
 }
+
+/* Asistente de IA Widget V14.0 CSS */
+.ai-chat-trigger {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--cyan), var(--cyanD));
+  color: #060911;
+  border: 1px solid var(--b2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(34,211,238,.3);
+  z-index: 120;
+  transition: transform .2s var(--ease), box-shadow .2s var(--ease);
+}
+body.theme-chef-imperial .ai-chat-trigger {
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(128,0,32,.2);
+}
+.ai-chat-trigger:hover {
+  transform: scale(1.08);
+}
+.ai-chat-trigger svg {
+  width: 22px;
+  height: 22px;
+}
+@media (max-width: 900px) {
+  .ai-chat-trigger {
+    bottom: 84px;
+    right: 16px;
+  }
+}
+.ai-chat-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 380px;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-left: 1px solid var(--b1);
+  box-shadow: var(--sh3);
+  z-index: 130;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.ai-chat-drawer.open {
+  transform: translateX(0);
+}
+@media (max-width: 480px) {
+  .ai-chat-drawer {
+    width: 100%;
+  }
+}
+.ai-chat-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--b1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--s2);
+}
+.ai-chat-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--t1);
+}
+.ai-chat-header-status {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  display: inline-block;
+}
+.ai-chat-close {
+  background: none;
+  border: none;
+  color: var(--t3);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px;
+}
+.ai-chat-close:hover {
+  color: var(--t1);
+}
+.ai-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ai-chat-msg {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: var(--r2);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.ai-chat-msg.msg-user {
+  align-self: flex-end;
+  background: var(--s3);
+  color: var(--t1);
+  border-bottom-right-radius: 4px;
+}
+.ai-chat-msg.msg-assistant {
+  align-self: flex-start;
+  background: var(--s1);
+  color: var(--t2);
+  border: 1px solid var(--b1);
+  border-bottom-left-radius: 4px;
+}
+.ai-chat-msg.msg-system {
+  align-self: center;
+  background: transparent;
+  color: var(--t4);
+  font-size: 0.7rem;
+  font-style: italic;
+  max-width: 100%;
+  text-align: center;
+  padding: 4px;
+}
+.ai-chat-msg.msg-error {
+  align-self: center;
+  background: var(--redL);
+  color: var(--redD);
+  border: 1px solid var(--red);
+  max-width: 90%;
+  font-size: 0.75rem;
+}
+.ai-chat-input-area {
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px)) 16px;
+  border-top: 1px solid var(--b1);
+  background: var(--s2);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ai-chat-actions {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+.ai-chat-action-btn {
+  font-size: 0.65rem;
+  padding: 4px 8px;
+  border-radius: var(--r1);
+  background: var(--s1);
+  border: 1px solid var(--b1);
+  color: var(--t3);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.ai-chat-action-btn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--cyanL);
+}
+.ai-chat-form {
+  display: flex;
+  gap: 8px;
+}
+.ai-chat-input {
+  flex: 1;
+  font-size: 0.8rem;
+  border-radius: var(--r1);
+  border: 1px solid var(--b2);
+  padding: 8px 12px;
+  background: var(--s1);
+  color: var(--t1);
+  outline: none;
+  font-family: var(--sans);
+}
+.ai-chat-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 2px var(--cyanL);
+}
+.ai-chat-send {
+  background: var(--cyan);
+  color: #060911;
+  border: none;
+  border-radius: var(--r1);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  flex-shrink: 0;
+}
+body.theme-chef-imperial .ai-chat-send {
+  color: #ffffff;
+}
+.ai-chat-send:hover {
+  opacity: 0.9;
+}
+.ai-chat-send[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.ai-typing {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 12px;
+}
+.ai-typing span {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--t3);
+  animation: ai-bounce 1.3s infinite ease-in-out;
+}
+.ai-typing span:nth-child(2) { animation-delay: 0.15s; }
+.ai-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes ai-bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
 </style>
 </head>
 
@@ -1797,6 +2033,21 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
           <option value="theme-chef-imperial">🍷 Chef Imperial (Claro)</option>
           <option value="theme-nordic-forest">🌲 Bosque Nórdico (Oscuro)</option>
         </select>
+      </div>
+    </div>
+
+    <!-- V14.0 Conectividad IA -->
+    <div class="card">
+      <div class="card-hd">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+        Conectividad IA
+      </div>
+      <div class="fg">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px">
+          <label class="fl" style="margin-bottom:0">Gemini API Key</label>
+          <a href="https://aistudio.google.com/" target="_blank" style="font-size:0.62rem; color:var(--cyan); text-decoration:none">Obtener clave ↗</a>
+        </div>
+        <input class="fi" id="cfg-apikey" type="password" placeholder="AIzaSy..." style="margin-bottom:0" autocomplete="off">
       </div>
     </div>
   </aside>
@@ -2202,6 +2453,44 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
 
 <div id="toasts"></div>
 <div id="pdf-scratch"></div>
+
+<!-- Asistente de IA Widget V14.0 -->
+<button class="ai-chat-trigger" id="ai-chat-trigger" title="Abrir Asistente IA">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+  </svg>
+</button>
+
+<div class="ai-chat-drawer" id="ai-chat-drawer">
+  <div class="ai-chat-header">
+    <div class="ai-chat-header-title">
+      <span class="ai-chat-header-status"></span>
+      <span>Asistente IA GastroCost</span>
+    </div>
+    <button class="ai-chat-close" id="ai-chat-close">✕</button>
+  </div>
+  <div class="ai-chat-messages" id="ai-chat-messages">
+    <div class="ai-chat-msg msg-system">
+      ¡Hola! Soy tu asistente y auditor culinario. Configura tu API Key en la barra lateral para habilitar IA avanzada.
+    </div>
+  </div>
+  <div class="ai-chat-input-area">
+    <div class="ai-chat-actions">
+      <button class="ai-chat-action-btn" id="ai-btn-audit">📋 Auditar Receta Activa</button>
+      <button class="ai-chat-action-btn" id="ai-btn-appcc">🛡️ Pautas APPCC</button>
+      <button class="ai-chat-action-btn" id="ai-btn-explain">💡 Explicar Ficha</button>
+    </div>
+    <form class="ai-chat-form" id="ai-chat-form">
+      <input type="text" class="ai-chat-input" id="ai-chat-input" placeholder="Pregunta sobre costes, alérgenos..." autocomplete="off">
+      <button type="submit" class="ai-chat-send" id="ai-chat-send" title="Enviar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </form>
+  </div>
+</div>
 
 <!-- ═══════════════════════════════════════════════
      JAVASCRIPT — GastroCost PRO V11 Engine
@@ -2777,6 +3066,45 @@ class GC {
         this._autoSave();
       });
     }
+
+    /* V14.0 Gemini API Key & IA Chat Event Listeners */
+    const apiKeyInput = document.getElementById('cfg-apikey');
+    if (apiKeyInput) {
+      apiKeyInput.value = localStorage.getItem('gastrocost_gemini_api_key') || '';
+      apiKeyInput.addEventListener('input', () => {
+        localStorage.setItem('gastrocost_gemini_api_key', apiKeyInput.value.trim());
+      });
+    }
+
+    const aiTrigger = document.getElementById('ai-chat-trigger');
+    const aiDrawer = document.getElementById('ai-chat-drawer');
+    const aiClose = document.getElementById('ai-chat-close');
+    
+    if (aiTrigger && aiDrawer && aiClose) {
+      aiTrigger.addEventListener('click', () => {
+        aiDrawer.classList.add('open');
+        this._scrollChatToBottom();
+      });
+      aiClose.addEventListener('click', () => aiDrawer.classList.remove('open'));
+    }
+
+    const aiForm = document.getElementById('ai-chat-form');
+    if (aiForm) {
+      aiForm.addEventListener('submit', e => {
+        e.preventDefault();
+        this._sendChatMessage();
+      });
+    }
+
+    // AI Action buttons
+    const btnAudit = document.getElementById('ai-btn-audit');
+    if (btnAudit) btnAudit.addEventListener('click', () => this._aiAuditActiveRecipe());
+
+    const btnAPPCC = document.getElementById('ai-btn-appcc');
+    if (btnAPPCC) btnAPPCC.addEventListener('click', () => this._aiAPPCCGuidelines());
+
+    const btnExplain = document.getElementById('ai-btn-explain');
+    if (btnExplain) btnExplain.addEventListener('click', () => this._aiExplainActiveTab());
   }
 
   /* ═══════════════════════════════════════════════
@@ -4891,6 +5219,254 @@ class GC {
     a.click();
     URL.revokeObjectURL(a.href);
     toast('Word de cocina exportado ✓');
+  }
+
+  /* ═══════════════════════════════════════════════
+     V14.0 GEMINI AI ASSISTANT & AUDITOR
+     ═══════════════════════════════════════════════ */
+  _scrollChatToBottom() {
+    const el = document.getElementById('ai-chat-messages');
+    if (el) el.scrollTop = el.scrollHeight;
+  }
+
+  _addChatMsg(text, sender) {
+    const el = document.getElementById('ai-chat-messages');
+    if (!el) return;
+    const msg = document.createElement('div');
+    msg.className = `ai-chat-msg msg-${sender}`;
+    msg.textContent = text;
+    el.appendChild(msg);
+    this._scrollChatToBottom();
+  }
+
+  async _queryGemini(systemPrompt, userPrompt) {
+    const apiKey = localStorage.getItem('gastrocost_gemini_api_key');
+    if (!apiKey) {
+      throw new Error('API_KEY_MISSING');
+    }
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] }
+      })
+    });
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!txt) throw new Error('Respuesta vacía de Gemini.');
+    return txt;
+  }
+
+  async _sendChatMessage() {
+    const input = document.getElementById('ai-chat-input');
+    const sendBtn = document.getElementById('ai-chat-send');
+    if (!input || !sendBtn) return;
+    const text = input.value.trim();
+    if (!text) return;
+
+    this._addChatMsg(text, 'user');
+    input.value = '';
+    
+    // Disable inputs
+    input.disabled = true;
+    sendBtn.disabled = true;
+
+    // Show writing indicator
+    const el = document.getElementById('ai-chat-messages');
+    const indicator = document.createElement('div');
+    indicator.className = 'ai-chat-msg msg-assistant';
+    indicator.id = 'ai-typing-indicator';
+    indicator.innerHTML = `<div class="ai-typing"><span></span><span></span><span></span></div>`;
+    el.appendChild(indicator);
+    this._scrollChatToBottom();
+
+    try {
+      const sysPrompt = `Eres el Asistente IA de GastroCost PRO, un consultor de hostelería experto en análisis financiero, escandallos y auditoría de cocina (APPCC). Ayuda al usuario a entender cómo gestionar su restaurante y optimizar sus costes. Sé conciso, profesional y responde en Markdown limpio (sin HTML). Idioma: Español.`;
+      const responseText = await this._queryGemini(sysPrompt, text);
+      
+      indicator.remove();
+      this._addChatMsg(responseText, 'assistant');
+    } catch (err) {
+      indicator.remove();
+      if (err.message === 'API_KEY_MISSING') {
+        this._addChatMsg('⚠️ No se ha detectado una Gemini API Key activa. Introduce tu clave en el panel lateral en la sección de Conectividad IA para habilitar las auditorías y respuestas inteligentes. ¡Es gratis y solo toma un minuto!', 'error');
+      } else {
+        this._addChatMsg(`❌ Error de Conexión: ${err.message}`, 'error');
+      }
+    } finally {
+      input.disabled = false;
+      sendBtn.disabled = false;
+      input.focus();
+    }
+  }
+
+  async _aiAuditActiveRecipe() {
+    const cfg = this.R.config;
+    const ings = this.R.ingredients;
+    if (!ings || ings.length === 0) {
+      this._addChatMsg('⚠️ La receta actual no tiene insumos agregados en la Ficha de Costes. Agrega ingredientes primero para poder auditarla.', 'error');
+      return;
+    }
+
+    const dishName = cfg.dishName || 'Sin Nombre';
+    const portions = Math.max(cfg.portions, 1);
+    const taxRate = cfg.taxRate ?? 7;
+    const fcGoal = cfg.fcGoal ?? 30;
+    const customPVP = cfg.customPVP ?? 0;
+    const sc = this._scale();
+    const lote = ings.reduce((s, i) => s + i.cost * sc, 0);
+    const unitCost = lote / portions;
+
+    // Format list of ingredients for the prompt
+    const ingsStr = ings.map(i => `- ${i.name} (${CATS[i.category]?.label || i.category}): Neto: ${i.net}g, Merma: ${i.waste}%, Bruto: ${i.gross}g, Precio: ${i.originalPrice}€/kg, Alérgenos: ${i.allergens?.join(', ') || 'Ninguno'}`).join('\n');
+
+    const userPrompt = `Realiza una auditoría culinaria y financiera de la siguiente receta activa:
+Receta: ${dishName}
+Raciones: ${portions}
+Food Cost Objetivo: ${fcGoal}%
+PVP Carta de Venta: ${customPVP} € (IVA/IGIC al ${taxRate}%)
+Costo Total Lote: ${EUR.format(lote)}
+Costo por Ración: ${EUR.format(unitCost)}
+
+Ingredientes e insumos:
+${ingsStr}
+
+Notas y método registrados:
+${cfg.notes || 'Sin notas.'}`;
+
+    // Show loading
+    this._addChatMsg('📋 Solicitando auditoría de la receta activa...', 'system');
+    
+    const input = document.getElementById('ai-chat-input');
+    const sendBtn = document.getElementById('ai-chat-send');
+    if (input && sendBtn) {
+      input.disabled = true;
+      sendBtn.disabled = true;
+    }
+    
+    const el = document.getElementById('ai-chat-messages');
+    const indicator = document.createElement('div');
+    indicator.className = 'ai-chat-msg msg-assistant';
+    indicator.id = 'ai-typing-indicator';
+    indicator.innerHTML = `<div class="ai-typing"><span></span><span></span><span></span></div>`;
+    el.appendChild(indicator);
+    this._scrollChatToBottom();
+
+    try {
+      const systemPrompt = `Actúas como un Auditor Senior de Cocina y Consultor Financiero Gastronómico de 5 Estrellas. Tu misión es auditar en profundidad la receta activa del usuario. Analiza ingredientes, posibles alérgenos no declarados en el campo de alérgenos individuales, Food Cost real frente a objetivo y mermas. Elabora un reporte detallado que contenga:
+1. Diagnóstico APPCC (riesgos de contaminación, alérgenos sospechosos no declarados y temperaturas de seguridad).
+2. Análisis Financiero (diagnóstico de Food Cost real vs objetivo y propuestas estratégicas de precios/porciones).
+3. 3 Consejos de Optimización.
+Usa Markdown con iconos elegantes y mantén el texto conciso e impactante.`;
+      
+      const responseText = await this._queryGemini(systemPrompt, userPrompt);
+      indicator.remove();
+      this._addChatMsg(responseText, 'assistant');
+    } catch (err) {
+      indicator.remove();
+      if (err.message === 'API_KEY_MISSING') {
+        const simulatedText = `[Simulación Offline] - Chef Auditor dice: 'Receta: ${dishName}'
+1. Food Cost: Tus ingredientes suman un costo por ración de ${EUR.format(unitCost)}. Con un PVP de ${EUR.format(customPVP)}, asegúrate de que el Food Cost real no supere tu objetivo de ${fcGoal}%.
+2. Alérgenos: Revisa que ingredientes críticos como lácteos, harina, huevos o mariscos tengan marcados correctamente sus alérgenos individuales.
+3. APPCC: Pescados crudos deben ultracongelarse (< -20ºC durante 24h) y las preparaciones calientes mantenerse por encima de 65ºC.
+
+(Configura tu API Key en la barra lateral para un análisis inteligente real en profundidad).`;
+        this._addChatMsg(simulatedText, 'assistant');
+      } else {
+        this._addChatMsg(`❌ Error de Conexión: ${err.message}`, 'error');
+      }
+    } finally {
+      if (input && sendBtn) {
+        input.disabled = false;
+        sendBtn.disabled = false;
+      }
+    }
+  }
+
+  async _aiAPPCCGuidelines() {
+    const ings = this.R.ingredients;
+    if (!ings || ings.length === 0) {
+      this._addChatMsg('⚠️ Agrega ingredientes a la receta antes de solicitar pautas de seguridad APPCC.', 'error');
+      return;
+    }
+    const ingsStr = ings.map(i => `- ${i.name}`).join('\n');
+    const userPrompt = `Genera la guía rápida APPCC para los siguientes ingredientes de la receta activa:
+${ingsStr}`;
+
+    this._addChatMsg('🛡️ Generando pautas de seguridad APPCC para la receta...', 'system');
+    
+    const el = document.getElementById('ai-chat-messages');
+    const indicator = document.createElement('div');
+    indicator.className = 'ai-chat-msg msg-assistant';
+    indicator.id = 'ai-typing-indicator';
+    indicator.innerHTML = `<div class="ai-typing"><span></span><span></span><span></span></div>`;
+    el.appendChild(indicator);
+    this._scrollChatToBottom();
+
+    try {
+      const systemPrompt = `Eres un Consultor APPCC y de Seguridad Alimentaria en Hostelería. A partir de los ingredientes de la receta del usuario, detecta riesgos de contaminación cruzada y define pautas estrictas de Puntos Críticos de Control (almacenamiento, descongelación, cocción, temperaturas). Entrega una guía rápida en Markdown.`;
+      const responseText = await this._queryGemini(systemPrompt, userPrompt);
+      indicator.remove();
+      this._addChatMsg(responseText, 'assistant');
+    } catch (err) {
+      indicator.remove();
+      if (err.message === 'API_KEY_MISSING') {
+        this._addChatMsg('⚠️ Clave API requerida para generar pautas APPCC en tiempo real. Introduce tu Gemini API Key en el panel lateral.', 'error');
+      } else {
+        this._addChatMsg(`❌ Error de Conexión: ${err.message}`, 'error');
+      }
+    }
+  }
+
+  async _aiExplainActiveTab() {
+    const activeBtn = document.querySelector('.tab-btn.active');
+    if (!activeBtn) return;
+    const tabName = activeBtn.textContent.trim();
+    const tabId = activeBtn.dataset.tab;
+    
+    let userPrompt = `Explícame cómo funciona y para qué sirve la sección "${tabName}" (con id: ${tabId}) de la aplicación GastroCost PRO.`;
+    
+    this._addChatMsg(`💡 Solicitando explicación sobre la pestaña activa: ${tabName}...`, 'system');
+    
+    const el = document.getElementById('ai-chat-messages');
+    const indicator = document.createElement('div');
+    indicator.className = 'ai-chat-msg msg-assistant';
+    indicator.id = 'ai-typing-indicator';
+    indicator.innerHTML = `<div class="ai-typing"><span></span><span></span><span></span></div>`;
+    el.appendChild(indicator);
+    this._scrollChatToBottom();
+
+    try {
+      const systemPrompt = `Eres el Manual de Usuario Inteligente de GastroCost PRO. Explica al usuario el propósito de la pestaña que tiene abierta en la app y cómo usarla paso a paso de forma ejecutiva.`;
+      const responseText = await this._queryGemini(systemPrompt, userPrompt);
+      indicator.remove();
+      this._addChatMsg(responseText, 'assistant');
+    } catch (err) {
+      indicator.remove();
+      if (err.message === 'API_KEY_MISSING') {
+        let text = '';
+        if (tabId === 'tab-escandallo') {
+          text = `La pestaña **Ficha Costes** sirve para registrar y calcular el coste neto de los ingredientes de tu plato, mermas de mercado, coste bruto y porcentajes de coste individual.`;
+        } else if (tabId === 'tab-cocina') {
+          text = `La pestaña **Ficha Cocina** es para mise en place interactivo de los cocineros, mostrando foto del plato, alérgenos declarados y un checklist tachar-ingredientes interactivo.`;
+        } else if (tabId === 'tab-finanzas') {
+          text = `La pestaña **Finanzas** analiza el margen del plato, PVP de venta final, ratio de food cost real vs objetivo, y simula el umbral de rentabilidad.`;
+        } else {
+          text = `La pestaña **Catálogo** gestiona tus insumos maestros sincronizados, de modo que cualquier actualización de precios aquí se advierte en las recetas.`;
+        }
+        this._addChatMsg(`[Offline Mode] ${text} (Introduce tu API Key en la barra lateral para explicaciones más amplias y personalizadas por IA).`, 'assistant');
+      } else {
+        this._addChatMsg(`❌ Error de Conexión: ${err.message}`, 'error');
+      }
+    }
   }
 }
 
