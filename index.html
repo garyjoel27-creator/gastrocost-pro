@@ -4663,7 +4663,20 @@ class GC {
       if (ws[`E${r}`]) ws[`E${r}`].z = `#,##0.00\\ "${curSym}"`;
     }
 
-    ws['!cols'] = [{wch:32},{wch:18},{wch:13},{wch:18},{wch:15},{wch:18},{wch:20}];
+    // Auto-fit column widths dynamically V14.1
+    const colWidths = aoa[0].map(() => ({ wch: 10 }));
+    aoa.forEach(row => {
+      row.forEach((val, colIdx) => {
+        if (val != null) {
+          const len = val.toString().length;
+          if (len > (colWidths[colIdx]?.wch || 0)) {
+            colWidths[colIdx] = { wch: Math.min(45, len + 3) }; // max width 45
+          }
+        }
+      });
+    });
+    ws['!cols'] = colWidths;
+
     ws['!merges'] = [
       {s:{r:0,c:0}, e:{r:0,c:6}},
       {s:{r:1,c:0}, e:{r:1,c:6}}
@@ -4676,7 +4689,7 @@ class GC {
     const sc = this._scale();
     const aoa = [
       ['COMPARATIVO DE FICHAS TÉCNICAS'],
-      [`GastroCost PRO V12 · ${new Date().toLocaleDateString('es-ES')}`],
+      [`GastroCost PRO V14.1 · ${new Date().toLocaleDateString('es-ES')}`],
       [],
       ['Plato','Raciones','Costo Lote','Costo/Ración','FC Obj (%)','PVP Neto','PVP+Impuesto','Margen','Margen (%)','Ingredientes','Divisa']
     ];
@@ -4698,7 +4711,21 @@ class GC {
       aoa.push([c.dishName, port, `${F2(lote)} ${curSym}`, `${F2(unit)} ${curSym}`, c.fcGoal, `${F2(pvpN)} ${curSym}`, `${F2(pvpT)} ${curSym}`, `${F2(marg)} ${curSym}`, mPct, ings.length, cur]);
     });
     const ws = XLSX.utils.aoa_to_sheet(aoa);
-    ws['!cols'] = [{wch:28},{wch:10},{wch:16},{wch:16},{wch:10},{wch:15},{wch:15},{wch:15},{wch:12},{wch:13},{wch:8}];
+    
+    // Auto-fit column widths dynamically V14.1
+    const colWidths = aoa[0].map(() => ({ wch: 10 }));
+    aoa.forEach(row => {
+      row.forEach((val, colIdx) => {
+        if (val != null) {
+          const len = val.toString().length;
+          if (len > (colWidths[colIdx]?.wch || 0)) {
+            colWidths[colIdx] = { wch: Math.min(45, len + 3) }; // max width 45
+          }
+        }
+      });
+    });
+    ws['!cols'] = colWidths;
+
     ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:10}}, {s:{r:1,c:0},e:{r:1,c:10}}];
     XLSX.utils.book_append_sheet(wb, ws, 'Comparativo');
   }
@@ -4728,15 +4755,36 @@ class GC {
     const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
     const port = Math.max(cfg.portions, 1);
 
+    // V14.1 Brand Variables for Print Adaptation
+    const theme = this.db.theme || 'theme-default';
+    let brandColor = '#0f172a';
+    let brandColorLight = '#f8fafc';
+    let brandBorder = '#e2e8f0';
+    let brandFont = 'Arial, sans-serif';
+    let isSerif = false;
+    
+    if (theme === 'theme-chef-imperial') {
+      brandColor = '#800020'; // Borgoña
+      brandColorLight = '#fdfbf7'; // Beige crema
+      brandBorder = '#eae5da'; // Beige
+      brandFont = 'Georgia, "Times New Roman", serif';
+      isSerif = true;
+    } else if (theme === 'theme-nordic-forest') {
+      brandColor = '#059669'; // Verde Esmeralda
+      brandColorLight = '#f0fdf4'; // Menta claro
+      brandBorder = '#d1fae5'; // Verde claro
+      brandFont = 'system-ui, -apple-system, sans-serif';
+    }
+
     const rows = ings.map(ing => {
       const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
         <tr>
-          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;font-weight:bold;color:#334155">
+          <td style="padding:8px 10px;border-bottom:1px solid ${brandBorder};font-weight:bold;color:#334155">
             ${ing.name}
             ${ingAllergensStr ? `<span style="font-size:8px;margin-left:6px;vertical-align:middle">${ingAllergensStr}</span>` : ''}
           </td>
-          <td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;text-align:right;font-family:monospace;font-size:11px;color:#0f172a;font-weight:600">
+          <td style="padding:8px 10px;border-bottom:1px solid ${brandBorder};text-align:right;font-family:monospace;font-size:11px;color:#0f172a;font-weight:600">
             ${F1(ing.net*sc)} g
           </td>
         </tr>`;
@@ -4748,7 +4796,7 @@ class GC {
     });
 
     const allergensPdfSection = allAllergens.size > 0 ? `
-      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:6px;padding:12px;margin-bottom:16px">
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:6px;padding:12px;margin-bottom:16px;page-break-inside:avoid">
         <div style="font-size:8px;font-weight:700;color:#6b21a8;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Alérgenos de la Ficha</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px">
           ${Array.from(allAllergens).map(a => {
@@ -4759,27 +4807,27 @@ class GC {
       </div>` : '';
 
     const notesSection = cfg.notes && cfg.notes.trim() ? `
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:16px">
-        <div style="font-size:9px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:2px solid #cbd5e1;padding-bottom:4px">Instrucciones de Elaboración</div>
+      <div style="background:${brandColorLight};border:1px solid ${brandBorder};border-radius:8px;padding:16px;margin-bottom:16px;page-break-inside:avoid">
+        <div style="font-size:9px;font-weight:800;color:${brandColor};text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:2px solid ${brandColor};padding-bottom:4px">Instrucciones de Elaboración</div>
         <div style="font-size:10.5px;color:#334155;white-space:pre-wrap;line-height:1.6;font-family:Georgia,serif">${cfg.notes}</div>
       </div>` : `
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;text-align:center;color:#64748b;font-style:italic;font-size:9.5px">
+      <div style="background:${brandColorLight};border:1px solid ${brandBorder};border-radius:8px;padding:16px;text-align:center;color:#64748b;font-style:italic;font-size:9.5px;page-break-inside:avoid">
         Sin instrucciones de elaboración registradas.
       </div>`;
 
     const imageSection = cfg.image ? `
-      <div style="margin-bottom:16px;text-align:center">
-        <img src="${cfg.image}" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;border:1px solid #cbd5e1" alt="Foto">
+      <div style="margin-bottom:16px;text-align:center;page-break-inside:avoid">
+        <img src="${cfg.image}" style="width:100%;max-height:240px;object-fit:cover;border-radius:8px;border:1px solid ${brandBorder}" alt="Foto">
       </div>` : '';
 
-    const html = `<div style="font-family:Arial,sans-serif;font-size:11px;color:#1e293b;max-width:780px;margin:0 auto;padding:24px;background:#ffffff">
-      <div style="border-bottom:4px solid #0f172a;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end">
+    const html = `<div style="font-family:${brandFont};font-size:11px;color:#1e293b;max-width:780px;margin:0 auto;padding:24px;background:#ffffff">
+      <div style="border-bottom:4px solid ${brandColor};padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end">
         <div>
           <div style="font-size:7px;font-weight:800;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Ficha Técnica de Cocina · Chef Ejecutivo</div>
-          <div style="font-size:22px;font-weight:900;color:#0f172a;letter-spacing:-.5px">${cfg.dishName}</div>
+          <div style="font-size:22px;font-weight:900;color:#0f172a;letter-spacing:-.5px;font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</div>
         </div>
         <div style="text-align:right;font-size:9px;color:#64748b">
-          <div style="font-weight:800;color:#0f172a">GastroCost PRO V12</div>
+          <div style="font-weight:800;color:${brandColor}">GastroCost PRO V14.1</div>
           <div>Fecha: ${new Date().toLocaleDateString('es-ES')}</div>
           <div>Raciones: ${port} · Escala: ×${sc}</div>
         </div>
@@ -4790,10 +4838,10 @@ class GC {
       <div style="display:table;width:100%;margin-bottom:16px;table-layout:fixed">
         <div style="display:table-row">
           <div style="display:table-cell;width:45%;vertical-align:top;padding-right:16px">
-            <div style="font-size:9px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:2px solid #0f172a;padding-bottom:4px">Ingredientes</div>
+            <div style="font-size:9px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:2px solid ${brandColor};padding-bottom:4px">Ingredientes</div>
             <table style="width:100%;border-collapse:collapse;font-size:10px">
               <thead>
-                <tr style="background:#f1f5f9;color:#475569">
+                <tr style="background:${brandColorLight};color:#475569;border-bottom:1px solid ${brandBorder}">
                   <th style="padding:6px 8px;text-align:left;font-weight:700">Insumo</th>
                   <th style="padding:6px 8px;text-align:right;font-weight:700">Cantidad (Neto)</th>
                 </tr>
@@ -4808,8 +4856,23 @@ class GC {
         </div>
       </div>
 
-      <div style="margin-top:20px;font-size:8px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:8px;text-align:center">
-        Documento técnico confidencial reservado para uso en cocina. GastroCost PRO V12
+      <!-- Firmas y validación V14.1 -->
+      <div style="margin-top:28px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#475569;page-break-inside:avoid">
+        <div style="width:45%">
+          <p style="margin:0;font-weight:700;color:${brandColor}">Elaborado y Verificado por:</p>
+          <div style="border-bottom:1px solid ${brandBorder};width:100%;height:35px;margin-top:4px"></div>
+          <p style="margin:4px 0 0;font-size:8px">Chef Ejecutivo / Auditor de Calidad</p>
+        </div>
+        <div style="width:10%"></div>
+        <div style="width:45%;text-align:right">
+          <p style="margin:0;font-weight:700;color:${brandColor}">Aprobado y Autorizado por:</p>
+          <div style="border-bottom:1px solid ${brandBorder};width:100%;height:35px;margin-top:4px"></div>
+          <p style="margin:4px 0 0;font-size:8px">Dirección de Operaciones F&B</p>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;font-size:8px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:8px;text-align:center;page-break-inside:avoid">
+        Documento técnico confidencial reservado para uso en cocina. GastroCost PRO V14.1
       </div>
     </div>`;
 
@@ -4817,7 +4880,6 @@ class GC {
     wrap.innerHTML = html;
     wrap.style.display = 'block';
 
-    // V12.2 Wait for all base64 images to load/decode fully before html2pdf capture
     const imgsToLoad = wrap.querySelectorAll('img');
     await Promise.all(Array.from(imgsToLoad).map(img => {
       if (img.complete) return Promise.resolve();
@@ -4871,8 +4933,29 @@ class GC {
     const pvpT = pvpN * (1 + cfg.taxRate / 100);
     const marg = pvpN - unit;
     const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
-    const fcCol = fcR <= cfg.fcGoal ? '#059669' : fcR <= cfg.fcGoal * 1.15 ? '#d97706' : '#dc2626';
+    
+    // V14.1 Brand Variables for Print Adaptation
+    const theme = this.db.theme || 'theme-default';
+    let brandColor = '#1c4b6e'; // Azul Neon Cyan
+    let brandColorLight = '#e8f4f8';
+    let brandBorder = '#cbd5e1';
+    let brandFont = 'Arial, sans-serif';
+    let isSerif = false;
+    
+    if (theme === 'theme-chef-imperial') {
+      brandColor = '#800020'; // Borgoña
+      brandColorLight = '#fdfbf7'; // Beige crema
+      brandBorder = '#eae5da'; // Beige
+      brandFont = 'Georgia, "Times New Roman", serif';
+      isSerif = true;
+    } else if (theme === 'theme-nordic-forest') {
+      brandColor = '#059669'; // Verde Esmeralda
+      brandColorLight = '#f0fdf4'; // Menta claro
+      brandBorder = '#d1fae5'; // Verde claro
+      brandFont = 'system-ui, -apple-system, sans-serif';
+    }
 
+    const fcCol = fcR <= cfg.fcGoal ? '#059669' : fcR <= cfg.fcGoal * 1.15 ? '#d97706' : '#dc2626';
     const cur = cfg.currency || 'EUR';
     let curSym = '€';
     if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
@@ -4882,15 +4965,15 @@ class GC {
       const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
         <tr>
-          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb">
+          <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder}">
             ${ing.name}
             ${ingAllergensStr ? `<span style="font-size:7.5px;margin-left:5px;vertical-align:middle">${ingAllergensStr}</span>` : ''}
           </td>
-          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${F1(ing.net*sc)} g</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${ing.waste}%</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${F1(ing.gross*sc)} g</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right">${F2(ing.originalPrice)} ${curSym}/kg</td>
-          <td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:700;color:#065f46">${EUR.format(ing.cost*sc)}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right">${F1(ing.net*sc)} g</td>
+          <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right">${ing.waste}%</td>
+          <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right">${F1(ing.gross*sc)} g</td>
+          <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right">${F2(ing.originalPrice)} ${curSym}/kg</td>
+          <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right;font-weight:700;color:${brandColor}">${EUR.format(ing.cost*sc)}</td>
         </tr>`;
     }).join('');
 
@@ -4900,7 +4983,7 @@ class GC {
     });
 
     const allergensPdfSection = allAllergens.size > 0 ? `
-      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:6px;padding:10px 12px;margin-bottom:12px">
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;border-radius:6px;padding:10px 12px;margin-bottom:12px;page-break-inside:avoid">
         <div style="font-size:8px;font-weight:700;color:#6b21a8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Alérgenos Declarados en Ficha</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px">
           ${Array.from(allAllergens).map(a => {
@@ -4911,16 +4994,16 @@ class GC {
       </div>` : '';
 
     const notesSection = cfg.notes && cfg.notes.trim() ? `
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;padding:10px 12px;margin-bottom:12px">
-        <div style="font-size:8px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Notas de Elaboración</div>
+      <div style="background:${brandColorLight};border:1px solid ${brandBorder};border-radius:6px;padding:10px 12px;margin-bottom:12px;page-break-inside:avoid">
+        <div style="font-size:8px;font-weight:700;color:${brandColor};text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">Notas de Elaboración</div>
         <div style="font-size:9px;color:#374151;white-space:pre-wrap;line-height:1.5">${cfg.notes}</div>
       </div>` : '';
 
     const layoutSection = cfg.image ? `
-      <div style="display:table;width:100%;margin-bottom:12px;table-layout:fixed">
+      <div style="display:table;width:100%;margin-bottom:12px;table-layout:fixed;page-break-inside:avoid">
         <div style="display:table-row">
           <div style="display:table-cell;width:180px;vertical-align:top;padding-right:12px">
-            <img src="${cfg.image}" style="width:100%;height:120px;object-fit:cover;border-radius:6px;border:1px solid #ccc">
+            <img src="${cfg.image}" style="width:100%;height:120px;object-fit:cover;border-radius:6px;border:1px solid ${brandBorder}">
           </div>
           <div style="display:table-cell;vertical-align:top">
             ${allergensPdfSection}
@@ -4933,14 +5016,14 @@ class GC {
         ${notesSection}
       </div>`;
 
-    const html = `<div style="font-family:Arial,sans-serif;font-size:11px;color:#111;max-width:780px;margin:0 auto;padding:24px">
-      <div style="border-bottom:3px solid #1C4B6E;padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end">
+    const html = `<div style="font-family:${brandFont};font-size:11px;color:#111;max-width:780px;margin:0 auto;padding:24px;background:#ffffff">
+      <div style="border-bottom:3px solid ${brandColor};padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end">
         <div>
-          <div style="font-size:7px;font-weight:700;color:#1C4B6E;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Ficha Técnica de Escandallo</div>
-          <div style="font-size:20px;font-weight:900;color:#111;letter-spacing:-.5px">${cfg.dishName}</div>
+          <div style="font-size:7px;font-weight:700;color:${brandColor};letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Ficha Técnica de Escandallo</div>
+          <div style="font-size:20px;font-weight:900;color:#111;letter-spacing:-.5px;font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</div>
         </div>
         <div style="text-align:right;font-size:9px;color:#6b7280">
-          <div style="font-weight:700">GastroCost PRO V12</div>
+          <div style="font-weight:700;color:${brandColor}">GastroCost PRO V14.1</div>
           <div>${new Date().toLocaleDateString('es-ES')}</div>
           <div>Raciones: ${port} · Escala: ×${sc} · Divisa: ${cur}</div>
         </div>
@@ -4948,7 +5031,7 @@ class GC {
       ${layoutSection}
       <table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:16px">
         <thead>
-          <tr style="background:#1C4B6E;color:white">
+          <tr style="background:${brandColor};color:white">
             <th style="padding:7px 8px;text-align:left;font-weight:700">Ingrediente</th>
             <th style="padding:7px 8px;text-align:right">Neto (g)</th>
             <th style="padding:7px 8px;text-align:right">Merma</th>
@@ -4959,17 +5042,18 @@ class GC {
         </thead>
         <tbody>${rows}</tbody>
         <tfoot>
-          <tr style="background:#e8f4f8">
-            <td colspan="5" style="padding:7px 8px;text-align:right;font-weight:800;color:#1C4B6E;border-top:2px solid #1C4B6E">TOTAL LOTE (${port} rac.)</td>
-            <td style="padding:7px 8px;text-align:right;font-weight:900;color:#1C4B6E;border-top:2px solid #1C4B6E">${EUR.format(lote)}</td>
+          <tr style="background:${brandColorLight}">
+            <td colspan="5" style="padding:7px 8px;text-align:right;font-weight:800;color:${brandColor};border-top:2px solid ${brandColor}">TOTAL LOTE (${port} rac.)</td>
+            <td style="padding:7px 8px;text-align:right;font-weight:900;color:${brandColor};border-top:2px solid ${brandColor}">${EUR.format(lote)}</td>
           </tr>
         </tfoot>
       </table>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px">
+      
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;page-break-inside:avoid">
         ${[
-          ['Costo / Ración', EUR.format(unit),  '#1C4B6E'],
-          ['PVP Carta',      EUR.format(pvpT),  '#065f46'],
-          ['Margen Bruto',   EUR.format(marg),  '#5b21b6'],
+          ['Costo / Ración', EUR.format(unit),  brandColor],
+          ['PVP Carta',      EUR.format(pvpT),  '#059669'],
+          ['Margen Bruto',   EUR.format(marg),  '#d97706'],
           ['Food Cost Real', `${fcR}%`,          fcCol]
         ].map(([l,v,c]) => `
           <div style="border:1.5px solid ${c};border-radius:6px;padding:10px 8px;text-align:center">
@@ -4977,12 +5061,29 @@ class GC {
             <div style="font-size:15px;font-weight:900;color:${c}">${v}</div>
           </div>`).join('')}
       </div>
-      <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;font-size:9px;color:#6b7280">
+      
+      <div style="background:${brandColorLight};border:1px solid ${brandBorder};border-radius:6px;padding:10px 12px;font-size:9px;color:#475569;page-break-inside:avoid;margin-bottom:20px">
         FC Objetivo: <b>${cfg.fcGoal}%</b> · IGIC/IVA: <b>${cfg.taxRate}%</b> ·
         PVP Neto: <b>${EUR.format(pvpN)}</b> · Beneficio Lote: <b>${EUR.format(marg*port)}</b>
       </div>
-      <div style="margin-top:14px;font-size:8px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:8px">
-        GastroCost PRO V12 · Documento generado el ${new Date().toLocaleDateString('es-ES')}
+
+      <!-- Firmas y validación V14.1 -->
+      <div style="margin-top:28px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#475569;page-break-inside:avoid">
+        <div style="width:45%">
+          <p style="margin:0;font-weight:700;color:${brandColor}">Elaborado y Verificado por:</p>
+          <div style="border-bottom:1px solid ${brandBorder};width:100%;height:35px;margin-top:4px"></div>
+          <p style="margin:4px 0 0;font-size:8px">Chef Ejecutivo / Auditor de Calidad</p>
+        </div>
+        <div style="width:10%"></div>
+        <div style="width:45%;text-align:right">
+          <p style="margin:0;font-weight:700;color:${brandColor}">Aprobado y Autorizado por:</p>
+          <div style="border-bottom:1px solid ${brandBorder};width:100%;height:35px;margin-top:4px"></div>
+          <p style="margin:4px 0 0;font-size:8px">Dirección de Operaciones F&B</p>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;font-size:8px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:8px;page-break-inside:avoid">
+        GastroCost PRO V14.1 · Documento generado el ${new Date().toLocaleDateString('es-ES')}
       </div>
     </div>`;
 
@@ -4990,7 +5091,6 @@ class GC {
     wrap.innerHTML = html;
     wrap.style.display = 'block';
 
-    // V12.2 Wait for all base64 images to load/decode fully before html2pdf capture
     const imgsToLoad = wrap.querySelectorAll('img');
     await Promise.all(Array.from(imgsToLoad).map(img => {
       if (img.complete) return Promise.resolve();
@@ -5009,7 +5109,7 @@ class GC {
         jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
       }).from(wrap.firstElementChild).save();
       toast('PDF generado ✓');
-    } catch {
+    } catch (err) {
       toast('Error al generar PDF', 'e');
     } finally {
       wrap.innerHTML = '';
@@ -5032,6 +5132,27 @@ class GC {
     const marg = pvpN - unit;
     const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
 
+    // V14.1 Brand Variables for Word Export (Print/Layout adapt)
+    const theme = this.db.theme || 'theme-default';
+    let brandColor = '#1c4b6e'; // Azul Neon
+    let brandColorLight = '#e8f4f8';
+    let brandBorder = '#cbd5e1';
+    let brandFont = 'Calibri, Arial, sans-serif';
+    let isSerif = false;
+    
+    if (theme === 'theme-chef-imperial') {
+      brandColor = '#800020'; // Borgoña
+      brandColorLight = '#fdfbf7'; // Crema
+      brandBorder = '#dfd9cb'; // Beige
+      brandFont = 'Georgia, serif';
+      isSerif = true;
+    } else if (theme === 'theme-nordic-forest') {
+      brandColor = '#059669'; // Verde
+      brandColorLight = '#f0fdf4'; // Menta claro
+      brandBorder = '#d1fae5'; // Verde claro
+      brandFont = 'system-ui, -apple-system, sans-serif';
+    }
+
     const cur = cfg.currency || 'EUR';
     let curSym = '€';
     if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
@@ -5041,15 +5162,15 @@ class GC {
       const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
         <tr>
-          <td style="border:1px solid #ccc;padding:5pt">
+          <td style="border:1px solid ${brandBorder};padding:5pt">
             ${ing.name}
             ${ingAllergensStr ? `<span style="font-size:8pt;color:#555;margin-left:5px">(${ingAllergensStr})</span>` : ''}
           </td>
-          <td style="border:1px solid #ccc;padding:5pt;text-align:right">${F1(ing.net*sc)} g</td>
-          <td style="border:1px solid #ccc;padding:5pt;text-align:right">${ing.waste}%</td>
-          <td style="border:1px solid #ccc;padding:5pt;text-align:right">${F1(ing.gross*sc)} g</td>
-          <td style="border:1px solid #ccc;padding:5pt;text-align:right">${F2(ing.originalPrice)} ${curSym}/kg</td>
-          <td style="border:1px solid #ccc;padding:5pt;text-align:right;font-weight:bold">${EUR.format(ing.cost*sc)}</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.net*sc)} g</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${ing.waste}%</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.gross*sc)} g</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F2(ing.originalPrice)} ${curSym}/kg</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right;font-weight:bold;color:${brandColor}">${EUR.format(ing.cost*sc)}</td>
         </tr>`;
     }).join('');
 
@@ -5065,12 +5186,12 @@ class GC {
       </div>` : '';
 
     const notesSection = cfg.notes && cfg.notes.trim() ? `
-      <p style="font-size:10pt;font-weight:700;color:#1C4B6E;margin:16pt 0 6pt">NOTAS DE ELABORACIÓN</p>
-      <div style="background:#f0fdf4;border:1px solid #bbf7d0;padding:8pt 10pt;border-radius:4pt;font-size:9pt;color:#374151;white-space:pre-wrap">${cfg.notes}</div>` : '';
+      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">NOTAS DE ELABORACIÓN</p>
+      <div style="background:${brandColorLight};border:1px solid ${brandBorder};padding:8pt 10pt;border-radius:4pt;font-size:9pt;color:#374151;white-space:pre-wrap">${cfg.notes}</div>` : '';
 
     const imageDocHtml = cfg.image ? `
       <p style="text-align:center;margin-bottom:12pt">
-        <img src="${cfg.image}" style="max-height:120pt;border-radius:4pt" alt="Foto">
+        <img src="${cfg.image}" width="280" style="width:280px;height:auto;border-radius:4pt;border:1px solid #ccc" alt="Foto">
       </p>` : '';
 
     const doc = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -5078,25 +5199,25 @@ class GC {
       xmlns="http://www.w3.org/TR/REC-html40">
     <head><meta charset="utf-8">
     <style>
-      body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#111;margin:2cm}
-      h1{font-size:20pt;font-weight:900;color:#1C4B6E;margin:0 0 4pt}
+      body{font-family:${brandFont};font-size:11pt;color:#111;margin:2cm}
+      h1{font-size:20pt;font-weight:900;color:${brandColor};margin:0 0 4pt}
       h2{font-size:12pt;font-weight:600;color:#374151;margin:0 0 14pt}
       table{width:100%;border-collapse:collapse;font-size:10pt}
-      th{background:#1C4B6E;color:white;padding:6pt 7pt;text-align:left;font-size:9pt}
+      th{background:${brandColor};color:white;padding:6pt 7pt;text-align:left;font-size:9pt}
       td{padding:5pt 7pt}
       .meta{font-size:9pt;color:#6b7280;margin-bottom:14pt}
       .footer{font-size:8pt;color:#9ca3af;border-top:1pt solid #e5e7eb;margin-top:16pt;padding-top:8pt}
     </style></head>
     <body>
       <h1>FICHA TÉCNICA DE ESCANDALLO</h1>
-      <h2>${cfg.dishName}</h2>
+      <h2 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</h2>
       <p class="meta">
         ${new Date().toLocaleDateString('es-ES')} ·
         Raciones: ${port} · Escala: ×${sc} ·
         FC Objetivo: ${cfg.fcGoal}% · IGIC/IVA: ${cfg.taxRate}% · Divisa: ${cur}
       </p>
       ${imageDocHtml}
-      <p style="font-size:10pt;font-weight:700;color:#1C4B6E;margin:0 0 6pt">DESGLOSE DE INSUMOS</p>
+      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:0 0 6pt">DESGLOSE DE INSUMOS</p>
       <table>
         <thead><tr>
           <th>Ingrediente</th><th>Neto (g)</th><th>Merma (%)</th>
@@ -5104,15 +5225,15 @@ class GC {
         </tr></thead>
         <tbody>${rows}</tbody>
         <tfoot>
-          <tr style="background:#e8f4f8">
-            <td colspan="5" style="border:1px solid #ccc;padding:6pt;text-align:right;font-weight:800;color:#1C4B6E">TOTAL LOTE</td>
-            <td style="border:1px solid #ccc;padding:6pt;font-weight:900;color:#1C4B6E">${EUR.format(lote)}</td>
+          <tr style="background:${brandColorLight}">
+            <td colspan="5" style="border:1px solid #ccc;padding:6pt;text-align:right;font-weight:800;color:${brandColor}">TOTAL LOTE</td>
+            <td style="border:1px solid #ccc;padding:6pt;font-weight:900;color:${brandColor}">${EUR.format(lote)}</td>
           </tr>
         </tfoot>
       </table>
       ${allergensDocSection}
       ${notesSection}
-      <p style="font-size:10pt;font-weight:700;color:#1C4B6E;margin:18pt 0 6pt">ANÁLISIS FINANCIERO</p>
+      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:18pt 0 6pt">ANÁLISIS FINANCIERO</p>
       <table style="width:55%">
         ${[
           ['Costo por Ración',                    EUR.format(unit)],
@@ -5128,7 +5249,25 @@ class GC {
             <td style="border:1px solid #ccc;padding:5pt">${v}</td>
           </tr>`).join('')}
       </table>
-      <p class="footer">GastroCost PRO V12 · Generado el ${new Date().toLocaleDateString('es-ES')}</p>
+
+      <!-- Firmas y validación V14.1 -->
+      <table style="width:100%;margin-top:28pt;border:none">
+        <tr style="border:none">
+          <td style="width:45%;border:none;padding:0;vertical-align:top">
+            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Elaborado y Verificado por:</p>
+            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
+            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Chef Ejecutivo / Auditor de Calidad</p>
+          </td>
+          <td style="width:10%;border:none;padding:0"></td>
+          <td style="width:45%;border:none;padding:0;vertical-align:top;text-align:right">
+            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Aprobado y Autorizado por:</p>
+            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
+            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Dirección de Operaciones F&B</p>
+          </td>
+        </tr>
+      </table>
+
+      <p class="footer">GastroCost PRO V14.1 · Generado el ${new Date().toLocaleDateString('es-ES')}</p>
     </body></html>`;
 
     const blob = new Blob([doc], { type:'application/msword;charset=utf-8' });
@@ -5143,15 +5282,36 @@ class GC {
     const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
     const port = Math.max(cfg.portions, 1);
     
+    // V14.1 Brand Variables for Word Export (Kitchen)
+    const theme = this.db.theme || 'theme-default';
+    let brandColor = '#0f172a';
+    let brandColorLight = '#f8fafc';
+    let brandBorder = '#e2e8f0';
+    let brandFont = 'Calibri, Arial, sans-serif';
+    let isSerif = false;
+    
+    if (theme === 'theme-chef-imperial') {
+      brandColor = '#800020'; // Borgoña
+      brandColorLight = '#fdfbf7'; // Crema
+      brandBorder = '#eae5da'; // Beige
+      brandFont = 'Georgia, serif';
+      isSerif = true;
+    } else if (theme === 'theme-nordic-forest') {
+      brandColor = '#059669'; // Verde
+      brandColorLight = '#f0fdf4'; // Menta claro
+      brandBorder = '#d1fae5'; // Verde claro
+      brandFont = 'system-ui, -apple-system, sans-serif';
+    }
+
     const rows = ings.map(ing => {
       const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
         <tr>
-          <td style="border:1px solid #e2e8f0;padding:8px;font-weight:bold;color:#334155">
+          <td style="border:1px solid ${brandBorder};padding:8px;font-weight:bold;color:#334155">
             ${ing.name}
             ${ingAllergensStr ? `<span style="font-size:8pt;margin-left:6px;vertical-align:middle">${ingAllergensStr}</span>` : ''}
           </td>
-          <td style="border:1px solid #e2e8f0;padding:8px;text-align:right;font-family:monospace;font-weight:bold;color:#0f172a">
+          <td style="border:1px solid ${brandBorder};padding:8px;text-align:right;font-family:monospace;font-weight:bold;color:#0f172a">
             ${F1(ing.net*sc)} g/ml
           </td>
         </tr>`;
@@ -5169,12 +5329,12 @@ class GC {
       </div>` : '';
 
     const notesSection = cfg.notes && cfg.notes.trim() ? `
-      <p style="font-size:10pt;font-weight:700;color:#0f172a;margin:16pt 0 6pt">MÉTODO DE ELABORACIÓN</p>
-      <div style="background:#f8fafc;border:1px solid #e2e8f0;padding:10pt 12pt;border-radius:4pt;font-size:10pt;color:#334155;white-space:pre-wrap;font-family:Georgia,serif;line-height:1.5">${cfg.notes}</div>` : '';
+      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">MÉTODO DE ELABORACIÓN</p>
+      <div style="background:${brandColorLight};border:1px solid ${brandBorder};padding:10pt 12pt;border-radius:4pt;font-size:10pt;color:#334155;white-space:pre-wrap;font-family:Georgia,serif;line-height:1.5">${cfg.notes}</div>` : '';
 
     const imageDocHtml = cfg.image ? `
       <p style="text-align:center;margin-bottom:12pt">
-        <img src="${cfg.image}" style="max-height:180pt;border-radius:6pt;border:1px solid #cbd5e1" alt="Foto">
+        <img src="${cfg.image}" width="280" style="width:280px;height:auto;border-radius:6pt;border:1px solid #cbd5e1" alt="Foto">
       </p>` : '';
 
     const doc = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
@@ -5182,25 +5342,25 @@ class GC {
       xmlns="http://www.w3.org/TR/REC-html40">
     <head><meta charset="utf-8">
     <style>
-      body{font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#1e293b;margin:2cm}
-      h1{font-size:22pt;font-weight:900;color:#0f172a;margin:0 0 4pt}
+      body{font-family:${brandFont};font-size:11pt;color:#1e293b;margin:2cm}
+      h1{font-size:22pt;font-weight:900;color:${brandColor};margin:0 0 4pt}
       h2{font-size:10pt;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:0 0 14pt}
       table{width:100%;border-collapse:collapse;font-size:10pt}
-      th{background:#f1f5f9;color:#475569;padding:6pt 8pt;text-align:left;font-size:9pt;border:1px solid #e2e8f0}
-      td{padding:6pt 8pt;border:1px solid #e2e8f0}
+      th{background:${brandColorLight};color:#475569;padding:6pt 8pt;text-align:left;font-size:9pt;border:1px solid ${brandBorder}}
+      td{padding:6pt 8pt;border:1px solid ${brandBorder}}
       .meta{font-size:9.5pt;color:#64748b;margin-bottom:14pt}
       .footer{font-size:8.5pt;color:#94a3b8;border-top:1pt solid #e2e8f0;margin-top:20pt;padding-top:8pt}
     </style></head>
     <body>
       <h2>Ficha Técnica de Cocina · Chef Ejecutivo</h2>
-      <h1>${cfg.dishName}</h1>
+      <h1 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</h1>
       <p class="meta">
         Fecha: ${new Date().toLocaleDateString('es-ES')} ·
         Raciones: ${port} · Escala: ×${sc}
       </p>
       ${imageDocHtml}
       
-      <p style="font-size:10pt;font-weight:700;color:#0f172a;margin:18pt 0 6pt">INGREDIENTES</p>
+      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:18pt 0 6pt">INGREDIENTES</p>
       <table>
         <thead><tr>
           <th>Insumo</th><th style="text-align:right">Cantidad (Neto)</th>
@@ -5209,7 +5369,25 @@ class GC {
       </table>
       ${allergensDocSection}
       ${notesSection}
-      <p class="footer">Documento técnico confidencial reservado para uso en cocina. GastroCost PRO V12</p>
+
+      <!-- Firmas y validación V14.1 -->
+      <table style="width:100%;margin-top:28pt;border:none">
+        <tr style="border:none">
+          <td style="width:45%;border:none;padding:0;vertical-align:top">
+            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Elaborado y Verificado por:</p>
+            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
+            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Chef Ejecutivo / Auditor de Calidad</p>
+          </td>
+          <td style="width:10%;border:none;padding:0"></td>
+          <td style="width:45%;border:none;padding:0;vertical-align:top;text-align:right">
+            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Aprobado y Autorizado por:</p>
+            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
+            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Dirección de Operaciones F&B</p>
+          </td>
+        </tr>
+      </table>
+
+      <p class="footer">Documento técnico confidencial reservado para uso en cocina. GastroCost PRO V14.1</p>
     </body></html>`;
 
     const blob = new Blob([doc], { type:'application/msword;charset=utf-8' });
