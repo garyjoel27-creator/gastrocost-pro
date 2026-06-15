@@ -4721,7 +4721,7 @@ class GC {
      EXPORT EXCEL (lazy-loaded)
      ═══════════════════════════════════════════════ */
   async _exportExcel() {
-    const btn = document.getElementById('btn-excel');
+    const btn = document.getElementById('btn-export-xls') || { set innerHTML(v){}, set disabled(v){} };
     const orig = btn.innerHTML;
     btn.innerHTML = '⏳ Cargando…';
     btn.disabled = true;
@@ -4898,7 +4898,7 @@ class GC {
   }
 
   async _exportPDFKitchen() {
-    const btn = document.getElementById('btn-pdf-kitchen') || { set innerHTML(v){}, set disabled(v){} };
+    const btn = document.getElementById('btn-export-pdf-kitchen') || { set innerHTML(v){}, set disabled(v){} };
     const orig = btn.innerHTML || '🍳 Ficha Cocina';
     btn.innerHTML = '⏳ Generando…';
     btn.disabled = true;
@@ -5071,7 +5071,7 @@ class GC {
      EXPORT PDF (lazy-loaded)
      ═══════════════════════════════════════════════ */
   async _exportPDF() {
-    const btn = document.getElementById('btn-pdf');
+    const btn = document.getElementById('btn-export-pdf-financial') || { set innerHTML(v){}, set disabled(v){} };
     const orig = btn.innerHTML;
     btn.innerHTML = '⏳ Generando…';
     btn.disabled = true;
