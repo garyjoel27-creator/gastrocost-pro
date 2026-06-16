@@ -5288,6 +5288,10 @@ class GC {
      EXPORT WORD
      ═══════════════════════════════════════════════ */
   _exportDOC() {
+    if (window.innerWidth <= 900 || ('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
+      const proceed = confirm("⚠️ AVISO DE COMPATIBILIDAD\n\nLos teléfonos móviles (como Google Docs en Android/iOS) bloquean las exportaciones a Word generadas en la web.\n\n👉 Recomendamos encarecidamente utilizar la Exportación a PDF para visualizar y compartir correctamente tu receta por WhatsApp.\n\n¿Deseas descargar el archivo Word de todos modos bajo tu propia responsabilidad?");
+      if (!proceed) return;
+    }
     const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
     const lote = ings.reduce((s,i) => s + i.cost * sc, 0);
     const port = Math.max(cfg.portions, 1);
@@ -5444,6 +5448,10 @@ class GC {
   }
 
   _exportDOCKitchen() {
+    if (window.innerWidth <= 900 || ('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
+      const proceed = confirm("⚠️ AVISO DE COMPATIBILIDAD\n\nLos teléfonos móviles (como Google Docs en Android/iOS) bloquean las exportaciones a Word generadas en la web.\n\n👉 Recomendamos encarecidamente utilizar la Exportación a PDF para visualizar y compartir correctamente tu receta por WhatsApp.\n\n¿Deseas descargar el archivo Word de todos modos bajo tu propia responsabilidad?");
+      if (!proceed) return;
+    }
     const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
     const port = Math.max(cfg.portions, 1);
     
