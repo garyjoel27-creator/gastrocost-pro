@@ -1268,6 +1268,13 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
   to { opacity: 1; transform: none; }
 }
 
+@media (min-width: 1024px) {
+  .desktop-opt {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+}
+
 /* Cost breakdown Donut Chart V13.2 */
 .finance-chart-section {
   display: grid;
@@ -2090,7 +2097,7 @@ body.theme-chef-imperial .ai-chat-send {
     </div>
 
     <!-- TAB 1: ESCANDALLO -->
-    <div id="tab-escandallo" class="tab-content active">
+    <div id="tab-escandallo" class="tab-content active desktop-opt">
       <!-- V13 Centralized prices sync banner alert -->
       <div id="sync-prices-banner" class="alert alert-warn" style="display:none;margin-bottom:12px;cursor:pointer" onclick="gc._syncRecipePrices()">
         <span>⚠️ Hay insumos con precios desactualizados en el catálogo maestro. Haz clic aquí para sincronizar esta receta.</span>
@@ -2178,7 +2185,7 @@ body.theme-chef-imperial .ai-chat-send {
     </div>
 
     <!-- TAB 2: FICHA DE COCINA (INTERACTIVE MIS EN PLACE & PREVIEW) -->
-    <div id="tab-cocina" class="tab-content">
+    <div id="tab-cocina" class="tab-content desktop-opt">
       <div class="kitchen-view">
         <div class="kitchen-view-header">
           <div class="kitchen-title" id="kview-title">Nombre del Plato</div>
@@ -2216,7 +2223,7 @@ body.theme-chef-imperial .ai-chat-send {
     </div>
 
     <!-- TAB 3: FINANZAS Y ANALISIS DE MARGENES -->
-    <div id="tab-finanzas" class="tab-content">
+    <div id="tab-finanzas" class="tab-content desktop-opt">
       <div style="display:flex;flex-direction:column;gap:16px">
         <!-- KPIs -->
         <div class="card">
@@ -4592,7 +4599,7 @@ class GC {
           createdAt: 1781465444000,
           updatedAt: 1781465444000
         };
-      if (data.activeId === 'r0' && Object.keys(data.recipes).length === 2 && data.recipes['r0'] && data.recipes['r0'].ingredients.length === 0) {
+      if (!data.recipes[data.activeId] || (Object.keys(data.recipes).length === 1 && data.recipes['template-tataki'])) {
         data.activeId = 'template-tataki';
       }
     }
