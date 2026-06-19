@@ -2687,7 +2687,7 @@ class GC {
 
   /* ── Default database ── */
   _defaultDB() {
-    return {
+    const db = {
       version: 13,
       activeId: 'template-tataki',
       theme: 'theme-default',
@@ -2774,11 +2774,8 @@ class GC {
             customPVP: 26,
             notes: '1. Marcar el medallón de solomillo de ternera en una sartén muy caliente con sal y pimienta.\n2. En la misma sartén, dorar el medallón de foie gras de pato durante 1 minuto por cada lado, hasta que esté crujiente por fuera y tierno por dentro.\n3. Calentar la salsa de trufa negra.\n4. Montar el plato colocando el solomillo en la base, el foie gras encima y napar con la salsa de trufa caliente.\n5. Decorar con unas escamas de sal maldon.',
             currency: 'EUR',
-            image: 'data:image/jpeg;base64,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\n          ],
-          createdAt: 1781465444000,
-          updatedAt: 1781465444000
-        }
-      },
+            image: ''
+          },
           ingredients: [
             {
               id: 'ing-beef-1',
@@ -2814,6 +2811,10 @@ class GC {
               allergens: []
             }
           ],
+          createdAt: 1781465444000,
+          updatedAt: 1781465444000
+        }
+      },
       catalog: INGREDIENTS_MASTER.map(item => ({
         id: uid(),
         name: item.name,
@@ -2823,6 +2824,8 @@ class GC {
         allergens: item.allergens ? [...item.allergens] : []
       }))
     };
+    db.recipes['template-beef-foie'].config.image = db.recipes['template-tataki'].config.image;
+    return db;
   }
 
   /* ── Getters ── */
