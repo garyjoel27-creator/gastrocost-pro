@@ -2447,7 +2447,8 @@ body.theme-chef-imperial .ai-chat-send {
         </div>
         <div class="export-card-actions">
           <button class="btn btn-primary" id="btn-export-pdf-kitchen" style="width:100%">📄 Exportar PDF</button>
-          <button class="btn btn-ghost" id="btn-export-doc-kitchen" style="width:100%">📝 Exportar Word</button>
+          <button class="btn btn-ghost" id="btn-export-doc-kitchen" style="width:100%">📝 Exportar MS Word (.doc)</button>
+          <button class="btn btn-ghost" id="btn-export-gdocs-kitchen" style="width:100%">📝 Exportar Google Docs (.doc)</button>
         </div>
       </div>
       
@@ -2459,7 +2460,8 @@ body.theme-chef-imperial .ai-chat-send {
         </div>
         <div class="export-card-actions">
           <button class="btn btn-green" id="btn-export-pdf-financial" style="width:100%">📄 Exportar PDF</button>
-          <button class="btn btn-ghost" id="btn-export-doc-financial" style="width:100%">📝 Exportar Word</button>
+          <button class="btn btn-ghost" id="btn-export-doc-financial" style="width:100%">📝 Exportar MS Word (.doc)</button>
+          <button class="btn btn-ghost" id="btn-export-gdocs-financial" style="width:100%">📝 Exportar Google Docs (.doc)</button>
           <button class="btn btn-ghost" id="btn-export-xls" style="width:100%">📊 Exportar Excel</button>
         </div>
       </div>
@@ -2761,8 +2763,57 @@ class GC {
           ],
           createdAt: 1781465444000,
           updatedAt: 1781465444000
+        },
+        'template-beef-foie': {
+          id: 'template-beef-foie',
+          config: {
+            dishName: 'Solomillo con Foie de Pato',
+            portions: 2,
+            taxRate: 10,
+            fcGoal: 28,
+            customPVP: 26,
+            notes: '1. Marcar el medallón de solomillo de ternera en una sartén muy caliente con sal y pimienta.\n2. En la misma sartén, dorar el medallón de foie gras de pato durante 1 minuto por cada lado, hasta que esté crujiente por fuera y tierno por dentro.\n3. Calentar la salsa de trufa negra.\n4. Montar el plato colocando el solomillo en la base, el foie gras encima y napar con la salsa de trufa caliente.\n5. Decorar con unas escamas de sal maldon.',
+            currency: 'EUR',
+            image: 'data:image/jpeg;base64,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\n          ],
+          createdAt: 1781465444000,
+          updatedAt: 1781465444000
         }
       },
+          ingredients: [
+            {
+              id: 'ing-beef-1',
+              name: 'Solomillo de Ternera',
+              net: 400,
+              waste: 5,
+              gross: 421.1,
+              originalPrice: 35.00,
+              cost: 14.74,
+              category: 'protein',
+              allergens: []
+            },
+            {
+              id: 'ing-beef-2',
+              name: 'Foie Gras de Pato',
+              net: 150,
+              waste: 0,
+              gross: 150,
+              originalPrice: 42.00,
+              cost: 6.30,
+              category: 'protein',
+              allergens: []
+            },
+            {
+              id: 'ing-beef-3',
+              name: 'Salsa de Trufa Negra',
+              net: 50,
+              waste: 0,
+              gross: 50,
+              originalPrice: 14.00,
+              cost: 0.70,
+              category: 'other',
+              allergens: []
+            }
+          ],
       catalog: INGREDIENTS_MASTER.map(item => ({
         id: uid(),
         name: item.name,
@@ -2987,6 +3038,10 @@ class GC {
       this.toggleExportModal(false);
       this._exportDOCKitchen();
     });
+    document.getElementById('btn-export-gdocs-kitchen').addEventListener('click', () => {
+      this.toggleExportModal(false);
+      this._exportGDocsKitchen();
+    });
     document.getElementById('btn-export-pdf-financial').addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportPDF();
@@ -2994,6 +3049,10 @@ class GC {
     document.getElementById('btn-export-doc-financial').addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportDOC();
+    });
+    document.getElementById('btn-export-gdocs-financial').addEventListener('click', () => {
+      this.toggleExportModal(false);
+      this._exportGDocs();
     });
     document.getElementById('btn-export-xls').addEventListener('click', () => {
       this.toggleExportModal(false);
@@ -4603,6 +4662,58 @@ class GC {
         data.activeId = 'template-tataki';
       }
     }
+    if (!data.recipes['template-beef-foie']) {
+      data.recipes['template-beef-foie'] = {
+          id: 'template-beef-foie',
+          config: {
+            dishName: 'Solomillo con Foie de Pato',
+            portions: 2,
+            taxRate: 10,
+            fcGoal: 28,
+            customPVP: 26,
+            notes: '1. Marcar el medallón de solomillo de ternera en una sartén muy caliente con sal y pimienta.\n2. En la misma sartén, dorar el medallón de foie gras de pato durante 1 minuto por cada lado, hasta que esté crujiente por fuera y tierno por dentro.\n3. Calentar la salsa de trufa negra.\n4. Montar el plato colocando el solomillo en la base, el foie gras encima y napar con la salsa de trufa caliente.\n5. Decorar con unas escamas de sal maldon.',
+            currency: 'EUR',
+            image: data.recipes['template-tataki'] ? data.recipes['template-tataki'].config.image : ''
+          },
+          ingredients: [
+            {
+              id: 'ing-beef-1',
+              name: 'Solomillo de Ternera',
+              net: 400,
+              waste: 5,
+              gross: 421.1,
+              originalPrice: 35.00,
+              cost: 14.74,
+              category: 'protein',
+              allergens: []
+            },
+            {
+              id: 'ing-beef-2',
+              name: 'Foie Gras de Pato',
+              net: 150,
+              waste: 0,
+              gross: 150,
+              originalPrice: 42.00,
+              cost: 6.30,
+              category: 'protein',
+              allergens: []
+            },
+            {
+              id: 'ing-beef-3',
+              name: 'Salsa de Trufa Negra',
+              net: 50,
+              waste: 0,
+              gross: 50,
+              originalPrice: 14.00,
+              cost: 0.70,
+              category: 'other',
+              allergens: []
+            }
+          ],
+          createdAt: 1781465444000,
+          updatedAt: 1781465444000
+      };
+    }
     if (!data.catalog) {
       data.catalog = INGREDIENTS_MASTER.map(item => ({
         id: uid(),
@@ -5570,6 +5681,280 @@ class GC {
     a.click();
     URL.revokeObjectURL(a.href);
     toast('Word de cocina exportado ✓');
+  }
+
+  _exportGDocs() {
+    const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
+    const lote = ings.reduce((s,i) => s + i.cost * sc, 0);
+    const port = Math.max(cfg.portions, 1);
+    const unit = lote / port;
+    const pvpN = cfg.fcGoal > 0 ? unit / (cfg.fcGoal / 100) : 0;
+    const pvpT = pvpN * (1 + cfg.taxRate / 100);
+    const marg = pvpN - unit;
+    const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
+
+    const theme = this.db.theme || 'theme-default';
+    let brandColor = '#1c4b6e'; 
+    let brandColorLight = '#e8f4f8';
+    let brandBorder = '#cbd5e1';
+    let brandFont = 'Calibri, Arial, sans-serif';
+    let isSerif = false;
+    
+    if (theme === 'theme-chef-imperial') {
+      brandColor = '#800020'; 
+      brandColorLight = '#fdfbf7'; 
+      brandBorder = '#dfd9cb'; 
+      brandFont = 'Georgia, serif';
+      isSerif = true;
+    } else if (theme === 'theme-nordic-forest') {
+      brandColor = '#059669'; 
+      brandColorLight = '#f0fdf4'; 
+      brandBorder = '#d1fae5'; 
+      brandFont = 'system-ui, -apple-system, sans-serif';
+    }
+
+    const cur = cfg.currency || 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+    if (cur === 'PEN') curSym = 'S/.';
+
+    const rows = ings.map(ing => {
+      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
+      return `
+        <tr>
+          <td style="border:1px solid ${brandBorder};padding:5pt">
+            ${ing.name}
+            ${ingAllergensStr ? `<span style="font-size:8pt;color:#555;margin-left:5px">(${ingAllergensStr})</span>` : ''}
+          </td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.net*sc)} g</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${ing.waste}%</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.gross*sc)} g</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F2(ing.originalPrice)} ${curSym}/kg</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right;font-weight:bold;color:${brandColor}">${EUR.format(ing.cost*sc)}</td>
+        </tr>`;
+    }).join('');
+
+    const allAllergens = new Set();
+    ings.forEach(ing => {
+      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+    });
+
+    const allergensDocSection = allAllergens.size > 0 ? `
+      <p style="font-size:10pt;font-weight:700;color:#6b21a8;margin:16pt 0 6pt">ALÉRGENOS DECLARADOS</p>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;padding:8pt 10pt;border-radius:4pt;font-size:9.5pt;color:#6b21a8">
+        ${Array.from(allAllergens).map(a => `${ALLERGENS[a] ? ALLERGENS[a].emoji + ' ' + ALLERGENS[a].name : a}`).join('  |  ')}
+      </div>` : '';
+
+    const notesSection = cfg.notes && cfg.notes.trim() ? `
+      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">NOTAS DE ELABORACIÓN</p>
+      <div style="background:${brandColorLight};border:1px solid ${brandBorder};padding:8pt 10pt;border-radius:4pt;font-size:9pt;color:#374151;white-space:pre-wrap">${cfg.notes}</div>` : '';
+
+    const imageDocHtml = cfg.image ? `
+      <p style="text-align:center;margin-bottom:12pt">
+        <img src="${cfg.image}" width="280" style="width:280px;height:auto;border-radius:4pt;border:1px solid #ccc" alt="Foto">
+      </p>` : '';
+
+    const doc = `<!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8">
+    <style>
+      body{font-family:${brandFont};font-size:11pt;color:#111;margin:2cm}
+      h1{font-size:20pt;font-weight:900;color:${brandColor};margin:0 0 4pt}
+      h2{font-size:12pt;font-weight:600;color:#374151;margin:0 0 14pt}
+      table{width:100%;border-collapse:collapse;font-size:10pt}
+      th{background:${brandColor};color:white;padding:6pt 7pt;text-align:left;font-size:9pt}
+      td{padding:5pt 7pt}
+      .meta{font-size:9pt;color:#6b7280;margin-bottom:14pt}
+      .footer{font-size:8pt;color:#9ca3af;border-top:1pt solid #e5e7eb;margin-top:16pt;padding-top:8pt}
+    </style></head>
+    <body>
+      <h1>FICHA TÉCNICA DE ESCANDALLO (GOOGLE DOCS)</h1>
+      <h2 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</h2>
+      <p class="meta">
+        ${new Date().toLocaleDateString('es-ES')} ·
+        Raciones: ${port} · Escala: ×${sc} ·
+        FC Objetivo: ${cfg.fcGoal}% · IGIC/IVA: ${cfg.taxRate}% · Divisa: ${cur}
+      </p>
+      ${imageDocHtml}
+      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:0 0 6pt">DESGLOSE DE INSUMOS</p>
+      <table>
+        <thead><tr>
+          <th>Ingrediente</th><th>Neto (g)</th><th>Merma (%)</th>
+          <th>Bruto (g)</th><th>Precio ${curSym}/kg</th><th>Costo Lote</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot>
+          <tr style="background:${brandColorLight}">
+            <td colspan="5" style="border:1px solid #ccc;padding:6pt;text-align:right;font-weight:800;color:${brandColor}">TOTAL LOTE</td>
+            <td style="border:1px solid #ccc;padding:6pt;font-weight:900;color:${brandColor}">${EUR.format(lote)}</td>
+          </tr>
+        </tfoot>
+      </table>
+      ${allergensDocSection}
+      ${notesSection}
+      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:18pt 0 6pt">ANÁLISIS FINANCIERO</p>
+      <table style="width:55%">
+        ${[
+          ['Costo por Ración',                    EUR.format(unit)],
+          ['PVP Neto (sin impuesto)',              EUR.format(pvpN)],
+          [`PVP Carta (IGIC ${cfg.taxRate}%)`,     EUR.format(pvpT)],
+          ['Margen Bruto / Ración',               EUR.format(marg)],
+          ['Beneficio Total Lote',                EUR.format(marg * port)],
+          ['Food Cost Real',                      `${fcR}%`],
+          ['Food Cost Objetivo',                  `${cfg.fcGoal}%`],
+        ].map(([l,v]) => `
+          <tr>
+            <td style="border:1px solid #ccc;padding:5pt;font-weight:600">${l}</td>
+            <td style="border:1px solid #ccc;padding:5pt">${v}</td>
+          </tr>`).join('')}
+      </table>
+
+      <!-- Firmas y validación V14.1 -->
+      <table style="width:100%;margin-top:28pt;border:none">
+        <tr style="border:none">
+          <td style="width:45%;border:none;padding:0;vertical-align:top">
+            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Elaborado y Verificado por:</p>
+            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
+            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Chef Ejecutivo / Auditor de Calidad</p>
+          </td>
+          <td style="width:10%;border:none;padding:0"></td>
+          <td style="width:45%;border:none;padding:0;vertical-align:top;text-align:right">
+            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Aprobado y Autorizado por:</p>
+            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
+            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Dirección de Operaciones F&B</p>
+          </td>
+        </tr>
+      </table>
+
+      <p class="footer">GastroCost PRO V14.1 · Generado el ${new Date().toLocaleDateString('es-ES')} para Google Docs</p>
+    </body></html>`;
+
+    const blob = new Blob([doc], { type:'application/msword;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Ficha_GDocs_${(cfg.dishName || 'ficha').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('Word para Google Docs exportado ✓');
+  }
+
+  _exportGDocsKitchen() {
+    const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
+    const port = Math.max(cfg.portions, 1);
+    
+    const theme = this.db.theme || 'theme-default';
+    let brandColor = '#0f172a';
+    let brandColorLight = '#f8fafc';
+    let brandBorder = '#e2e8f0';
+    let brandFont = 'Calibri, Arial, sans-serif';
+    let isSerif = false;
+    
+    if (theme === 'theme-chef-imperial') {
+      brandColor = '#800020'; 
+      brandColorLight = '#fdfbf7'; 
+      brandBorder = '#eae5da'; 
+      brandFont = 'Georgia, serif';
+      isSerif = true;
+    } else if (theme === 'theme-nordic-forest') {
+      brandColor = '#059669'; 
+      brandColorLight = '#f0fdf4'; 
+      brandBorder = '#d1fae5'; 
+      brandFont = 'system-ui, -apple-system, sans-serif';
+    }
+
+    const rows = ings.map(ing => {
+      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
+      return `
+        <tr>
+          <td style="border:1px solid ${brandBorder};padding:8px;font-weight:bold;color:#334155">
+            ${ing.name}
+            ${ingAllergensStr ? `<span style="font-size:8pt;margin-left:6px;vertical-align:middle">${ingAllergensStr}</span>` : ''}
+          </td>
+          <td style="border:1px solid ${brandBorder};padding:8px;text-align:right;font-family:monospace;font-weight:bold;color:#0f172a">
+            ${F1(ing.net*sc)} g/ml
+          </td>
+        </tr>`;
+    }).join('');
+
+    const allAllergens = new Set();
+    ings.forEach(ing => {
+      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+    });
+
+    const allergensDocSection = allAllergens.size > 0 ? `
+      <p style="font-size:10pt;font-weight:700;color:#6b21a8;margin:16pt 0 6pt">ALÉRGENOS DECLARADOS</p>
+      <div style="background:#faf5ff;border:1px solid #e9d5ff;padding:8pt 10pt;border-radius:4pt;font-size:9.5pt;color:#6b21a8">
+        ${Array.from(allAllergens).map(a => `${ALLERGENS[a] ? ALLERGENS[a].emoji + ' ' + ALLERGENS[a].name : a}`).join('  |  ')}
+      </div>` : '';
+
+    const notesSection = cfg.notes && cfg.notes.trim() ? `
+      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">MÉTODO DE ELABORACIÓN</p>
+      <div style="background:${brandColorLight};border:1px solid ${brandBorder};padding:10pt 12pt;border-radius:4pt;font-size:10pt;color:#334155;white-space:pre-wrap;font-family:Georgia,serif;line-height:1.5">${cfg.notes}</div>` : '';
+
+    const imageDocHtml = cfg.image ? `
+      <p style="text-align:center;margin-bottom:12pt">
+        <img src="${cfg.image}" width="280" style="width:280px;height:auto;border-radius:6pt;border:1px solid #cbd5e1" alt="Foto">
+      </p>` : '';
+
+    const doc = `<!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8">
+    <style>
+      body{font-family:${brandFont};font-size:11pt;color:#1e293b;margin:2cm}
+      h1{font-size:22pt;font-weight:900;color:${brandColor};margin:0 0 4pt}
+      h2{font-size:10pt;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:0 0 14pt}
+      table{width:100%;border-collapse:collapse;font-size:10pt}
+      th{background:${brandColorLight};color:#475569;padding:6pt 8pt;text-align:left;font-size:9pt;border:1px solid ${brandBorder}}
+      td{padding:6pt 8pt;border:1px solid ${brandBorder}}
+      .meta{font-size:9.5pt;color:#64748b;margin-bottom:14pt}
+      .footer{font-size:8.5pt;color:#94a3b8;border-top:1pt solid #e2e8f0;margin-top:20pt;padding-top:8pt}
+    </style></head>
+    <body>
+      <h2>Ficha Técnica de Cocina · Chef Ejecutivo (Google Docs)</h2>
+      <h1 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</h1>
+      <p class="meta">
+        Fecha: ${new Date().toLocaleDateString('es-ES')} ·
+        Raciones: ${port} · Escala: ×${sc}
+      </p>
+      ${imageDocHtml}
+      
+      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:18pt 0 6pt">INGREDIENTES</p>
+      <table>
+        <thead><tr>
+          <th>Insumo</th><th style="text-align:right">Cantidad (Neto)</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      ${allergensDocSection}
+      ${notesSection}
+
+      <!-- Firmas y validación V14.1 -->
+      <table style="width:100%;margin-top:28pt;border:none">
+        <tr style="border:none">
+          <td style="width:45%;border:none;padding:0;vertical-align:top">
+            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Elaborado y Verificado por:</p>
+            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
+            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Chef Ejecutivo / Auditor de Calidad</p>
+          </td>
+          <td style="width:10%;border:none;padding:0"></td>
+          <td style="width:45%;border:none;padding:0;vertical-align:top;text-align:right">
+            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Aprobado y Autorizado por:</p>
+            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
+            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Dirección de Operaciones F&B</p>
+          </td>
+        </tr>
+      </table>
+
+      <p class="footer">Documento técnico confidencial reservado para uso en cocina. GastroCost PRO V14.1 para Google Docs</p>
+    </body></html>`;
+
+    const blob = new Blob([doc], { type:'application/msword;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `Ficha_Cocina_GDocs_${(cfg.dishName || 'receta').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast('Word de cocina para Google Docs exportado ✓');
   }
 
   /* ═══════════════════════════════════════════════
