@@ -4265,7 +4265,7 @@ class GC {
       unitSelect.value = 'g';
       unitSelect.dispatchEvent(new Event('change'));
     }
-  }
+
     document.querySelectorAll('#cat-add-allergens-grid input[type="checkbox"]').forEach(cb => {
       cb.checked = false;
       cb.closest('.allergen-option').classList.remove('selected');
@@ -6336,6 +6336,15 @@ if ('serviceWorker' in navigator && window.location.protocol.startsWith('http'))
     navigator.serviceWorker.register('./sw.js')
       .then(reg => console.log('GastroCost SW registered:', reg.scope))
       .catch(err => console.warn('SW registration failed:', err));
+  });
+
+  // Recargar la página automáticamente cuando un nuevo Service Worker tome el control
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      refreshing = true;
+      window.location.reload();
+    }
   });
 }
 </script>
