@@ -1,0 +1,9 @@
+node_modules/
+dist/
+scratch/
+.agents/*/
+!/.agents/AGENTS.md
+!/.agents/ORIGINAL_REQUEST.md
+*.log
+.DS_Store
+Thumbs.db
