@@ -2157,6 +2157,371 @@ body.theme-chef-imperial .ai-chat-send {
     padding: 8px 8px calc(120px + env(safe-area-inset-bottom, 24px)) 8px !important;
   }
 }
+
+/* ═══════════════════════════════════════════════
+   V15.7 LUXURY NEUMORPHISM SUITE
+   - Carbón & Oro Oscuro (Dark Neomorphism)
+   - Perla & Bronce/Cobre (Light Neomorphism)
+   - Navy & Plata (Executive Neomorphism)
+   ═══════════════════════════════════════════════ */
+:root {
+  --nm-out: -5px -5px 12px rgba(255, 255, 255, 0.035), 6px 6px 14px rgba(0, 0, 0, 0.75);
+  --nm-out-sm: -3px -3px 7px rgba(255, 255, 255, 0.03), 4px 4px 8px rgba(0, 0, 0, 0.65);
+  --nm-in: inset -3px -3px 7px rgba(255, 255, 255, 0.025), inset 3px 3px 7px rgba(0, 0, 0, 0.75);
+  --nm-btn-active: inset -2px -2px 5px rgba(255, 255, 255, 0.04), inset 2px 2px 6px rgba(0, 0, 0, 0.85);
+  --shimmer-glow: rgba(212, 175, 55, 0.35);
+  --r-pill: 9999px;
+  --r-card: 20px;
+}
+
+/* 👑 TEMA 1: CARBÓN & ORO OSCURO (Default) */
+body.theme-carbon-gold,
+body.theme-default,
+body:not([class*="theme-"]) {
+  --s0: #131418;
+  --s1: #1a1b22;
+  --s2: #15161c;
+  --s3: #22232c;
+  --s4: #2a2b36;
+
+  --glass: rgba(26, 27, 34, 0.88);
+  --glass-border: rgba(212, 175, 55, 0.16);
+  --glass-hover: rgba(212, 175, 55, 0.05);
+
+  --b1: rgba(212, 175, 55, 0.12);
+  --b2: rgba(212, 175, 55, 0.22);
+  --b3: rgba(212, 175, 55, 0.35);
+
+  --t1: #f8f6f0;
+  --t2: #c8c3b6;
+  --t3: #928b7e;
+  --t4: #5e594f;
+
+  --cyan: #d4af37; /* Rich Burnished Gold */
+  --cyanD: #aa8c2c;
+  --cyanL: rgba(212, 175, 55, 0.14);
+  --cyanG: rgba(212, 175, 55, 0.07);
+
+  --green: #34d399;
+  --greenD: #10b981;
+  --greenL: rgba(52, 211, 153, 0.12);
+
+  --purple: #d4af37;
+  --purpleD: #aa8c2c;
+  --purpleL: rgba(212, 175, 55, 0.12);
+
+  --amber: #fbbf24;
+  --amberD: #f59e0b;
+  --amberL: rgba(251, 191, 36, 0.12);
+
+  --red: #f87171;
+  --redD: #ef4444;
+  --redL: rgba(248, 113, 113, 0.12);
+
+  --nm-out: -5px -5px 12px rgba(255, 255, 255, 0.035), 6px 6px 14px rgba(0, 0, 0, 0.75);
+  --nm-out-sm: -3px -3px 7px rgba(255, 255, 255, 0.03), 4px 4px 8px rgba(0, 0, 0, 0.65);
+  --nm-in: inset -3px -3px 7px rgba(255, 255, 255, 0.025), inset 3px 3px 7px rgba(0, 0, 0, 0.75);
+  --nm-btn-active: inset -2px -2px 5px rgba(255, 255, 255, 0.04), inset 2px 2px 6px rgba(0, 0, 0, 0.85);
+  --shimmer-glow: rgba(212, 175, 55, 0.4);
+
+  background-color: var(--s0);
+  background-image:
+    radial-gradient(ellipse at 15% 50%, rgba(212, 175, 55, 0.035) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 15%, rgba(212, 175, 55, 0.025) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 95%, rgba(255, 255, 255, 0.015) 0%, transparent 45%);
+}
+
+/* 🕊️ TEMA 2: PERLA & BRONCE (Light Neomorphism) */
+body.theme-pearl-bronze,
+body.theme-chef-imperial {
+  --s0: #e6e9ef;
+  --s1: #edf0f7;
+  --s2: #e1e5ed;
+  --s3: #d5dae4;
+  --s4: #c9cfdc;
+
+  --glass: rgba(237, 240, 247, 0.92);
+  --glass-border: rgba(184, 106, 40, 0.16);
+  --glass-hover: rgba(184, 106, 40, 0.05);
+
+  --b1: rgba(184, 106, 40, 0.12);
+  --b2: rgba(184, 106, 40, 0.22);
+  --b3: rgba(184, 106, 40, 0.35);
+
+  --t1: #1a1e26;
+  --t2: #3a4250;
+  --t3: #5f6b7d;
+  --t4: #8792a2;
+
+  --cyan: #b86a28; /* Warm Bronze / Copper */
+  --cyanD: #944e16;
+  --cyanL: rgba(184, 106, 40, 0.12);
+  --cyanG: rgba(184, 106, 40, 0.06);
+
+  --green: #10b981;
+  --greenD: #047857;
+  --greenL: rgba(16, 185, 129, 0.1);
+
+  --purple: #b86a28;
+  --purpleD: #944e16;
+  --purpleL: rgba(184, 106, 40, 0.1);
+
+  --amber: #d97706;
+  --amberD: #b45309;
+  --amberL: rgba(217, 119, 6, 0.1);
+
+  --red: #dc2626;
+  --redD: #991b1b;
+  --redL: rgba(220, 38, 38, 0.1);
+
+  --nm-out: -6px -6px 14px #ffffff, 6px 6px 14px rgba(166, 175, 190, 0.6);
+  --nm-out-sm: -3px -3px 8px #ffffff, 3px 3px 8px rgba(166, 175, 190, 0.52);
+  --nm-in: inset -3px -3px 7px #ffffff, inset 3px 3px 7px rgba(166, 175, 190, 0.65);
+  --nm-btn-active: inset -2px -2px 5px #ffffff, inset 2px 2px 6px rgba(166, 175, 190, 0.85);
+  --shimmer-glow: rgba(184, 106, 40, 0.4);
+
+  --kit-bg: #ffffff;
+  --kit-text: #1a1e26;
+  --kit-hdr-bg: #944e16;
+  --kit-hdr-text: #ffffff;
+  --kit-border: #d5dae4;
+  --kit-row-bg: #ffffff;
+  --kit-row-hover: #f7f8fc;
+  --kit-row-checked: #e1e5ed;
+  --kit-row-border: #e1e5ed;
+
+  background-color: var(--s0);
+  background-image:
+    radial-gradient(ellipse at 15% 50%, rgba(184, 106, 40, 0.035) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 15%, rgba(217, 119, 6, 0.025) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 95%, rgba(16, 185, 129, 0.02) 0%, transparent 45%);
+}
+
+/* ⚓ TEMA 3: NAVY & PLATA (Executive Neomorphism) */
+body.theme-navy-silver,
+body.theme-nordic-forest {
+  --s0: #0b1322;
+  --s1: #121c32;
+  --s2: #0e172a;
+  --s3: #182644;
+  --s4: #203154;
+
+  --glass: rgba(18, 28, 50, 0.9);
+  --glass-border: rgba(148, 163, 184, 0.16);
+  --glass-hover: rgba(148, 163, 184, 0.05);
+
+  --b1: rgba(148, 163, 184, 0.12);
+  --b2: rgba(148, 163, 184, 0.22);
+  --b3: rgba(148, 163, 184, 0.35);
+
+  --t1: #f8fafc;
+  --t2: #cbd5e1;
+  --t3: #94a3b8;
+  --t4: #64748b;
+
+  --cyan: #38bdf8; /* Ice Cyan & Platinum Silver */
+  --cyanD: #0284c7;
+  --cyanL: rgba(56, 189, 248, 0.14);
+  --cyanG: rgba(56, 189, 248, 0.07);
+
+  --green: #34d399;
+  --greenD: #10b981;
+  --greenL: rgba(52, 211, 153, 0.12);
+
+  --purple: #38bdf8;
+  --purpleD: #0284c7;
+  --purpleL: rgba(56, 189, 248, 0.12);
+
+  --amber: #fbbf24;
+  --amberD: #f59e0b;
+  --amberL: rgba(251, 191, 36, 0.12);
+
+  --red: #f87171;
+  --redD: #ef4444;
+  --redL: rgba(248, 113, 113, 0.12);
+
+  --nm-out: -5px -5px 13px rgba(255, 255, 255, 0.035), 6px 6px 16px rgba(3, 7, 18, 0.85);
+  --nm-out-sm: -3px -3px 8px rgba(255, 255, 255, 0.03), 4px 4px 9px rgba(3, 7, 18, 0.8);
+  --nm-in: inset -3px -3px 7px rgba(255, 255, 255, 0.03), inset 3px 3px 7px rgba(3, 7, 18, 0.85);
+  --nm-btn-active: inset -2px -2px 5px rgba(255, 255, 255, 0.04), inset 2px 2px 6px rgba(3, 7, 18, 0.95);
+  --shimmer-glow: rgba(56, 189, 248, 0.4);
+
+  --kit-bg: #121c32;
+  --kit-text: #f8fafc;
+  --kit-hdr-bg: #0e172a;
+  --kit-hdr-text: #38bdf8;
+  --kit-border: #182644;
+  --kit-row-bg: #121c32;
+  --kit-row-hover: #182644;
+  --kit-row-checked: #182644;
+  --kit-row-border: #182644;
+
+  background-color: var(--s0);
+  background-image:
+    radial-gradient(ellipse at 15% 50%, rgba(56, 189, 248, 0.04) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 15%, rgba(148, 163, 184, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 95%, rgba(56, 189, 248, 0.02) 0%, transparent 45%);
+}
+
+/* ═══════════════════════════════════════════════
+   NEUMORPHIC GLOBAL COMPONENTS ELEVATION
+   ═══════════════════════════════════════════════ */
+
+/* 1. CARDS & CONTAINERS */
+.card, .export-modal-card, .table-container, .recipe-card-touch {
+  border-radius: var(--r-card) !important;
+  box-shadow: var(--nm-out) !important;
+  border: 1px solid var(--b1) !important;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease) !important;
+}
+
+.card:hover, .recipe-card-touch:hover {
+  box-shadow: var(--nm-out), 0 8px 24px var(--shimmer-glow) !important;
+}
+
+/* 2. PILL BUTTONS & METALLIC SHIMMER */
+.btn {
+  border-radius: var(--r-pill) !important;
+  box-shadow: var(--nm-out-sm) !important;
+  transition: all 0.22s var(--ease) !important;
+}
+
+.btn:hover {
+  box-shadow: var(--nm-out) !important;
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  box-shadow: var(--nm-btn-active) !important;
+  transform: translateY(1px) scale(0.98) !important;
+}
+
+.btn-primary, #btn-save, #btn-open-export, .btn-action-primary {
+  background: linear-gradient(135deg, var(--cyan), var(--cyanD)) !important;
+  color: #0b0f19 !important;
+  box-shadow: var(--nm-out-sm), 0 4px 14px var(--shimmer-glow) !important;
+  font-weight: 700 !important;
+  position: relative;
+  overflow: hidden !important;
+}
+
+body.theme-pearl-bronze .btn-primary,
+body.theme-pearl-bronze #btn-save,
+body.theme-pearl-bronze #btn-open-export {
+  color: #ffffff !important;
+}
+
+/* METALLIC SHIMMER SWEEP ANIMATION */
+@keyframes metallicShimmer {
+  0% { transform: translateX(-160%) skewX(-25deg); opacity: 0; }
+  35% { opacity: 0.85; }
+  100% { transform: translateX(280%) skewX(-25deg); opacity: 0; }
+}
+
+.btn-primary::after, #btn-save::after, #btn-open-export::after, .btn-action-primary::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+  transform: translateX(-160%) skewX(-25deg);
+  pointer-events: none;
+}
+
+.btn-primary:hover::after, .btn-primary:active::after,
+#btn-save:hover::after, #btn-save:active::after,
+#btn-open-export:hover::after, #btn-open-export:active::after,
+.btn-action-primary:hover::after, .btn-action-primary:active::after {
+  animation: metallicShimmer 0.85s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 3. INPUT FIELDS & SELECTS (Inset Neomorphism) */
+.fi, input[type="text"]:not(.visually-hidden), input[type="number"], input[type="url"], select.fi, textarea.fi {
+  border-radius: 14px !important;
+  box-shadow: var(--nm-in) !important;
+  border: 1px solid var(--b1) !important;
+  background: var(--s2) !important;
+  transition: all 0.2s var(--ease) !important;
+}
+
+.fi:focus, input:focus, select.fi:focus, textarea.fi:focus {
+  border-color: var(--cyan) !important;
+  box-shadow: var(--nm-in), 0 0 0 2px var(--cyanG) !important;
+  outline: none !important;
+}
+
+/* 4. LOGO EMBOSSED WITH POLISHED LIGHT */
+.hdr {
+  border-radius: 22px !important;
+  box-shadow: var(--nm-out) !important;
+  border: 1px solid var(--b1) !important;
+}
+
+.logo {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 6px 14px !important;
+  background: var(--s1) !important;
+  border-radius: var(--r-pill) !important;
+  box-shadow: var(--nm-out-sm) !important;
+  border: 1px solid var(--b1) !important;
+}
+
+.logo-mark {
+  font-family: var(--font-heading, 'Playfair Display', serif) !important;
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.5px !important;
+  color: var(--t1) !important;
+  text-shadow: -1px -1px 1px rgba(255,255,255,0.12), 1px 2px 3px rgba(0,0,0,0.65) !important;
+  display: inline-flex !important;
+  align-items: baseline !important;
+}
+
+.logo-mark em {
+  font-style: normal !important;
+  font-weight: 900 !important;
+  background: linear-gradient(135deg, #fff2cc 0%, var(--cyan) 50%, var(--cyanD) 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.35)) !important;
+  margin-right: 2px !important;
+}
+
+.logo-badge {
+  border-radius: var(--r-pill) !important;
+  box-shadow: var(--nm-out-sm) !important;
+  font-size: 0.62rem !important;
+  padding: 3px 10px !important;
+}
+
+/* 5. TABS & NAVIGATION BAR */
+.tabs-nav, .bottom-nav {
+  border-radius: 20px !important;
+  box-shadow: var(--nm-out) !important;
+  border: 1px solid var(--b1) !important;
+}
+
+.tab-btn {
+  border-radius: var(--r-pill) !important;
+  transition: all 0.2s var(--ease) !important;
+}
+
+.tab-btn.active {
+  box-shadow: var(--nm-in) !important;
+  background: var(--s2) !important;
+  color: var(--cyan) !important;
+  border: 1px solid var(--cyan) !important;
+}
+
+.bottom-tab-btn.active {
+  color: var(--cyan) !important;
+}
+
 </style>
 </head>
 
@@ -2168,7 +2533,7 @@ body.theme-chef-imperial .ai-chat-send {
     <div class="hdr-left">
       <div class="logo">
         <span class="logo-mark"><em>Gastro</em>Cost PRO</span>
-        <span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V15.5 EXECUTIVE</span>
+        <span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V15.7 LUXURY SUITE</span>
       </div>
       <span class="save-ind" id="save-ind">
         <span class="save-dot"></span> Guardado
@@ -2845,9 +3210,9 @@ body.theme-chef-imperial .ai-chat-send {
         <div class="fg" style="margin-bottom:0;">
           <label class="fl" style="font-size:0.68rem;">Paleta de Interfaz</label>
           <select class="fi" id="cfg-theme" style="margin-bottom:0;">
-            <option value="theme-default">💡 Neon Cyan (Oscuro Ejecutivo)</option>
-            <option value="theme-chef-imperial">🍷 Chef Imperial (Claro)</option>
-            <option value="theme-nordic-forest">🌲 Bosque Nórdico (Oscuro)</option>
+            <option value="theme-carbon-gold">👑 Carbón & Oro (Neomorfismo Oscuro)</option>
+            <option value="theme-pearl-bronze">🕊️ Perla & Bronce (Neomorfismo Claro)</option>
+            <option value="theme-navy-silver">⚓ Navy & Plata (Neomorfismo Ejecutivo)</option>
           </select>
         </div>
       </div>
@@ -7540,11 +7905,14 @@ class GC {
   }
 
   _applyTheme() {
-    const theme = this.db.theme || 'theme-default';
-    document.body.classList.remove('theme-default', 'theme-chef-imperial', 'theme-nordic-forest');
-    if (theme !== 'theme-default') {
-      document.body.classList.add(theme);
-    }
+    let theme = this.db.theme || 'theme-carbon-gold';
+    if (theme === 'theme-default') theme = 'theme-carbon-gold';
+    if (theme === 'theme-chef-imperial') theme = 'theme-pearl-bronze';
+    if (theme === 'theme-nordic-forest') theme = 'theme-navy-silver';
+
+    document.body.classList.remove('theme-default', 'theme-chef-imperial', 'theme-nordic-forest', 'theme-carbon-gold', 'theme-pearl-bronze', 'theme-navy-silver');
+    document.body.classList.add(theme);
+
     const themeSelect = document.getElementById('cfg-theme');
     if (themeSelect) {
       themeSelect.value = theme;
@@ -8003,13 +8371,13 @@ class GC {
     let brandFont = 'Arial, sans-serif';
     let isSerif = false;
     
-    if (theme === 'theme-chef-imperial') {
+    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
       brandColor = '#800020'; // Borgoña
       brandColorLight = '#fdfbf7'; // Beige crema
       brandBorder = '#eae5da'; // Beige
       brandFont = 'Georgia, "Times New Roman", serif';
       isSerif = true;
-    } else if (theme === 'theme-nordic-forest') {
+    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
       brandColor = '#059669'; // Verde Esmeralda
       brandColorLight = '#f0fdf4'; // Menta claro
       brandBorder = '#d1fae5'; // Verde claro
@@ -8182,13 +8550,13 @@ class GC {
     let brandFont = 'Arial, sans-serif';
     let isSerif = false;
     
-    if (theme === 'theme-chef-imperial') {
+    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
       brandColor = '#800020'; // Borgoña
       brandColorLight = '#fdfbf7'; // Beige crema
       brandBorder = '#eae5da'; // Beige
       brandFont = 'Georgia, "Times New Roman", serif';
       isSerif = true;
-    } else if (theme === 'theme-nordic-forest') {
+    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
       brandColor = '#059669'; // Verde Esmeralda
       brandColorLight = '#f0fdf4'; // Menta claro
       brandBorder = '#d1fae5'; // Verde claro
@@ -8384,13 +8752,13 @@ class GC {
     let brandFont = 'Calibri, Arial, sans-serif';
     let isSerif = false;
     
-    if (theme === 'theme-chef-imperial') {
+    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
       brandColor = '#800020'; // Borgoña
       brandColorLight = '#fdfbf7'; // Crema
       brandBorder = '#dfd9cb'; // Beige
       brandFont = 'Georgia, serif';
       isSerif = true;
-    } else if (theme === 'theme-nordic-forest') {
+    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
       brandColor = '#059669'; // Verde
       brandColorLight = '#f0fdf4'; // Menta claro
       brandBorder = '#d1fae5'; // Verde claro
@@ -8538,13 +8906,13 @@ class GC {
     let brandFont = 'Calibri, Arial, sans-serif';
     let isSerif = false;
     
-    if (theme === 'theme-chef-imperial') {
+    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
       brandColor = '#800020'; // Borgoña
       brandColorLight = '#fdfbf7'; // Crema
       brandBorder = '#eae5da'; // Beige
       brandFont = 'Georgia, serif';
       isSerif = true;
-    } else if (theme === 'theme-nordic-forest') {
+    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
       brandColor = '#059669'; // Verde
       brandColorLight = '#f0fdf4'; // Menta claro
       brandBorder = '#d1fae5'; // Verde claro
@@ -8664,13 +9032,13 @@ class GC {
     let brandFont = 'Calibri, Arial, sans-serif';
     let isSerif = false;
     
-    if (theme === 'theme-chef-imperial') {
+    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
       brandColor = '#800020'; 
       brandColorLight = '#fdfbf7'; 
       brandBorder = '#dfd9cb'; 
       brandFont = 'Georgia, serif';
       isSerif = true;
-    } else if (theme === 'theme-nordic-forest') {
+    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
       brandColor = '#059669'; 
       brandColorLight = '#f0fdf4'; 
       brandBorder = '#d1fae5'; 
@@ -8813,13 +9181,13 @@ class GC {
     let brandFont = 'Calibri, Arial, sans-serif';
     let isSerif = false;
     
-    if (theme === 'theme-chef-imperial') {
+    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
       brandColor = '#800020'; 
       brandColorLight = '#fdfbf7'; 
       brandBorder = '#eae5da'; 
       brandFont = 'Georgia, serif';
       isSerif = true;
-    } else if (theme === 'theme-nordic-forest') {
+    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
       brandColor = '#059669'; 
       brandColorLight = '#f0fdf4'; 
       brandBorder = '#d1fae5'; 
