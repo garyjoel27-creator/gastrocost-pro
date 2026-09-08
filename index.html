@@ -2554,7 +2554,10 @@ body.theme-pearl-bronze #btn-open-export {
       <div style="font-weight:700;font-size:0.88rem;color:var(--gold);display:flex;align-items:center;gap:6px;">
         <span>📖 Ficha Técnica & Biblioteca</span>
       </div>
-      <button type="button" class="btn btn-ghost" id="btn-close-sidebar" style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;padding:0;cursor:pointer;" title="Cerrar panel">✕</button>
+      <div style="display:flex; gap:6px;">
+        <button type="button" class="btn btn-ghost" id="btn-open-settings-sidebar" style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;padding:0;cursor:pointer;" title="Ajustes">⚙️</button>
+        <button type="button" class="btn btn-ghost" id="btn-close-sidebar" style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;padding:0;cursor:pointer;" title="Cerrar panel">✕</button>
+      </div>
     </div>
 
     <!-- Library -->
@@ -3508,7 +3511,7 @@ body.theme-pearl-bronze #btn-open-export {
   </div>
   <div class="ai-chat-input-area">
     <div class="ai-chat-actions">
-      <button class="ai-chat-action-btn" id="ai-btn-audit">📋 Auditar Receta Activa</button>
+      <button class="ai-chat-action-btn" id="ai-btn-audit">📊 Analizar Escandallo Actual</button>
       <button class="ai-chat-action-btn" id="ai-btn-appcc">🛡️ Pautas APPCC</button>
       <button class="ai-chat-action-btn" id="ai-btn-explain">💡 Explicar Ficha</button>
     </div>
@@ -4966,6 +4969,15 @@ class GC {
 
     const btnExplain = document.getElementById('ai-btn-explain');
     if (btnExplain) btnExplain.addEventListener('click', () => this._aiExplainActiveTab());
+
+    const btnSettings = document.getElementById('btn-open-settings');
+    if (btnSettings) btnSettings.addEventListener('click', () => this.toggleSettingsModal(true));
+
+    const btnSettingsSidebar = document.getElementById('btn-open-settings-sidebar');
+    if (btnSettingsSidebar) btnSettingsSidebar.addEventListener('click', () => {
+      this.toggleSettingsModal(true);
+      this._toggleSidebar(false);
+    });
 
     // Unit change label helpers V14.4
     const ingUnitSelect = document.getElementById('ing-unit');
@@ -9429,11 +9441,12 @@ ${cfg.notes || 'Sin notas.'}`;
     this._scrollChatToBottom();
 
     try {
-      const systemPrompt = `Actúas como un Auditor Senior de Cocina y Consultor Financiero Gastronómico de 5 Estrellas. Tu misión es auditar en profundidad la receta activa del usuario. Analiza ingredientes, posibles alérgenos no declarados en el campo de alérgenos individuales, Food Cost real frente a objetivo y mermas. Elabora un reporte detallado que contenga:
-1. Diagnóstico APPCC (riesgos de contaminación, alérgenos sospechosos no declarados y temperaturas de seguridad).
-2. Análisis Financiero (diagnóstico de Food Cost real vs objetivo y propuestas estratégicas de precios/porciones).
-3. 3 Consejos de Optimización.
-Usa Markdown con iconos elegantes y mantén el texto conciso e impactante.`;
+      const systemPrompt = `Actúas como un Director de F&B y Consultor Financiero Gastronómico Ejecutivo. Tu misión es auditar en profundidad el escandallo activo del usuario. Analiza ingredientes, Food Cost real frente a objetivo, mermas y rentabilidad. Elabora un reporte estratégico rápido y directo (bullet-points) que contenga:
+1. Análisis de Rentabilidad (Diagnóstico de Food Cost real vs objetivo y estado del margen).
+2. Impacto de Costes (Qué ingredientes están encareciendo el plato o tienen demasiada merma).
+3. Sugerencias Ejecutivas (Acciones concretas de precios, porciones o sustitución de insumos para maximizar el beneficio).
+
+Formato: Sé conciso, profesional y usa formato Markdown.`;
       
       const responseText = await this._queryGemini(systemPrompt, userPrompt);
       indicator.remove();
