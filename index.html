@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>GastroCost PRO · Escandallo Inteligente</title>
 <meta name="description" content="Calculadora profesional de escandallos y food cost para hostelería. Gestión de fichas técnicas, márgenes y exportación a Excel, PDF y Word.">
 <!-- iOS PWA Meta Tags -->
@@ -2095,6 +2095,68 @@ body.theme-chef-imperial .ai-chat-send {
   0%, 60%, 100% { transform: translateY(0); }
   30% { transform: translateY(-4px); }
 }
+
+/* V15.6 MOBILE & PWA OPTIMIZATIONS (iOS & Android) */
+.sidebar-mobile-hdr { display: none; }
+.cat-recipes-table-wrap { display: block; }
+.cat-recipes-mobile-list { display: none; }
+
+@media (max-width: 900px) {
+  html {
+    scroll-padding-bottom: calc(100px + env(safe-area-inset-bottom, 20px));
+  }
+  body {
+    padding: 10px 10px calc(120px + env(safe-area-inset-bottom, 24px)) 10px !important;
+    min-height: 100vh;
+    min-height: 100dvh;
+    -webkit-overflow-scrolling: touch;
+  }
+  .shell {
+    grid-template-columns: 1fr;
+    padding-bottom: calc(40px + env(safe-area-inset-bottom, 20px));
+  }
+  main {
+    padding-bottom: calc(50px + env(safe-area-inset-bottom, 20px));
+  }
+  .sidebar-mobile-hdr {
+    display: flex !important;
+  }
+  .sidebar {
+    position: fixed !important;
+    left: -360px; top: 0; bottom: 0;
+    height: 100vh;
+    height: 100dvh;
+    width: min(340px, 88vw);
+    background: var(--s1);
+    transition: left .3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain;
+    padding: 16px 16px calc(120px + env(safe-area-inset-bottom, 24px)) 16px !important;
+    z-index: 105 !important;
+    border-right: 1px solid var(--b1);
+    box-shadow: var(--sh3);
+  }
+  .sidebar.open { left: 0 !important; }
+  .bottom-nav {
+    display: flex;
+    padding-bottom: calc(12px + env(safe-area-inset-bottom, 20px)) !important;
+    min-height: calc(58px + env(safe-area-inset-bottom, 20px));
+    z-index: 95;
+  }
+  /* Prevenir zoom forzado en iOS Safari al enfocar inputs */
+  input, select, textarea, .fi, .lib-search {
+    font-size: 16px !important;
+  }
+  .cat-recipes-table-wrap { display: none !important; }
+  .cat-recipes-mobile-list { display: flex !important; }
+}
+
+@media (max-width: 700px) {
+  body {
+    padding: 8px 8px calc(120px + env(safe-area-inset-bottom, 24px)) 8px !important;
+  }
+}
 </style>
 </head>
 
@@ -2121,6 +2183,14 @@ body.theme-chef-imperial .ai-chat-send {
 
   <!-- ═══════ SIDEBAR ═══════ -->
   <aside class="sidebar" id="sidebar">
+
+    <!-- Mobile close header for sidebar -->
+    <div class="sidebar-mobile-hdr" style="justify-content:space-between;align-items:center;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid var(--b1);">
+      <div style="font-weight:700;font-size:0.88rem;color:var(--gold);display:flex;align-items:center;gap:6px;">
+        <span>📖 Ficha Técnica & Biblioteca</span>
+      </div>
+      <button type="button" class="btn btn-ghost" id="btn-close-sidebar" style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.1rem;padding:0;cursor:pointer;" title="Cerrar panel">✕</button>
+    </div>
 
     <!-- Library -->
     <div class="card">
@@ -2647,9 +2717,53 @@ body.theme-chef-imperial .ai-chat-send {
           </div>
         </div>
       </div>
-    </div>
+    
+      <!-- V15.6 Catálogo de Fichas Técnicas & Recetario Maestro -->
+      <div class="card" id="card-cat-recipes" style="margin-top:20px;">
+        <div class="card-hd" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
+            <span style="font-weight:700;letter-spacing:0.02em;">Catálogo de Fichas Técnicas Guardadas</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="tag" id="cat-recipes-badge" style="background:var(--gold-subtle);color:var(--gold);border:1px solid var(--gold);font-weight:700;padding:3px 8px;font-size:0.7rem;">0 FICHAS</span>
+            <button type="button" class="btn btn-primary" onclick="gc._newRecipe()" style="font-size:0.72rem;padding:5px 10px;display:inline-flex;align-items:center;gap:4px;">
+              <span>➕ Nueva Ficha</span>
+            </button>
+          </div>
+        </div>
 
-  </main>
+        <div style="margin-bottom:12px;">
+          <input class="lib-search" id="cat-recipes-search" type="text" placeholder="Buscar ficha técnica por nombre..." style="margin-bottom:0;display:block;">
+        </div>
+
+        <!-- Tabla en pantallas grandes / medianas -->
+        <div class="cat-recipes-table-wrap tbl-wrap" style="overflow-x:auto;">
+          <table style="width:100%;">
+            <thead>
+              <tr>
+                <th>Ficha Técnica</th>
+                <th>Tipo</th>
+                <th>Raciones</th>
+                <th>Coste Lote</th>
+                <th>Coste / Ración</th>
+                <th>PVP Carta</th>
+                <th>Food Cost</th>
+                <th style="width:90px;text-align:center;">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="cat-recipes-tbl-body">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Lista de tarjetas táctiles optimizadas para móviles (Android / iPhone) -->
+        <div class="cat-recipes-mobile-list" id="cat-recipes-mobile-list" style="display:none;flex-direction:column;gap:10px;">
+          <!-- Renderizado dinámico para móvil con botones táctiles de gran tamaño -->
+        </div>
+      </div>
+    </div></main>
 </div>
 
 <!-- Sidebar overlay (mobile) -->
@@ -3741,6 +3855,7 @@ class GC {
           this._updateSubRecipeCostInfo();
           this._recalculateCascade(this.R.id);
           this._renderLib();
+    if (typeof this._renderCatalogRecipes === 'function') this._renderCatalogRecipes();
         }
 
         if (k === 'currency') {
@@ -5339,6 +5454,166 @@ class GC {
   /* ═══════════════════════════════════════════════
      V13 CATALOG OPERATIONS
      ═══════════════════════════════════════════════ */
+  setTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => {
+      if (b.dataset.tab === tabId) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-content').forEach(c => {
+      if (c.id === tabId) c.classList.add('active');
+      else c.classList.remove('active');
+    });
+    this._renderActiveTab();
+    if (typeof window !== 'undefined' && window.innerWidth <= 900) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  _renderCatalogRecipes() {
+    const tbody = document.getElementById('cat-recipes-tbl-body');
+    const mobileList = document.getElementById('cat-recipes-mobile-list');
+    const badge = document.getElementById('cat-recipes-badge');
+    const searchInput = document.getElementById('cat-recipes-search');
+    if (!tbody && !mobileList) return;
+
+    const recipes = Object.values(this.db.recipes || {});
+    if (badge) badge.textContent = recipes.length + ' FICHA' + (recipes.length === 1 ? '' : 'S');
+
+    const query = (searchInput && searchInput.value ? searchInput.value : '').toLowerCase().trim();
+    const filtered = query 
+      ? recipes.filter(r => (r.config && r.config.dishName ? r.config.dishName : '').toLowerCase().includes(query))
+      : recipes;
+
+    const cur = (this.R && this.R.config && this.R.config.currency) ? this.R.config.currency : 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+    if (cur === 'PEN') curSym = 'S/.';
+
+    if (!filtered.length) {
+      const emptyHtml = 
+        '<div style="text-align:center;padding:24px;color:var(--t4);">' +
+          '<div style="font-size:2rem;margin-bottom:6px;">📖</div>' +
+          '<div style="font-weight:600;color:var(--t2);">No se encontraron fichas técnicas</div>' +
+          '<div style="font-size:0.75rem;margin-top:4px;">' + (query ? 'Prueba con otro término de búsqueda.' : 'Crea tu primera ficha técnica para verla aquí.') + '</div>' +
+        '</div>';
+      if (tbody) tbody.innerHTML = '<tr><td colspan="8">' + emptyHtml + '</td></tr>';
+      if (mobileList) mobileList.innerHTML = emptyHtml;
+      return;
+    }
+
+    if (tbody) {
+      tbody.innerHTML = filtered.map(r => {
+        const sc = 1;
+        const cost = (r.ingredients || []).reduce((s, i) => s + (i.cost || 0) * sc, 0);
+        const port = Math.max(r.config && r.config.portions ? r.config.portions : 1, 1);
+        const unit = cost / port;
+        const fcGoal = (r.config && r.config.fcGoal) || 28;
+        const pvpN = fcGoal > 0 ? unit / (fcGoal / 100) : 0;
+        const taxRate = (r.config && r.config.taxRate !== undefined) ? r.config.taxRate : 7;
+        const pvpCarta = pvpN * (1 + taxRate / 100);
+        const fc = pvpN > 0 ? (unit / pvpN) * 100 : 0;
+        const isSub = !!(r.config && r.config.isSubRecipe);
+        const isActive = r.id === this.db.activeId;
+        const statusColor = (r.ingredients || []).length === 0 ? 'var(--t4)' :
+                            fc <= fcGoal ? 'var(--green)' :
+                            fc <= fcGoal * 1.15 ? 'var(--amber)' : 'var(--red)';
+
+        const typeBadge = isSub
+          ? '<span class="tag" style="background:rgba(6,182,212,0.12);color:var(--cyan);border:1px solid var(--cyan);font-size:0.65rem;font-weight:700;">🥘 Sub-receta</span>'
+          : '<span class="tag" style="background:rgba(212,175,55,0.12);color:var(--gold);border:1px solid var(--gold);font-size:0.65rem;font-weight:700;">🍽️ Plato</span>';
+
+        const nameDisplay = r.config && r.config.dishName ? r.config.dishName : 'Sin nombre';
+        const imgDisplay = r.config && r.config.image 
+          ? '<img src="' + r.config.image + '" alt="" style="width:26px;height:26px;border-radius:4px;object-fit:cover;border:1px solid var(--b1);">' 
+          : '<span style="font-size:1.1rem;">' + (isSub ? '🥘' : '🍽️') + '</span>';
+
+        return '<tr style="' + (isActive ? 'background:rgba(212,175,55,0.06);' : '') + '">' +
+          '<td style="font-weight:600;color:var(--t1);">' +
+            '<div style="display:flex;align-items:center;gap:8px;">' +
+              imgDisplay +
+              '<span>' + nameDisplay + '</span>' +
+              (isActive ? '<span class="tag" style="font-size:0.6rem;background:var(--cyanL);color:var(--cyan);padding:1px 5px;">ACTIVA</span>' : '') +
+            '</div>' +
+          '</td>' +
+          '<td>' + typeBadge + '</td>' +
+          '<td style="font-family:var(--mono);">' + port + ' pax</td>' +
+          '<td style="font-family:var(--mono);font-weight:600;">' + cost.toFixed(2) + ' ' + curSym + '</td>' +
+          '<td style="font-family:var(--mono);">' + unit.toFixed(2) + ' ' + curSym + '</td>' +
+          '<td style="font-family:var(--mono);color:var(--green);font-weight:600;">' + pvpCarta.toFixed(2) + ' ' + curSym + '</td>' +
+          '<td>' +
+            '<span style="font-family:var(--mono);font-weight:700;color:' + statusColor + ';">' + fc.toFixed(1) + '%</span>' +
+          '</td>' +
+          '<td style="text-align:center;">' +
+            '<button type="button" class="btn btn-ghost" onclick="gc.switchTo(\'' + r.id + '\'); gc.setTab(\'tab-escandallo\');" style="font-size:0.7rem;padding:4px 8px;color:var(--gold);border-color:var(--gold);" title="Abrir y editar ficha">' +
+              '✏️ Abrir' +
+            '</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    if (mobileList) {
+      mobileList.innerHTML = filtered.map(r => {
+        const sc = 1;
+        const cost = (r.ingredients || []).reduce((s, i) => s + (i.cost || 0) * sc, 0);
+        const port = Math.max(r.config && r.config.portions ? r.config.portions : 1, 1);
+        const unit = cost / port;
+        const fcGoal = (r.config && r.config.fcGoal) || 28;
+        const pvpN = fcGoal > 0 ? unit / (fcGoal / 100) : 0;
+        const taxRate = (r.config && r.config.taxRate !== undefined) ? r.config.taxRate : 7;
+        const pvpCarta = pvpN * (1 + taxRate / 100);
+        const fc = pvpN > 0 ? (unit / pvpN) * 100 : 0;
+        const isSub = !!(r.config && r.config.isSubRecipe);
+        const isActive = r.id === this.db.activeId;
+        const statusColor = (r.ingredients || []).length === 0 ? 'var(--t4)' :
+                            fc <= fcGoal ? 'var(--green)' :
+                            fc <= fcGoal * 1.15 ? 'var(--amber)' : 'var(--red)';
+
+        const nameDisplay = r.config && r.config.dishName ? r.config.dishName : 'Sin nombre';
+        const imgDisplay = r.config && r.config.image 
+          ? '<img src="' + r.config.image + '" alt="" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid var(--b1);">' 
+          : '<span style="font-size:1.4rem;">' + (isSub ? '🥘' : '🍽️') + '</span>';
+
+        return '<div style="border:1px solid ' + (isActive ? 'var(--gold)' : 'var(--b1)') + ';border-radius:var(--r2);padding:12px 14px;background:' + (isActive ? 'rgba(212,175,55,0.05)' : 'var(--s2)') + ';display:flex;flex-direction:column;gap:8px;">' +
+          '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">' +
+            '<div style="display:flex;align-items:center;gap:8px;">' +
+              imgDisplay +
+              '<div>' +
+                '<div style="font-weight:700;font-size:0.92rem;color:var(--t1);line-height:1.2;">' +
+                  nameDisplay +
+                '</div>' +
+                '<div style="font-size:0.68rem;color:var(--t3);margin-top:2px;">' +
+                  (r.ingredients ? r.ingredients.length : 0) + ' insumos · ' + port + ' raciones' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">' +
+              (isSub ? '<span class="tag" style="background:rgba(6,182,212,0.15);color:var(--cyan);border:1px solid var(--cyan);font-size:0.6rem;font-weight:700;padding:1px 5px;">SUB-RECETA</span>' : '<span class="tag" style="background:rgba(212,175,55,0.15);color:var(--gold);border:1px solid var(--gold);font-size:0.6rem;font-weight:700;padding:1px 5px;">PLATO</span>') +
+              (isActive ? '<span class="tag" style="background:var(--cyanL);color:var(--cyan);font-size:0.58rem;font-weight:700;padding:1px 4px;">ACTIVA</span>' : '') +
+            '</div>' +
+          '</div>' +
+          '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;background:rgba(0,0,0,0.15);padding:8px 10px;border-radius:6px;font-family:var(--mono);">' +
+            '<div>' +
+              '<div style="font-size:0.6rem;color:var(--t4);text-transform:uppercase;">Coste/Ración</div>' +
+              '<div style="font-size:0.85rem;font-weight:700;color:var(--t1);">' + unit.toFixed(2) + ' ' + curSym + '</div>' +
+            '</div>' +
+            '<div>' +
+              '<div style="font-size:0.6rem;color:var(--t4);text-transform:uppercase;">PVP Carta</div>' +
+              '<div style="font-size:0.85rem;font-weight:700;color:var(--green);">' + pvpCarta.toFixed(2) + ' ' + curSym + '</div>' +
+            '</div>' +
+            '<div>' +
+              '<div style="font-size:0.6rem;color:var(--t4);text-transform:uppercase;">Food Cost</div>' +
+              '<div style="font-size:0.85rem;font-weight:700;color:' + statusColor + ';">' + fc.toFixed(1) + '%</div>' +
+            '</div>' +
+          '</div>' +
+          '<button type="button" class="btn btn-primary" onclick="gc.switchTo(\'' + r.id + '\'); gc.setTab(\'tab-escandallo\');" style="width:100%;min-height:44px;padding:8px;font-size:0.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:2px;">' +
+            '<span>✏️ Abrir y Editar Ficha</span>' +
+          '</button>' +
+        '</div>';
+      }).join('');
+    }
+  }
+
   _renderCatalogTab() {
     const searchVal = (document.getElementById('cat-search').value || '').trim().toLowerCase();
     const tbody = document.getElementById('cat-tbl-body');
@@ -5375,6 +5650,7 @@ class GC {
     if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
     if (cur === 'PEN') curSym = 'S/.';
 
+    this._renderCatalogRecipes();
     tbody.innerHTML = filtered.map(item => {
       const isSub = !!item.isSubRecipe;
       const allergenBadges = item.allergens && item.allergens.length 
