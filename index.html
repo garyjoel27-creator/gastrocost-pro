@@ -2700,10 +2700,16 @@ body.theme-pearl-bronze #btn-open-export {
 
     <!-- TAB 1: ESCANDALLO -->
     <div id="tab-escandallo" class="tab-content active desktop-opt">
-      <!-- V13 Centralized prices sync banner alert -->
-      <div id="sync-prices-banner" class="alert alert-warn" style="display:none;margin-bottom:12px;cursor:pointer" onclick="gc._syncRecipePrices()">
-        <span>⚠️ Hay insumos con precios desactualizados en el catálogo maestro. Haz clic aquí para sincronizar esta receta.</span>
-        <button class="btn btn-primary" style="margin-left:auto;padding:4px 8px;font-size:0.65rem;pointer-events:none">🔄 Sincronizar</button>
+      <!-- V15.9 Centralized Smart Sync Banner -->
+      <div id="sync-prices-banner" class="alert alert-warn" style="display:none;margin-bottom:12px;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="font-size:1.1rem">⚠️</span>
+          <span>Hay insumos con precios distintos al <strong>Catálogo Maestro</strong> original.</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+          <button type="button" class="btn btn-primary" id="btn-sync-all-to-cat" style="padding:4px 10px;font-size:0.72rem;font-weight:600">⬆️ Guardar todos en Catálogo</button>
+          <button type="button" class="btn btn-ghost" id="btn-sync-all-from-cat" style="padding:4px 10px;font-size:0.72rem;font-weight:600">⬇️ Usar precios de Catálogo</button>
+        </div>
       </div>
       <!-- Ingredients -->
       <div class="card">
@@ -4289,9 +4295,17 @@ class GC {
         this._recalculateCascade(this.R.id);
       }
 
-      // Perform a full render but preserve focus to keep all formulas/bars synced
+      // Perform render and show clear confirmation
       this._render();
       this._autoSave();
+      this._showSaveIndicator();
+
+      if (el.dataset.f === 'price') {
+        const catItem = (this.db.catalog || []).find(c => c.name.trim().toLowerCase() === ing.name.trim().toLowerCase());
+        if (catItem && Math.abs(catItem.price - ing.originalPrice) > 0.001) {
+          toast(`Precio de "${ing.name}" actualizado en esta ficha. Pulsa "⬆️ Catálogo" para guardarlo en el original.`);
+        }
+      }
     });
 
     /* Key navigation and prevent newlines in editable cells (Excel style) */
@@ -4368,8 +4382,20 @@ class GC {
       }
     });
 
-    /* Delete ingredient row */
+    /* Smart Sync and Delete row buttons */
     tbody.addEventListener('click', e => {
+      const btnSyncTo = e.target.closest('.btn-sync-to-cat');
+      if (btnSyncTo) {
+        e.stopPropagation();
+        this._syncSingleIngToCatalog(btnSyncTo.dataset.id);
+        return;
+      }
+      const btnSyncFrom = e.target.closest('.btn-sync-from-cat');
+      if (btnSyncFrom) {
+        e.stopPropagation();
+        this._syncSingleIngFromCatalog(btnSyncFrom.dataset.id);
+        return;
+      }
       const btn = e.target.closest('.btn-del');
       if (!btn) return;
       this.R.ingredients = this.R.ingredients.filter(i => i.id !== btn.dataset.id);
@@ -4782,13 +4808,18 @@ class GC {
         let rawVal = parseFloat(el.innerText.trim().replace(',', '.')) || 0;
         const val = Math.max(0, rawVal);
         if (el.dataset.f === 'price') {
+          const oldP = item.price;
           item.price = val;
+          if (Math.abs(oldP - val) > 0.001) {
+            this._cascadeCatalogPriceChange(item, val);
+          }
         } else if (el.dataset.f === 'waste') {
           item.waste = Math.min(99, val);
         }
 
         this._renderCatalogTab();
         this._autoSave();
+        this._showSaveIndicator();
       });
 
       catTbody.addEventListener('keydown', e => {
@@ -4978,6 +5009,12 @@ class GC {
       this.toggleSettingsModal(true);
       this._toggleSidebar(false);
     });
+
+    const btnSyncAllToCat = document.getElementById('btn-sync-all-to-cat');
+    if (btnSyncAllToCat) btnSyncAllToCat.addEventListener('click', () => this._syncAllToCatalog());
+
+    const btnSyncAllFromCat = document.getElementById('btn-sync-all-from-cat');
+    if (btnSyncAllFromCat) btnSyncAllFromCat.addEventListener('click', () => this._syncRecipePrices());
 
     // Unit change label helpers V14.4
     const ingUnitSelect = document.getElementById('ing-unit');
@@ -5596,12 +5633,16 @@ class GC {
       let priceCellHtml = '';
       if (priceMismatch && referencePrice !== null) {
         priceCellHtml = `
-          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px">
-            <div>
-              <span class="ec" style="border: 1px solid rgba(251,191,36,.5); background: rgba(251,191,36,.06); color: var(--amber); font-weight: 600" contenteditable="true" data-id="${ing.id}" data-f="price">${F2(ing.originalPrice)}</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:3px">
+            <div style="display:flex;align-items:center;gap:4px">
+              <span class="ec" style="border: 1px solid rgba(251,191,36,.6); background: rgba(251,191,36,.12); color: var(--amber); font-weight: 700; border-radius: 4px; padding: 1px 4px;" contenteditable="true" data-id="${ing.id}" data-f="price">${F2(ing.originalPrice)}</span>
               <span class="curr-sym-inline" style="color:var(--amber)"></span>
             </div>
-            <div class="cat-price-diff" style="font-size:0.62rem;color:var(--amber);opacity:0.85;font-family:var(--mono)">${referenceLabel}: ${F2(referencePrice)}<span class="curr-sym-inline"></span></div>
+            <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;margin-top:2px">
+              <span class="cat-price-diff" style="font-size:0.64rem;color:var(--amber);opacity:0.95;font-family:var(--mono)">${referenceLabel}: ${F2(referencePrice)}<span class="curr-sym-inline"></span></span>
+              <button type="button" class="btn-sync-to-cat" data-id="${ing.id}" style="font-size:0.6rem;padding:2px 7px;border-radius:999px;border:1px solid rgba(212,175,55,0.4);background:rgba(212,175,55,0.15);color:var(--gold);cursor:pointer;line-height:1.2;font-weight:600" title="Guardar este precio (${F2(ing.originalPrice)}€) en el Catálogo Maestro original">⬆️ Catálogo</button>
+              <button type="button" class="btn-sync-from-cat" data-id="${ing.id}" style="font-size:0.6rem;padding:2px 7px;border-radius:999px;border:1px solid rgba(148,163,184,0.3);background:rgba(148,163,184,0.1);color:var(--t2);cursor:pointer;line-height:1.2" title="Volver al precio de Catálogo (${F2(referencePrice)}€)">⬇️ Restablecer</button>
+            </div>
           </div>
         `;
       } else {
@@ -6761,6 +6802,208 @@ class GC {
 
     const totalCatalogUpdated = updatedCatalogCount + addedCatalogCount;
     toast(`Actualizados ${totalCatalogUpdated} insumos y recalculados ${affectedRecipeIds.size} escandallos ✓`);
+  }
+
+  /* ═══════════════════════════════════════════════
+     V15.9 SMART CATALOG & INGREDIENT SYNC
+     ═══════════════════════════════════════════════ */
+  _syncSingleIngToCatalog(ingId) {
+    const ing = (this.R.ingredients || []).find(i => i.id === ingId);
+    if (!ing) return;
+
+    if (ing.isSubRecipe && ing.subRecipeId) {
+      toast('Las elaboraciones base se gestionan desde su propia ficha técnica', 'e');
+      return;
+    }
+
+    if (!this.db.catalog) this.db.catalog = [];
+    let catItem = this.db.catalog.find(c => 
+      c.name.trim().toLowerCase() === ing.name.trim().toLowerCase() ||
+      (this._normalizeVendorName && this._normalizeVendorName(c.name) === this._normalizeVendorName(ing.name))
+    );
+
+    if (catItem) {
+      catItem.price = ing.originalPrice;
+      if (ing.waste !== undefined) catItem.waste = ing.waste;
+      if (ing.unit) catItem.unit = ing.unit;
+    } else {
+      catItem = {
+        id: uid(),
+        name: ing.name,
+        price: ing.originalPrice,
+        waste: ing.waste || 0,
+        unit: ing.unit || 'g',
+        category: ing.category || 'other',
+        allergens: ing.allergens ? [...ing.allergens] : []
+      };
+      this.db.catalog.push(catItem);
+    }
+
+    // Cascade to all other recipes using this ingredient
+    let affectedRecipes = 0;
+    Object.values(this.db.recipes || {}).forEach(recipe => {
+      let modified = false;
+      (recipe.ingredients || []).forEach(otherIng => {
+        if (!otherIng.isSubRecipe && (
+          otherIng.name.trim().toLowerCase() === ing.name.trim().toLowerCase() ||
+          (this._normalizeVendorName && this._normalizeVendorName(otherIng.name) === this._normalizeVendorName(ing.name))
+        )) {
+          otherIng.originalPrice = ing.originalPrice;
+          const w = Math.min(99, Math.max(0, otherIng.waste || 0));
+          otherIng.gross = otherIng.net / (1 - w / 100);
+          otherIng.cost = (otherIng.unit === 'ud') ? (otherIng.gross * otherIng.originalPrice) : ((otherIng.gross / 1000) * otherIng.originalPrice);
+          modified = true;
+        }
+      });
+      if (modified) {
+        recipe.updatedAt = Date.now();
+        if (recipe.config && recipe.config.isSubRecipe) {
+          this._recalculateCascade(recipe.id);
+        }
+        affectedRecipes++;
+      }
+    });
+
+    this._render();
+    this._autoSave();
+    this._showSaveIndicator();
+    toast(`✓ Precio de "${ing.name}" (${F2(ing.originalPrice)}€) guardado en Catálogo Maestro y sincronizado en ${affectedRecipes} receta(s)`);
+  }
+
+  _syncSingleIngFromCatalog(ingId) {
+    const ing = (this.R.ingredients || []).find(i => i.id === ingId);
+    if (!ing) return;
+
+    let referencePrice = null;
+    if (ing.isSubRecipe && ing.subRecipeId && this.db.recipes[ing.subRecipeId]) {
+      referencePrice = this._getSubRecipeNormalizedPrice(this.db.recipes[ing.subRecipeId]);
+    } else if (this.db.catalog) {
+      const catItem = this.db.catalog.find(c => 
+        c.name.trim().toLowerCase() === ing.name.trim().toLowerCase() ||
+        (this._normalizeVendorName && this._normalizeVendorName(c.name) === this._normalizeVendorName(ing.name))
+      );
+      if (catItem) referencePrice = catItem.price;
+    }
+
+    if (referencePrice === null) {
+      toast('No se encontró el precio en el Catálogo Maestro', 'e');
+      return;
+    }
+
+    ing.originalPrice = referencePrice;
+    const w = Math.min(99, Math.max(0, ing.waste || 0));
+    ing.gross = ing.net / (1 - w / 100);
+    ing.cost = (ing.unit === 'ud') ? (ing.gross * ing.originalPrice) : ((ing.gross / 1000) * ing.originalPrice);
+    this.R.updatedAt = Date.now();
+
+    if (this.R.config && this.R.config.isSubRecipe) {
+      this._updateSubRecipeCostInfo();
+      this._recalculateCascade(this.R.id);
+    }
+
+    this._render();
+    this._autoSave();
+    this._showSaveIndicator();
+    toast(`✓ Precio de "${ing.name}" restablecido al Catálogo (${F2(referencePrice)}€)`);
+  }
+
+  _syncAllToCatalog() {
+    const ings = this.R.ingredients || [];
+    let updatedCount = 0;
+
+    ings.forEach(ing => {
+      if (ing.isSubRecipe) return;
+      if (!this.db.catalog) this.db.catalog = [];
+      let catItem = this.db.catalog.find(c => 
+        c.name.trim().toLowerCase() === ing.name.trim().toLowerCase() ||
+        (this._normalizeVendorName && this._normalizeVendorName(c.name) === this._normalizeVendorName(ing.name))
+      );
+      if (catItem) {
+        if (Math.abs(catItem.price - ing.originalPrice) > 0.001) {
+          catItem.price = ing.originalPrice;
+          updatedCount++;
+        }
+      } else {
+        this.db.catalog.push({
+          id: uid(),
+          name: ing.name,
+          price: ing.originalPrice,
+          waste: ing.waste || 0,
+          unit: ing.unit || 'g',
+          category: ing.category || 'other',
+          allergens: ing.allergens ? [...ing.allergens] : []
+        });
+        updatedCount++;
+      }
+    });
+
+    if (updatedCount > 0) {
+      // Cascade to all other recipes
+      Object.values(this.db.recipes || {}).forEach(recipe => {
+        if (recipe.id === this.db.activeId) return;
+        let mod = false;
+        (recipe.ingredients || []).forEach(ri => {
+          if (ri.isSubRecipe) return;
+          const match = (this.R.ingredients || []).find(i => 
+            i.name.trim().toLowerCase() === ri.name.trim().toLowerCase() ||
+            (this._normalizeVendorName && this._normalizeVendorName(i.name) === this._normalizeVendorName(ri.name))
+          );
+          if (match && Math.abs(ri.originalPrice - match.originalPrice) > 0.001) {
+            ri.originalPrice = match.originalPrice;
+            const w = Math.min(99, Math.max(0, ri.waste || 0));
+            ri.gross = ri.net / (1 - w / 100);
+            ri.cost = (ri.unit === 'ud') ? (ri.gross * ri.originalPrice) : ((ri.gross / 1000) * ri.originalPrice);
+            mod = true;
+          }
+        });
+        if (mod) {
+          recipe.updatedAt = Date.now();
+          if (recipe.config && recipe.config.isSubRecipe) {
+            this._recalculateCascade(recipe.id);
+          }
+        }
+      });
+      this._render();
+      this._autoSave();
+      this._showSaveIndicator();
+      toast(`✓ ${updatedCount} precio(s) guardados en el Catálogo Maestro y sincronizados`);
+    } else {
+      toast('Todos los precios ya coinciden con el Catálogo Maestro.');
+    }
+  }
+
+  _cascadeCatalogPriceChange(item, newPrice) {
+    let affectedRecipes = 0;
+    Object.values(this.db.recipes || {}).forEach(recipe => {
+      let modified = false;
+      (recipe.ingredients || []).forEach(ing => {
+        if (!ing.isSubRecipe && (
+          ing.name.trim().toLowerCase() === item.name.trim().toLowerCase() ||
+          (this._normalizeVendorName && this._normalizeVendorName(ing.name) === this._normalizeVendorName(item.name))
+        )) {
+          if (Math.abs(ing.originalPrice - newPrice) > 0.001) {
+            ing.originalPrice = newPrice;
+            const w = Math.min(99, Math.max(0, ing.waste || 0));
+            ing.gross = ing.net / (1 - w / 100);
+            ing.cost = (ing.unit === 'ud') ? (ing.gross * ing.originalPrice) : ((ing.gross / 1000) * ing.originalPrice);
+            modified = true;
+          }
+        }
+      });
+      if (modified) {
+        recipe.updatedAt = Date.now();
+        if (recipe.config && recipe.config.isSubRecipe) {
+          this._recalculateCascade(recipe.id);
+        }
+        affectedRecipes++;
+      }
+    });
+
+    if (affectedRecipes > 0) {
+      if (this.R) this._hydrateForm();
+      this._render();
+      toast(`✓ Precio de "${item.name}" actualizado en Catálogo y en ${affectedRecipes} receta(s)`);
+    }
   }
 
   _syncRecipePrices() {
