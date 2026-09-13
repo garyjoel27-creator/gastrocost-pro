@@ -799,6 +799,49 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
 /* ═══════════════════════════════════════════════
    12. KPI GRID
    ═══════════════════════════════════════════════ */
+/* V16.0 Dashboard Directivo */
+.dashboard-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, var(--s1), var(--s2));
+  border-radius: var(--r2);
+  border: 1px solid var(--b1);
+  box-shadow: var(--sh1);
+}
+.dashboard-strip .dash-kpi {
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: var(--r1);
+  background: var(--bg);
+  border: 1px solid var(--b1);
+  box-shadow: inset 2px 2px 4px var(--sh-in1), inset -2px -2px 4px var(--sh-in2);
+}
+.dashboard-strip .dash-kpi-lbl {
+  font-size: 0.58rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--t3);
+  margin-bottom: 2px;
+  font-weight: 600;
+}
+.dashboard-strip .dash-kpi-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.dashboard-strip .dash-kpi-sub {
+  font-size: 0.52rem;
+  color: var(--t4);
+  margin-top: 1px;
+}
+@media (max-width: 600px) {
+  .dashboard-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 8px 10px; }
+  .dashboard-strip .dash-kpi-val { font-size: 0.92rem; }
+}
+
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
@@ -4957,8 +5000,11 @@ class GC {
       themeSelect.addEventListener('change', () => {
         const selectedTheme = themeSelect.value;
         this.db.theme = selectedTheme;
-        this._applyTheme();
-        this._autoSave();
+        // Defer applying theme to avoid blocking the select dropdown from closing
+        setTimeout(() => {
+          this._applyTheme();
+          this._autoSave();
+        }, 50);
       });
     }
 
@@ -5009,6 +5055,16 @@ class GC {
       this.toggleSettingsModal(true);
       this._toggleSidebar(false);
     });
+
+    const btnCloseSettings = document.getElementById('btn-close-settings-modal');
+    if (btnCloseSettings) btnCloseSettings.addEventListener('click', () => this.toggleSettingsModal(false));
+
+    const settingsModal = document.getElementById('settings-modal');
+    if (settingsModal) {
+      settingsModal.addEventListener('click', e => {
+        if (e.target === settingsModal) this.toggleSettingsModal(false);
+      });
+    }
 
     const btnSyncAllToCat = document.getElementById('btn-sync-all-to-cat');
     if (btnSyncAllToCat) btnSyncAllToCat.addEventListener('click', () => this._syncAllToCatalog());
@@ -5507,6 +5563,7 @@ class GC {
   _render() {
     this._renderLib();
     this._renderTable();
+    this._renderDashboard();
     this._renderKPIs();
     this._renderActiveTab();
     this._updateSubRecipeCostInfo();
@@ -5705,6 +5762,63 @@ class GC {
         } catch (err) {}
       }
     }
+  }
+
+  /* ── V16.0 Dashboard Directivo ── */
+  _renderDashboard() {
+    const recipes = this.db.recipes;
+    const ids = Object.keys(recipes);
+    const total = ids.length;
+
+    let sumFC = 0;
+    let sumMargin = 0;
+    let sumRevenue = 0;
+    let sumCost = 0;
+    let countValid = 0;
+
+    ids.forEach(id => {
+      const r = recipes[id];
+      if (!r || !r.config || !r.ingredients || r.ingredients.length === 0) return;
+      const cfg = r.config;
+      const port = Math.max(cfg.portions || 1, 1);
+      const lote = r.ingredients.reduce((s, i) => s + (i.cost || 0), 0);
+      const unit = lote / port;
+      const pvpN = cfg.fcGoal > 0 ? unit / (cfg.fcGoal / 100) : (cfg.customPVP || 0);
+      if (pvpN <= 0) return;
+      const fc = (unit / pvpN) * 100;
+      const margin = pvpN - unit;
+      sumFC += fc;
+      sumMargin += margin;
+      sumRevenue += pvpN * port;
+      sumCost += lote;
+      countValid++;
+    });
+
+    const avgFC = countValid > 0 ? (sumFC / countValid) : 0;
+    const avgMargin = countValid > 0 ? (sumMargin / countValid) : 0;
+    const profitRatio = sumRevenue > 0 ? ((sumRevenue - sumCost) / sumRevenue * 100) : 0;
+
+    const fmt = v => v.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    const elTotal = document.getElementById('dash-total-recipes');
+    const elFC = document.getElementById('dash-avg-fc');
+    const elMargin = document.getElementById('dash-avg-margin');
+    const elProfit = document.getElementById('dash-profitability');
+    const elFCSub = document.getElementById('dash-fc-sub');
+    const elProfitSub = document.getElementById('dash-profit-sub');
+
+    if (elTotal) elTotal.textContent = total;
+    if (elFC) {
+      elFC.textContent = fmt(avgFC) + '%';
+      elFC.className = 'dash-kpi-val ' + (avgFC <= 30 ? 'c-green' : avgFC <= 35 ? 'c-amber' : 'c-red');
+    }
+    if (elFCSub) elFCSub.textContent = countValid > 0 ? `de ${countValid} recetas con precio` : 'sin datos';
+    if (elMargin) elMargin.textContent = fmt(avgMargin) + ' €';
+    if (elProfit) {
+      elProfit.textContent = fmt(profitRatio) + '%';
+      elProfit.className = 'dash-kpi-val ' + (profitRatio >= 65 ? 'c-green' : profitRatio >= 50 ? 'c-amber' : 'c-red');
+    }
+    if (elProfitSub) elProfitSub.textContent = sumRevenue > 0 ? `Ingresos: ${fmt(sumRevenue)} €` : 'sin ventas';
   }
 
   /* ── KPIs ── */
