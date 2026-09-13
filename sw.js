@@ -1,4 +1,4 @@
-const CACHE_NAME = 'gastrocost-v16.0-cache';
+const CACHE_NAME = 'gastrocost-v16.1-cache';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',

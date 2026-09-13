@@ -128,6 +128,15 @@ async function main() {
     process.exit(1);
   } else {
     console.log(`${C.bgGreen} RESULT: 100% PASSED (${results.passed}/${results.total} tests) ${C.reset}\n`);
+    const fs = require('fs');
+    const src = path.resolve(__dirname, '..', 'index.html');
+    const dest = 'C:\\Users\\zigac\\Desktop\\GastroCost_PRO_V11.html';
+    try {
+      fs.copyFileSync(src, dest);
+      console.log(`  ${C.green}Synced to Desktop: ${dest}${C.reset}\n`);
+    } catch (err) {
+      console.error('Failed to sync to desktop:', err.message);
+    }
     process.exit(0);
   }
 }
