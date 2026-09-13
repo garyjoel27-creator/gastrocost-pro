@@ -799,6 +799,26 @@ tbody tr.flash td { animation: row-flash .8s var(--ease); }
 /* ═══════════════════════════════════════════════
    12. KPI GRID
    ═══════════════════════════════════════════════ */
+/* V16.2 Fast Data Entry */
+/* Select all text in numeric fields on focus for fastest override */
+input[type="number"]:focus,
+input[inputmode="decimal"]:focus {
+  -webkit-user-select: all;
+  user-select: all;
+}
+/* "Done" button hint on mobile keyboard */
+.ing-add-fast-hint {
+  font-size: 0.65rem;
+  color: var(--t4);
+  text-align: center;
+  padding: 4px 0 0;
+  letter-spacing: 0.02em;
+}
+/* Highlight active field nicely */
+.fi:focus {
+  ring: 2px solid var(--cyan) !important;
+}
+
 /* V16.0 Dashboard Directivo */
 .dashboard-strip {
   display: grid;
@@ -3101,7 +3121,7 @@ body.theme-pearl-bronze #btn-open-export {
           <div style="display:flex;gap:8px;align-items:center">
             <div style="flex:1">
               <label class="fl" style="font-size:0.62rem;color:var(--cyan)">Rendimiento Medido</label>
-              <input class="fi cfg" data-k="yieldQty" id="cfg-yieldQty" type="number" min="0.001" step="any" placeholder="1000" style="margin-bottom:0">
+              <input class="fi cfg" data-k="yieldQty" inputmode="decimal" id="cfg-yieldQty" inputmode="decimal" type="number" min="0.001" step="any" placeholder="1000" style="margin-bottom:0">
             </div>
             <div style="width:105px">
               <label class="fl" style="font-size:0.62rem;color:var(--cyan)">Unidad</label>
@@ -3120,17 +3140,17 @@ body.theme-pearl-bronze #btn-open-export {
       <div class="fg2">
         <div class="fg">
           <label class="fl">Raciones Base</label>
-          <input class="fi cfg" data-k="portions" type="number" min="1" step="1">
+          <input class="fi cfg" data-k="portions" inputmode="decimal" type="number" min="1" step="1">
         </div>
         <div class="fg">
           <label class="fl">IGIC / IVA (%)</label>
-          <input class="fi cfg" data-k="taxRate" type="number" min="0" step="0.5">
+          <input class="fi cfg" data-k="taxRate" inputmode="decimal" type="number" min="0" step="0.5">
         </div>
       </div>
       <div class="fg2">
         <div class="fg">
           <label class="fl">Food Cost Objetivo (%)</label>
-          <input class="fi cfg" data-k="fcGoal" type="number" min="1" max="100" step="0.5">
+          <input class="fi cfg" data-k="fcGoal" inputmode="decimal" type="number" min="1" max="100" step="0.5">
         </div>
         <div class="fg">
           <label class="fl">Divisa / Moneda</label>
@@ -3146,11 +3166,11 @@ body.theme-pearl-bronze #btn-open-export {
       </div>
       <div class="tinted">
         <label class="fl">🚀 Multiplicador de Producción</label>
-        <input class="fi" id="cfg-scale" type="number" min="1" step="0.5" value="1">
+        <input class="fi" id="cfg-scale" inputmode="decimal" type="number" min="1" step="0.5" value="1">
       </div>
       <div class="tinted-a">
         <label class="fl">🎯 Simulador PVP Manual (<span class="curr-sym">€</span>)</label>
-        <input class="fi fi-amber cfg" data-k="customPVP" type="number" min="0" step="0.5" placeholder="Ej. 18.50">
+        <input class="fi fi-amber cfg" data-k="customPVP" inputmode="decimal" type="number" min="0" step="0.5" placeholder="Ej. 18.50">
         <div id="sim-note" style="margin-top:6px;font-size:.66rem;color:var(--t4)">Introduce un PVP para simular márgenes</div>
       </div>
       <!-- Notes collapsible -->
@@ -3265,7 +3285,7 @@ body.theme-pearl-bronze #btn-open-export {
                 <span class="pa-tax-tag" id="pa-tax-tag">IVA 10%</span>
               </div>
               <div class="pa-input-group">
-                <input type="number" step="0.10" min="0" id="pa-input-pvp" class="pa-pvp-input" placeholder="0.00">
+                <input type="number" step="0.10" min="0" id="pa-input-pvp" inputmode="decimal" class="pa-pvp-input" placeholder="0.00">
                 <span class="pa-curr-sym curr-sym">€</span>
               </div>
               <span class="pa-metric-sub" id="pa-pvp-net-sub">Neto: 0,00 €</span>
@@ -3305,7 +3325,7 @@ body.theme-pearl-bronze #btn-open-export {
           <form id="form-ing">
             <div class="fg ac-wrap">
               <label class="fl">Ingrediente / Material</label>
-              <input class="fi" id="ing-name" type="text" required autocomplete="off" placeholder="Ej. Atún rojo">
+              <input class="fi" id="ing-name" type="text" required autocomplete="off" placeholder="Ej. Atún rojo" enterkeyhint="next">
               <div class="ac-dd" id="ac-dd"></div>
             </div>
             <div class="fg">
@@ -3329,16 +3349,16 @@ body.theme-pearl-bronze #btn-open-export {
               </div>
               <div class="fg">
                 <label class="fl" id="lbl-ing-net">Cantidad Neta (g/ml)</label>
-                <input class="fi" id="ing-net" type="number" required step="any" min="0.01" placeholder="200">
+                <input class="fi" id="ing-net" inputmode="decimal" type="number" required step="any" min="0.01" placeholder="200">
               </div>
               <div class="fg">
                 <label class="fl">Merma (%)</label>
-                <input class="fi" id="ing-waste" type="number" min="0" max="99" value="0" placeholder="0">
+                <input class="fi" id="ing-waste" inputmode="decimal" type="number" min="0" max="99" value="0" placeholder="0">
               </div>
             </div>
             <div class="fg">
               <label class="fl" id="lbl-ing-price">Precio de Mercado (<span class="curr-sym">€</span> / kg o L)</label>
-              <input class="fi" id="ing-price" type="number" required step="any" min="0.001" placeholder="28.00">
+              <input class="fi" id="ing-price" inputmode="decimal" type="number" required step="any" min="0.001" placeholder="28.00">
             </div>
             <div class="fg">
               <label class="fl">Alérgenos</label>
@@ -3553,11 +3573,11 @@ body.theme-pearl-bronze #btn-open-export {
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px">
               <div class="fg">
                 <label class="fl">Costes Fijos Cocina (Mensual)</label>
-                <input class="fi" id="fin-fixed-costs" type="number" min="0" step="10" placeholder="Ej. 3000">
+                <input class="fi" id="fin-fixed-costs" inputmode="decimal" type="number" min="0" step="10" placeholder="Ej. 3000">
               </div>
               <div class="fg">
                 <label class="fl">Ventas Estimadas (Platos/Mes)</label>
-                <input class="fi" id="fin-target-sales" type="number" min="1" step="10" placeholder="Ej. 500">
+                <input class="fi" id="fin-target-sales" inputmode="decimal" type="number" min="1" step="10" placeholder="Ej. 500">
               </div>
             </div>
             
@@ -3634,11 +3654,11 @@ body.theme-pearl-bronze #btn-open-export {
               </div>
               <div class="fg">
                 <label class="fl">Merma (%)</label>
-                <input class="fi" id="cat-add-waste" type="number" min="0" max="99" value="0">
+                <input class="fi" id="cat-add-waste" inputmode="decimal" type="number" min="0" max="99" value="0">
               </div>
               <div class="fg">
                 <label class="fl" id="lbl-cat-price">Precio Maestro (<span class="curr-sym">€</span>/kg)</label>
-                <input class="fi" id="cat-add-price" type="number" required step="any" min="0.001" placeholder="95.00">
+                <input class="fi" id="cat-add-price" inputmode="decimal" type="number" required step="any" min="0.001" placeholder="95.00">
               </div>
             </div>
             <div class="fg">
@@ -4782,6 +4802,32 @@ class GC {
     document.getElementById('form-ing').addEventListener('submit', e => {
       e.preventDefault();
       this._addIng();
+    });
+
+    /* V16.2 Fast Data Entry — Select-All on numeric focus for quick override */
+    document.querySelectorAll('input[type="number"], input[inputmode="decimal"]').forEach(inp => {
+      inp.addEventListener('focus', function() {
+        setTimeout(() => this.select(), 50);
+      });
+    });
+
+    /* V16.2 Enter/Done key advances between ingredient fields then submits */
+    const ingFields = ['ing-name', 'ing-net', 'ing-waste', 'ing-price'];
+    ingFields.forEach((fieldId, idx) => {
+      const el = document.getElementById(fieldId);
+      if (!el) return;
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === 'Next') {
+          e.preventDefault();
+          if (idx < ingFields.length - 1) {
+            const nextEl = document.getElementById(ingFields[idx + 1]);
+            if (nextEl) { nextEl.focus(); nextEl.select(); }
+          } else {
+            // Last field (price) — submit the form
+            this._addIng();
+          }
+        }
+      });
     });
 
     /* Allergen checkbox visual toggle */
@@ -6252,6 +6298,11 @@ class GC {
     nameInput.dataset.isSubRecipe = 'false';
 
     document.getElementById('form-ing').reset();
+    // V16.2: Immediately refocus name field for rapid multi-ingredient entry
+    setTimeout(() => {
+      const nameEl = document.getElementById('ing-name');
+      if (nameEl) nameEl.focus();
+    }, 80);
     document.getElementById('ing-waste').value = 0;
     document.getElementById('ing-cat').value = 'other';
     const unitSelect = document.getElementById('ing-unit');
