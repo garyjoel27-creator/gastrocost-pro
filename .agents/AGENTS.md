@@ -27,3 +27,14 @@ Para evitar que el navegador del usuario sirva versiones obsoletas desde la cach
   });
   ```
 - Esto asegura que el cliente se actualice y recargue de forma automática en el primer acceso en cuanto el Service Worker active una nueva versión en segundo plano.
+
+## 5. Regla Inmutable: Estudio de Mercado y Benchmarking Previo Obligatorio en Hostelería
+Antes de diseñar, planificar o codificar cualquier nueva funcionalidad, módulo o aplicación en el ámbito de hostelería y restauración:
+- **Benchmarking Competitivo Obligatorio:** Es mandatorio investigar y contrastar las herramientas líderes del mercado (KDS, ERPs, gestores de mise en place, TPVs, escandallos).
+- **Matriz de Valor Previa:** Debe identificarse explícitamente:
+  1. ¿Qué funciones ya existen en el mercado y cómo las resuelven?
+  2. ¿Qué funciones faltan o están mal ejecutadas en los competidores?
+  3. ¿Cuáles son los riesgos operativos y barreras de adopción en cocina real?
+  4. ¿Cuál es nuestra Propuesta de Valor Única (UVP) y qué valor añadido diferencial aportamos?
+- **Prohibición Estricta:** Está terminantemente prohibido programar o añadir complejidad técnica a ciegas sin este análisis comparativo previo para no malgastar tiempo en herramientas redundantes.
+

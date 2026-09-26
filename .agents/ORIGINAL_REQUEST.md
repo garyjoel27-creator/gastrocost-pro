@@ -93,3 +93,56 @@ Cada partida operativa debe reflejar su personalidad en los tabs, bordes activos
 - [ ] Las tarjetas de tarea reaccionan con micro-animaciones al tacto/hover y cuentan con badges de prioridad visualmente enriquecidos.
 - [ ] El proyecto compila en producción sin errores mediante `npm run build` en el directorio `brigade-sync`.
 
+## 2026-09-25T22:49:01Z
+
+Auditoría integral operativa, funcional y estratégica de MisePro (Brigade Sync), contrastando la usabilidad en tiempo real en cocina frente a la gestión fuera de servicio, complementado con un análisis competitivo exhaustivo de software gastronómico para redefinir su propuesta de valor y podar funcionalidades innecesarias.
+
+Working directory: C:\Users\zigac\Documents\antigravity\radiant-shannon\brigade-sync
+Integrity mode: development
+
+## Requirements
+
+### R1. Auditoría Operativa de Trinchera (Perspectiva In-Service vs Out-of-Service)
+- Analizar minuciosamente la herramienta asumiendo dos roles operativos reales:
+  1. **Cocinero / Jefe de Partida en el Pase (Servicio en Vivo):** Con prisa, calor, vapor y manos ocupadas. Identificar qué botones sobran, qué elementos generan fricción o confusión cognitiva, y cuáles son las únicas 3-4 interacciones que realmente importan mientras salen comandas.
+  2. **Jefe de Cocina / Propietario Fuera de Servicio (Pre/Post Pase):** Planificación del turno, control de mermas y compras, cumplimiento legal (APPCC sanitario con exportación), estandarización de recetas y rendimiento del equipo.
+- Entregar una **Matriz de Diagnóstico de Botones y Flujos** clasificada en: *Imprescindible*, *Ruido / Eliminar*, *Simplificar / Reubicar*.
+
+### R2. Batería de Pruebas Extrema de Funcionalidades Existentes
+- Inspeccionar exhaustivamente cada módulo de la aplicación en el código fuente y en ejecución:
+  - Tablero Kanban / KDS de Mise en Place (estados, tarjetas, modo ticket, acciones vs elaboraciones).
+  - Pase de Servicio (temporizadores múltiples, alarmas sonoras/hápticas, controles rápidos).
+  - Módulo Sanitario APPCC (registros PCC, temperaturas, cámaras, generación de informes Word/Excel).
+  - Módulo de Logística (lista de compras, fuera de carta 86, notificación WhatsApp).
+  - Asistente de Voz (detección semántica, transcripción limpia, inserción en 1 toque).
+  - Modo Jefe / PIN, notas Post-It, onboarding wizard y configuración de partidas.
+- Documentar cualquier botón fantasma, acción redundante o inconsistencia en la persistencia local (IndexedDB / Zustand).
+
+### R3. Estudio de Mercado y Benchmarking Competitivo
+- Analizar el panorama de software para hostelería enfocado en el segmento objetivo: **Restaurantes gastronómicos, bistrós de autor y locales medianos (brigadas de 3 a 12 cocineros con partidas definidas)**.
+- Comparar MisePro frente a referentes del sector:
+  - KDS de Pase: Toast KDS, Square KDS, Lightspeed, Fresh KDS.
+  - Gestión de Mise en Place, Recetas y Cocina: Meez, Apicbase, MarketMan, Kitchen CUT, 7shifts.
+- Identificar:
+  - ¿Qué hacen bien estos competidores y dónde fallan (precios prohibitivos, curvas de aprendizaje complejas, exceso de burocracia digital)?
+  - ¿Cuál es la **Propuesta de Valor Única (UVP)** de MisePro frente a ellos?
+  - ¿Por qué un jefe de cocina elegiría MisePro frente a un KDS tradicional de TPV o una libreta de papel?
+
+### R4. Plan Maestro de Redefinición y Poda (Roadmap de Excelencia)
+- Diseñar el plan estratégico de evolución de la herramienta:
+  - **Plan de Poda Inmediata:** Qué eliminar para que la app sea rápida, limpia e intuitiva.
+  - **Palancas de Alto Valor:** Qué 2-3 capacidades convertirían a MisePro en una herramienta indispensable por la que cualquier restaurante pagaría una suscripción mensual.
+
+## Acceptance Criteria
+
+### Diagnóstico Operativo & Batería de Pruebas
+- [ ] Informe con tabla detallada de auditoría botón por botón y pantalla por pantalla, evaluada con justificación práctica de cocina.
+- [ ] Listado claro de elementos y flujos redundantes marcados para eliminación inmediata.
+- [ ] Diagnóstico de consistencia técnica del estado de la aplicación.
+
+### Estudio de Mercado y Posicionamiento Estratégico
+- [ ] Matriz comparativa de competidores con fortalezas, debilidades, modelo de precios y barrera de adopción.
+- [ ] Definición precisa de la Propuesta de Valor Única (UVP) y perfil del cliente ideal (ICP).
+- [ ] Documento de síntesis ejecutiva con la hoja de ruta clara para transformar la app en un producto de referencia en el sector.
+
+
