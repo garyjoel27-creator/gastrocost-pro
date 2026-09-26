@@ -3206,6 +3206,122 @@ body.theme-pearl-bronze #btn-open-export {
   opacity: 0.6;
 }
 
+/* V16.4 Universal Recipe Excel Importer & Quick Catalog */
+.recipe-import-dropzone {
+  border: 2px dashed rgba(34, 197, 94, 0.4);
+  background: rgba(34, 197, 94, 0.03);
+  border-radius: var(--r2);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 16px;
+}
+.recipe-import-dropzone:hover, .recipe-import-dropzone.dragover {
+  border-color: var(--green);
+  background: rgba(34, 197, 94, 0.08);
+  transform: translateY(-1px);
+}
+.golden-template-banner {
+  background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.03));
+  border: 1px solid rgba(212,175,55,0.35);
+  border-radius: var(--r2);
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.reconcile-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+  margin-top: 10px;
+}
+.reconcile-table th {
+  background: var(--bg2);
+  color: var(--t2);
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--b1);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.reconcile-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--b1);
+  vertical-align: middle;
+}
+.reconcile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+.reconcile-badge.match { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.reconcile-badge.diff  { background: rgba(234,179,8,0.12); color: var(--amber); border: 1px solid rgba(234,179,8,0.3); }
+.reconcile-badge.new   { background: rgba(6,182,212,0.12); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+
+/* Quick Catalog Palette (Ctrl+K) */
+.quick-catalog-card {
+  background: var(--bg1);
+  border: 1px solid var(--b1);
+  border-radius: var(--r2);
+  box-shadow: 0 20px 45px rgba(0,0,0,0.5);
+  width: 95%;
+  max-width: 680px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+.quick-cat-search-box {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--b1);
+  background: var(--bg2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.quick-cat-search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  font-size: 0.95rem;
+  color: var(--t1);
+  outline: none;
+  font-family: inherit;
+}
+.quick-cat-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.quick-cat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: var(--r1);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.quick-cat-item:hover {
+  background: rgba(255,255,255,0.03);
+  border-color: var(--b1);
+}
+
 /* V16.3 Modal Guiado Nueva Ficha */
 .new-recipe-type-grid {
   display: grid;
@@ -3237,6 +3353,8 @@ body.theme-pearl-bronze #btn-open-export {
     </div>
     <div class="hdr-btns" id="hdr-btns">
       <input type="file" id="fi-import" class="visually-hidden" accept=".json">
+      <button class="btn btn-ghost" id="btn-quick-catalog" title="Buscar en Catálogo Maestro (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px;border-color:rgba(6,182,212,0.3);color:var(--cyan);font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><span>🔍 Catálogo <kbd style="font-size:0.6rem;opacity:0.7;background:rgba(255,255,255,0.1);padding:1px 4px;border-radius:3px;">Ctrl+K</kbd></span></button>
+      <button class="btn btn-ghost" id="btn-open-recipe-import" title="Importar Escandallo desde Excel (.xlsx / .csv)" style="display:inline-flex;align-items:center;gap:6px;border-color:rgba(34,197,94,0.3);color:var(--green);font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg><span>📥 Importar Excel</span></button>
       <button class="btn btn-ghost" id="btn-open-settings" title="Ajustes del Sistema, IA y Conectividad" style="display:inline-flex;align-items:center;gap:6px;border-color:rgba(212,175,55,0.3);color:var(--gold);font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span>⚙️ Ajustes</span></button>
       <button class="btn btn-primary" id="btn-open-export" title="Exportar o Compartir Receta">📤 Exportar / Compartir</button>
     </div>
@@ -4158,6 +4276,17 @@ body.theme-pearl-bronze #btn-open-export {
         </div>
       </div>
 
+      <!-- Importador de Escandallos Excel (V16.4) -->
+      <div class="export-card" style="grid-column: 1 / -1; background: rgba(34, 197, 94, 0.03); border-color: rgba(34, 197, 94, 0.25);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div style="flex:1;min-width:240px;">
+            <div class="export-card-header" style="color:var(--green); margin-bottom:4px;">📥 Importar Escandallo desde Excel (.xlsx / .csv)</div>
+            <div class="export-card-desc" style="margin-bottom:0;">Sube tu propia hoja de cálculo o descarga nuestra plantilla oficial. Detección automática de mermas, ingredientes, alérgenos y gaveta de reconciliación con tu Catálogo.</div>
+          </div>
+          <button type="button" class="btn btn-green" id="btn-modal-open-recipe-import" style="min-width:190px;">📥 Importar Escandallo</button>
+        </div>
+      </div>
+
       <!-- Libro Digital de Recetas Consolidado (R5) -->
       <div class="export-card" style="grid-column: 1 / -1; background: rgba(34, 211, 238, 0.03); border-color: rgba(34, 211, 238, 0.2);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
@@ -4191,6 +4320,136 @@ body.theme-pearl-bronze #btn-open-export {
         <button class="btn btn-ghost" id="btn-export-backup" style="flex:1;font-size:0.75rem;" title="Descargar snapshot JSON enriquecido">💾 Snapshot JSON</button>
         <button class="btn btn-ghost" id="btn-export-import" style="flex:1;font-size:0.75rem;" title="Restaurar copia local con opciones de fusión">📂 Restaurar Snapshot Local</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- V16.4 Modal de Importación de Escandallos Excel -->
+<div class="modal-overlay" id="recipe-import-modal">
+  <div class="export-modal-card" style="max-width:620px;padding:24px;">
+    <button class="modal-close" id="btn-close-recipe-import-modal" title="Cerrar">✕</button>
+    <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+      <span>📥 Importador Universal de Escandallos</span>
+    </div>
+    <div class="modal-subtitle" style="margin-bottom:16px;">
+      Sube una receta en formato Excel (.xlsx, .xls) o CSV para incorporarla a tu recetario.
+    </div>
+
+    <!-- Capa A: Descarga de Plantilla de Oro -->
+    <div class="golden-template-banner">
+      <div>
+        <div style="font-weight:700;font-size:0.85rem;color:var(--gold);display:flex;align-items:center;gap:6px;">
+          <span>⭐ ¿Prefieres usar nuestra Plantilla Oficial?</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--t3);margin-top:2px;">
+          Estructura perfecta con listas de unidades y alérgenos de la normativa europea.
+        </div>
+      </div>
+      <button type="button" class="btn btn-ghost" id="btn-download-golden-template" style="border-color:var(--gold);color:var(--gold);font-size:0.75rem;white-space:nowrap;">
+        📄 Descargar Plantilla (.xlsx)
+      </button>
+    </div>
+
+    <!-- Capa B: Zona de Carga de Archivo -->
+    <input type="file" id="fi-recipe-excel" class="visually-hidden" accept=".xlsx,.xls,.csv">
+    <div class="recipe-import-dropzone" id="recipe-dropzone">
+      <div style="font-size:2rem;margin-bottom:8px;">📊</div>
+      <div style="font-weight:700;font-size:0.9rem;color:var(--t1);margin-bottom:4px;">
+        Haz clic para seleccionar o arrastra tu archivo Excel aquí
+      </div>
+      <div style="font-size:0.72rem;color:var(--t3);">
+        Soporta archivos .xlsx, .xls y .csv de cualquier software o plantilla propia
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--b1);padding-top:14px;">
+      <span style="font-size:0.7rem;color:var(--t3);">🔒 Procesamiento 100% local y confidencial en tu navegador</span>
+      <button type="button" class="btn btn-ghost" id="btn-cancel-recipe-import" style="font-size:0.75rem;">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- V16.4 Modal de Reconciliación Pre-Commit -->
+<div class="modal-overlay" id="recipe-reconcile-modal">
+  <div class="export-modal-card" style="max-width:820px;width:95%;max-height:90vh;display:flex;flex-direction:column;padding:22px;overflow:hidden;">
+    <button class="modal-close" id="btn-close-reconcile-modal" title="Cerrar">✕</button>
+    <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+      <span>🔍 Reconciliación del Escandallo Importado</span>
+    </div>
+    <div class="modal-subtitle" style="margin-bottom:14px;">
+      Verifica los datos detectados y cómo interactúan con tu Catálogo Maestro antes de incorporar la ficha:
+    </div>
+
+    <!-- Encabezado de la Ficha Importada -->
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;background:var(--bg2);border:1px solid var(--b1);border-radius:var(--r2);padding:12px 14px;margin-bottom:14px;">
+      <div>
+        <label class="fl" style="font-size:0.68rem;color:var(--t2);">Nombre de la Receta</label>
+        <input class="fi" id="reconcile-dish-name" type="text" style="font-weight:700;font-size:0.88rem;margin-bottom:0;">
+      </div>
+      <div>
+        <label class="fl" style="font-size:0.68rem;color:var(--t2);">Raciones Base</label>
+        <input class="fi" id="reconcile-portions" type="number" min="1" step="1" inputmode="numeric" style="margin-bottom:0;">
+      </div>
+      <div>
+        <label class="fl" style="font-size:0.68rem;color:var(--t2);">Food Cost Obj. (%)</label>
+        <input class="fi" id="reconcile-fc-goal" type="number" min="1" max="100" step="1" inputmode="decimal" style="margin-bottom:0;">
+      </div>
+    </div>
+
+    <!-- Tabla de Insumos Extraídos y Reconciliación -->
+    <div style="flex:1;overflow-y:auto;border:1px solid var(--b1);border-radius:var(--r2);margin-bottom:14px;">
+      <table class="reconcile-table">
+        <thead>
+          <tr>
+            <th>Ingrediente</th>
+            <th style="text-align:right">Cantidad Neta</th>
+            <th style="text-align:right">Merma</th>
+            <th style="text-align:right">Precio Excel</th>
+            <th>Estado Catálogo</th>
+            <th style="text-align:center">¿Actualizar Catálogo?</th>
+          </tr>
+        </thead>
+        <tbody id="reconcile-table-body">
+          <!-- Dinámico -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Resumen de Costes Preliminar -->
+    <div style="display:flex;justify-content:space-between;align-items:center;background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.25);border-radius:var(--r2);padding:12px 16px;margin-bottom:14px;">
+      <div style="font-size:0.8rem;color:var(--t2);">
+        Insumos detectados: <strong id="reconcile-count" style="color:var(--t1)">0</strong>
+      </div>
+      <div style="display:flex;gap:18px;font-size:0.82rem;">
+        <div>Costo Lote: <strong id="reconcile-cost-lote" style="color:var(--gold)">0,00 €</strong></div>
+        <div>Costo / Ración: <strong id="reconcile-cost-ration" style="color:var(--cyan)">0,00 €</strong></div>
+        <div>PVP Sugerido: <strong id="reconcile-pvp-suggest" style="color:var(--green)">0,00 €</strong></div>
+      </div>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+      <button type="button" class="btn btn-ghost" id="btn-cancel-reconcile" style="font-size:0.75rem;">Descartar</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-reconcile" style="font-size:0.8rem;padding:9px 18px;">
+        🚀 Incorporar Escandallo a mi Recetario
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- V16.4 Modal de Catálogo Rápido (Ctrl+K Command Palette) -->
+<div class="modal-overlay" id="quick-catalog-modal">
+  <div class="quick-catalog-card">
+    <div class="quick-cat-search-box">
+      <span style="font-size:1.1rem;color:var(--cyan)">🔍</span>
+      <input type="text" id="quick-cat-input" placeholder="Buscar insumo en Catálogo Maestro (ej. Bogavante, Aceite, Harina)..." autocomplete="off">
+      <span style="font-size:0.7rem;color:var(--t4);border:1px solid var(--b1);padding:2px 6px;border-radius:4px;">ESC para salir</span>
+    </div>
+    <div class="quick-cat-list" id="quick-cat-results">
+      <!-- Dinámico -->
+    </div>
+    <div style="padding:10px 16px;border-top:1px solid var(--b1);background:var(--bg2);display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;color:var(--t3);">
+      <span>Total insumos en Catálogo: <strong id="quick-cat-total-count" style="color:var(--t1)">0</strong></span>
+      <span>💡 Usa las flechas o haz clic para consultar detalles</span>
     </div>
   </div>
 </div>
@@ -5094,6 +5353,93 @@ class GC {
       inp.addEventListener('focus', function() {
         setTimeout(() => this.select(), 50);
       });
+    });
+
+    /* V16.4 Listeners para Importador Universal de Escandallos y Catálogo Rápido */
+    const btnOpenRecImport = document.getElementById('btn-open-recipe-import');
+    if (btnOpenRecImport) btnOpenRecImport.addEventListener('click', () => this.openRecipeImportModal());
+
+    const btnModalOpenRecImport = document.getElementById('btn-modal-open-recipe-import');
+    if (btnModalOpenRecImport) {
+      btnModalOpenRecImport.addEventListener('click', () => {
+        this.toggleExportModal(false);
+        this.openRecipeImportModal();
+      });
+    }
+
+    const btnCloseRecImport = document.getElementById('btn-close-recipe-import-modal');
+    if (btnCloseRecImport) btnCloseRecImport.addEventListener('click', () => this.closeRecipeImportModal());
+
+    const btnCancelRecImport = document.getElementById('btn-cancel-recipe-import');
+    if (btnCancelRecImport) btnCancelRecImport.addEventListener('click', () => this.closeRecipeImportModal());
+
+    const btnGoldenTemplate = document.getElementById('btn-download-golden-template');
+    if (btnGoldenTemplate) btnGoldenTemplate.addEventListener('click', () => this._downloadGoldenRecipeTemplate());
+
+    const fiRecipeExcel = document.getElementById('fi-recipe-excel');
+    const recipeDropzone = document.getElementById('recipe-dropzone');
+    if (recipeDropzone && fiRecipeExcel) {
+      recipeDropzone.addEventListener('click', () => fiRecipeExcel.click());
+      recipeDropzone.addEventListener('dragover', e => { e.preventDefault(); recipeDropzone.classList.add('dragover'); });
+      recipeDropzone.addEventListener('dragleave', () => recipeDropzone.classList.remove('dragover'));
+      recipeDropzone.addEventListener('drop', e => {
+        e.preventDefault();
+        recipeDropzone.classList.remove('dragover');
+        if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) {
+          this._handleRecipeFileSelected(e.dataTransfer.files[0]);
+        }
+      });
+      fiRecipeExcel.addEventListener('change', e => {
+        if (e.target.files && e.target.files[0]) {
+          this._handleRecipeFileSelected(e.target.files[0]);
+        }
+      });
+    }
+
+    // Reconcile Modal Listeners
+    const btnCloseReconcile = document.getElementById('btn-close-reconcile-modal');
+    if (btnCloseReconcile) btnCloseReconcile.addEventListener('click', () => this.closeRecipeReconcileModal());
+
+    const btnCancelReconcile = document.getElementById('btn-cancel-reconcile');
+    if (btnCancelReconcile) btnCancelReconcile.addEventListener('click', () => this.closeRecipeReconcileModal());
+
+    const btnConfirmReconcile = document.getElementById('btn-confirm-reconcile');
+    if (btnConfirmReconcile) btnConfirmReconcile.addEventListener('click', () => this._commitReconciledRecipe());
+
+    // Quick Catalog Palette (Ctrl+K)
+    const btnQuickCat = document.getElementById('btn-quick-catalog');
+    if (btnQuickCat) btnQuickCat.addEventListener('click', () => this.openQuickCatalog());
+
+    const quickCatInput = document.getElementById('quick-cat-input');
+    if (quickCatInput) {
+      quickCatInput.addEventListener('input', e => this._renderQuickCatalogResults(e.target.value));
+      quickCatInput.addEventListener('keydown', e => {
+        if (e.key === 'Escape') this.closeQuickCatalog();
+      });
+    }
+
+    const quickCatModal = document.getElementById('quick-catalog-modal');
+    if (quickCatModal) {
+      quickCatModal.addEventListener('click', e => {
+        if (e.target === quickCatModal) this.closeQuickCatalog();
+      });
+    }
+
+    // Global Keydown for Ctrl+K
+    window.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const m = document.getElementById('quick-catalog-modal');
+        if (m && m.classList.contains('open')) {
+          this.closeQuickCatalog();
+        } else {
+          this.openQuickCatalog();
+        }
+      } else if (e.key === 'Escape') {
+        this.closeQuickCatalog();
+        this.closeRecipeImportModal();
+        this.closeRecipeReconcileModal();
+      }
     });
 
     /* V16.2 Enter/Done key advances between ingredient fields then submits */
@@ -10156,6 +10502,471 @@ class GC {
     } finally {
       if (btn) { btn.innerHTML = origText; btn.disabled = false; }
     }
+  }
+
+  /* ═══════════════════════════════════════════════
+     V16.4 UNIVERSAL RECIPE EXCEL IMPORTER & QUICK CATALOG
+  ═══════════════════════════════════════════════ */
+
+  /* Capa A: Descarga de Plantilla Oficial de Oro en 1 Clic */
+  async _downloadGoldenRecipeTemplate() {
+    if (!await this._ensureXLSX()) {
+      toast('Error al cargar la librería XLSX/SheetJS', 'e');
+      return;
+    }
+    const wb = XLSX.utils.book_new();
+
+    const cur = (this.R && this.R.config && this.R.config.currency) || 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = String.fromCharCode(36);
+    if (cur === 'PEN') curSym = 'S/.';
+
+    // Hoja 1: Escandallo
+    const escData = [
+      ["ESCANDALLO MAESTRO — GASTROCOST PRO V16.4"],
+      ["Nombre del Plato:", "Arroz Meloso de Bogavante", "Raciones Base:", 4, "Food Cost Objetivo (%):", 26, "Categoría:", "Arroces"],
+      ["Notas de Elaboración:", "Marcar el bogavante 2 min por lado. Sofreír chalotas y tomate. Nacarar el arroz y mojar con fumet hirviendo. Cocción 16 min."],
+      [],
+      ["INGREDIENTE", "CANTIDAD NETA", "UNIDAD (g / ml / ud)", "MERMA (%)", "PRECIO MERCADO (" + curSym + ")", "CATEGORÍA", "ALÉRGENOS (separados por coma)"],
+      ["Arroz Bomba", 320, "g", 0, 4.20, "Cereales / Secos", "ninguno"],
+      ["Bogavante vivo", 1, "ud", 25, 24.50, "Pescados / Mariscos", "crustáceos"],
+      ["Fumet de roca", 1200, "ml", 5, 2.80, "Caldos / Fondos", "pescado, crustáceos"],
+      ["Aceite de oliva virgen extra", 60, "ml", 0, 9.50, "Aceites / Grasas", "ninguno"],
+      ["Azafrán en hebra", 0.5, "g", 0, 1800.00, "Especias", "ninguno"]
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(escData);
+    ws1['!cols'] = [
+      { wch: 30 }, { wch: 16 }, { wch: 22 }, { wch: 12 }, { wch: 20 }, { wch: 20 }, { wch: 30 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws1, "Escandallo");
+
+    // Hoja 2: Instrucciones
+    const instrucData = [
+      ["GUÍA DE LLENADO DE PLANTILLA — GASTROCOST PRO"],
+      ["1. Nombre del Plato: Introduce el nombre del plato en la celda B2."],
+      ["2. Raciones Base: Número de raciones en la celda D2 (por defecto 1 o más)."],
+      ["3. Food Cost Objetivo (%): Porcentaje objetivo en la celda F2 (ej. 28)."],
+      ["4. Unidades: 'g' (gramos), 'ml' (mililitros), 'ud' (unidades). 'kg' y 'litros' se convertirán automáticamente."],
+      ["5. Merma (%): Porcentaje de pérdida en limpieza/cocción (0 a 99)."],
+      ["6. Precio Mercado: Precio por kg (para g), por litro (para ml) o por unidad."],
+      ["7. Alérgenos reconocidos: gluten, crustáceos, huevos, pescado, cacahuetes, soja, lácteos, frutos de cáscara, apio, mostaza, sésamo, sulfitos, altramuces, moluscos."]
+    ];
+    const ws2 = XLSX.utils.aoa_to_sheet(instrucData);
+    ws2['!cols'] = [{ wch: 80 }];
+    XLSX.utils.book_append_sheet(wb, ws2, "Instrucciones");
+
+    XLSX.writeFile(wb, "Plantilla_Escandallo_GastroCost.xlsx");
+    toast('Plantilla oficial de escandallo descargada ✓');
+  }
+
+  /* Modales de Importación */
+  openRecipeImportModal() {
+    const m = document.getElementById('recipe-import-modal');
+    if (m) m.classList.add('open');
+  }
+  closeRecipeImportModal() {
+    const m = document.getElementById('recipe-import-modal');
+    if (m) m.classList.remove('open');
+    const fi = document.getElementById('fi-recipe-excel');
+    if (fi) fi.value = '';
+  }
+
+  /* Capa B: Parser Heurístico de Archivos Excel/CSV */
+  async _handleRecipeFileSelected(file) {
+    if (!file) return;
+    if (!await this._ensureXLSX()) {
+      toast('Error al cargar la librería XLSX/SheetJS', 'e');
+      return;
+    }
+
+    try {
+      let buffer;
+      if (file.arrayBuffer) {
+        buffer = await file.arrayBuffer();
+      } else {
+        buffer = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = e => reject(e);
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      const wb = XLSX.read(buffer, { type: 'array' });
+      if (!wb.SheetNames || wb.SheetNames.length === 0) {
+        toast('El archivo no contiene hojas válidas', 'e');
+        return;
+      }
+
+      const sheetName = wb.SheetNames.find(s => /escandallo|receta|ficha/i.test(s)) || wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+      const parsedData = this._parseRecipeExcelData(aoa, file.name);
+      if (!parsedData.ingredients || parsedData.ingredients.length === 0) {
+        toast('No se encontraron ingredientes válidos en el archivo', 'e');
+        return;
+      }
+
+      this.closeRecipeImportModal();
+      this._openRecipeReconcileModal(parsedData);
+    } catch (err) {
+      console.error(err);
+      toast('Error al procesar el archivo Excel: ' + err.message, 'e');
+    }
+  }
+
+  _parseRecipeExcelData(aoa, fileName) {
+    let dishName = '';
+    let portions = 1;
+    let fcGoal = 28;
+    let notes = '';
+    let headerRowIndex = -1;
+    let colMap = { name: -1, net: -1, unit: -1, waste: -1, price: -1, cat: -1, allergens: -1 };
+
+    // 1. Scan metadata in first 12 rows
+    const maxMetaRows = Math.min(aoa.length, 12);
+    for (let r = 0; r < maxMetaRows; r++) {
+      const row = aoa[r] || [];
+      for (let c = 0; c < row.length; c++) {
+        const cellVal = String(row[c] || '').trim();
+        const nextVal = (c + 1 < row.length) ? String(row[c+1] || '').trim() : '';
+
+        if (!dishName && /^(nombre|plato|receta|dish|elaboraci[oó]n)(s*:)?$/i.test(cellVal) && nextVal) {
+          dishName = nextVal;
+        }
+        if (/^(raciones|porciones|pax|portions|yield)(s*:)?$/i.test(cellVal) && nextVal) {
+          const p = parseFloat(nextVal.replace(',', '.'));
+          if (p > 0) portions = p;
+        }
+        if (/^(foods*cost|fc|objetivo|fcs*obj)(s*\(?%?\)?)?:?$/i.test(cellVal) && nextVal) {
+          const fc = parseFloat(nextVal.replace(',', '.'));
+          if (fc > 0 && fc <= 100) fcGoal = fc;
+        }
+        if (!notes && /^(notas|instrucciones|m[eé]todo|preparaci[oó]n)(s*:)?$/i.test(cellVal) && nextVal) {
+          notes = nextVal;
+        }
+      }
+    }
+
+    if (!dishName && aoa.length > 0) {
+      const firstCell = String(aoa[0][0] || '').trim();
+      if (firstCell && !firstCell.toLowerCase().includes('escandallo maestro') && firstCell.length > 2 && firstCell.length < 60) {
+        dishName = firstCell;
+      }
+    }
+    if (!dishName) {
+      dishName = fileName ? fileName.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ') : 'Receta Importada';
+    }
+
+    // 2. Locate ingredient table header
+    for (let r = 0; r < Math.min(aoa.length, 20); r++) {
+      const row = (aoa[r] || []).map(cell => String(cell || '').toLowerCase().trim());
+      let matches = 0;
+      row.forEach((cell, colIdx) => {
+        if (/ingrediente|insumo|producto|art[ií]culo|descripci[oó]n/.test(cell) && colMap.name === -1) {
+          colMap.name = colIdx; matches++;
+        } else if (/cantidad|peso.*neto|neto|cant/.test(cell) && colMap.net === -1) {
+          colMap.net = colIdx; matches++;
+        } else if (/unidad|ud|medida|unit/.test(cell) && colMap.unit === -1) {
+          colMap.unit = colIdx; matches++;
+        } else if (/merma|desperdicio|waste/.test(cell) && colMap.waste === -1) {
+          colMap.waste = colIdx; matches++;
+        } else if (/precio|coste.*unit|costo.*unit|precio.*kg|p\.u\./.test(cell) && colMap.price === -1) {
+          colMap.price = colIdx; matches++;
+        } else if (/al[eé]rgeno|allergen/.test(cell) && colMap.allergens === -1) {
+          colMap.allergens = colIdx; matches++;
+        } else if (/categor[ií]a|familia|cat/.test(cell) && colMap.cat === -1) {
+          colMap.cat = colIdx; matches++;
+        }
+      });
+
+      if (matches >= 2 && colMap.name !== -1) {
+        headerRowIndex = r;
+        break;
+      }
+    }
+
+    if (headerRowIndex === -1) {
+      headerRowIndex = 4;
+      colMap = { name: 0, net: 1, unit: 2, waste: 3, price: 4, cat: 5, allergens: 6 };
+    }
+
+    // 3. Extract ingredient rows
+    const extractedIngredients = [];
+    for (let r = headerRowIndex + 1; r < aoa.length; r++) {
+      const row = aoa[r] || [];
+      if (!row.length) continue;
+      const rawName = colMap.name !== -1 ? String(row[colMap.name] || '').trim() : '';
+      if (!rawName) continue;
+      if (/^(total|suma|subtotal|resumen|an[aá]lisis|beneficio|margen)/i.test(rawName)) break;
+
+      let rawNet = colMap.net !== -1 ? parseFloat(String(row[colMap.net] || '0').replace(',', '.')) : 0;
+      let rawUnit = colMap.unit !== -1 ? String(row[colMap.unit] || '').toLowerCase().trim() : 'g';
+      let rawWaste = colMap.waste !== -1 ? parseFloat(String(row[colMap.waste] || '0').replace(',', '.')) : 0;
+      let rawPrice = colMap.price !== -1 ? parseFloat(String(row[colMap.price] || '0').replace(',', '.')) : 0;
+      let rawCat = colMap.cat !== -1 ? String(row[colMap.cat] || '').trim() : 'General';
+      let rawAllergensStr = colMap.allergens !== -1 ? String(row[colMap.allergens] || '').trim() : '';
+
+      let unit = 'g';
+      if (/^(ud|uds|unidades?|piezas?|botellas?)$/i.test(rawUnit)) {
+        unit = 'ud';
+      } else if (/^(l|lt|litros?)$/i.test(rawUnit)) {
+        unit = 'ml';
+        rawNet = rawNet * 1000;
+      } else if (/^(kg|kilos?)$/i.test(rawUnit)) {
+        unit = 'g';
+        rawNet = rawNet * 1000;
+      } else if (/^(ml|cl|cc)$/i.test(rawUnit)) {
+        unit = 'ml';
+        if (rawUnit === 'cl') rawNet = rawNet * 10;
+      }
+
+      if (isNaN(rawNet) || rawNet < 0) rawNet = 0;
+      if (isNaN(rawWaste) || rawWaste < 0 || rawWaste >= 100) rawWaste = 0;
+      if (isNaN(rawPrice) || rawPrice < 0) rawPrice = 0;
+
+      const allergens = [];
+      if (rawAllergensStr && !/^(ninguno|no|sin|-)$/i.test(rawAllergensStr)) {
+        const parts = rawAllergensStr.split(/[,;\/|]/).map(s => s.trim().toLowerCase());
+        const validKeys = Object.keys(ALLERGENS || {});
+        parts.forEach(p => {
+          const matched = validKeys.find(k => k === p || (ALLERGENS[k] && ALLERGENS[k].name.toLowerCase() === p));
+          if (matched && !allergens.includes(matched)) allergens.push(matched);
+        });
+      }
+
+      extractedIngredients.push({
+        name: rawName,
+        net: rawNet || 100,
+        unit: unit,
+        waste: rawWaste,
+        price: rawPrice,
+        cat: rawCat || 'General',
+        allergens: allergens
+      });
+    }
+
+    return {
+      dishName: dishName || 'Receta Importada',
+      portions: portions || 1,
+      fcGoal: fcGoal || 28,
+      notes: notes || '',
+      ingredients: extractedIngredients
+    };
+  }
+
+  /* Capa D: Gaveta de Reconciliación Pre-Commit */
+  _openRecipeReconcileModal(parsedData) {
+    this._reconcileData = parsedData;
+    const modal = document.getElementById('recipe-reconcile-modal');
+    if (!modal) return;
+
+    document.getElementById('reconcile-dish-name').value = parsedData.dishName || '';
+    document.getElementById('reconcile-portions').value = parsedData.portions || 1;
+    document.getElementById('reconcile-fc-goal').value = parsedData.fcGoal || 28;
+
+    const catalog = this.db.catalog || [];
+    const tbody = document.getElementById('reconcile-table-body');
+    tbody.innerHTML = '';
+
+    let totalCost = 0;
+
+    parsedData.reconciledList = parsedData.ingredients.map((ing, idx) => {
+      const norm = ing.name.toLowerCase().trim();
+      const existing = catalog.find(c => c.name.toLowerCase().trim() === norm);
+
+      let status = 'new';
+      let catPrice = 0;
+      if (existing) {
+        catPrice = existing.price || 0;
+        const diff = Math.abs(catPrice - ing.price);
+        status = diff < 0.001 ? 'match' : 'diff';
+      }
+
+      const wasteFactor = 1 - (ing.waste / 100);
+      const gross = wasteFactor > 0 ? ing.net / wasteFactor : ing.net;
+      const unitFactor = ing.unit === 'ud' ? 1 : 1000;
+      const cost = (gross / unitFactor) * ing.price;
+      totalCost += cost;
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><strong>${ing.name}</strong><br><small style="color:var(--t3)">${ing.cat} ${ing.allergens.length ? '· ⚠️ ' + ing.allergens.join(', ') : ''}</small></td>
+        <td style="text-align:right">${F1(ing.net)} ${ing.unit}</td>
+        <td style="text-align:right">${ing.waste}%</td>
+        <td style="text-align:right">${F2(ing.price)} €/${ing.unit === 'ud' ? 'ud' : (ing.unit === 'ml' ? 'L' : 'kg')}</td>
+        <td>
+          ${status === 'match' ? '<span class="reconcile-badge match">🟢 Coincide (' + F2(catPrice) + ' €)</span>' : ''}
+          ${status === 'diff'  ? '<span class="reconcile-badge diff">🟡 Dif. Catálogo (' + F2(catPrice) + ' €)</span>' : ''}
+          ${status === 'new'   ? '<span class="reconcile-badge new">⚪ Nuevo Insumo</span>' : ''}
+        </td>
+        <td style="text-align:center">
+          ${status === 'diff' ? '<input type="checkbox" id="rec-upd-' + idx + '" checked style="cursor:pointer" title="Actualizar precio en Catálogo Maestro">' : (status === 'new' ? '<span style="font-size:0.7rem;color:var(--cyan)">Se añadirá</span>' : '<span style="font-size:0.7rem;color:var(--t4)">Sincronizado</span>')}
+        </td>
+      `;
+      tbody.appendChild(row);
+
+      return {
+        ...ing,
+        existing: existing,
+        status: status,
+        cost: cost
+      };
+    });
+
+    const port = Math.max(parsedData.portions, 1);
+    const unitCost = totalCost / port;
+    const pvpSuggest = parsedData.fcGoal > 0 ? (unitCost / (parsedData.fcGoal / 100)) * (1 + (this.R.config.taxRate || 10) / 100) : 0;
+
+    document.getElementById('reconcile-count').textContent = parsedData.ingredients.length;
+    document.getElementById('reconcile-cost-lote').textContent = EUR.format(totalCost);
+    document.getElementById('reconcile-cost-ration').textContent = EUR.format(unitCost);
+    document.getElementById('reconcile-pvp-suggest').textContent = EUR.format(pvpSuggest);
+
+    modal.classList.add('open');
+  }
+
+  closeRecipeReconcileModal() {
+    const modal = document.getElementById('recipe-reconcile-modal');
+    if (modal) modal.classList.remove('open');
+    this._reconcileData = null;
+  }
+
+  _commitReconciledRecipe() {
+    if (!this._reconcileData) return;
+
+    const dishName = document.getElementById('reconcile-dish-name').value.trim() || 'Receta Importada';
+    const portions = Math.max(parseFloat(document.getElementById('reconcile-portions').value) || 1, 1);
+    const fcGoal = Math.max(parseFloat(document.getElementById('reconcile-fc-goal').value) || 28, 1);
+
+    if (!Array.isArray(this.db.catalog)) this.db.catalog = [];
+    this._reconcileData.reconciledList.forEach((ing, idx) => {
+      const chk = document.getElementById('rec-upd-' + idx);
+      const shouldUpdate = chk ? chk.checked : false;
+
+      if (ing.status === 'new') {
+        this.db.catalog.push({
+          id: 'cat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+          name: ing.name,
+          category: ing.cat || 'General',
+          price: ing.price,
+          unit: ing.unit,
+          waste: ing.waste,
+          allergens: ing.allergens || []
+        });
+      } else if (ing.status === 'diff' && shouldUpdate && ing.existing) {
+        ing.existing.price = ing.price;
+        if (ing.waste > 0) ing.existing.waste = ing.waste;
+      }
+    });
+
+    const newId = 'r_' + Date.now();
+    const ingredients = this._reconcileData.reconciledList.map(ing => {
+      const wasteFactor = 1 - (ing.waste / 100);
+      const gross = wasteFactor > 0 ? ing.net / wasteFactor : ing.net;
+      const unitFactor = ing.unit === 'ud' ? 1 : 1000;
+      const cost = (gross / unitFactor) * ing.price;
+      return {
+        id: 'i_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        name: ing.name,
+        net: ing.net,
+        unit: ing.unit,
+        waste: ing.waste,
+        gross: gross,
+        originalPrice: ing.price,
+        cost: cost,
+        cat: ing.cat || 'General',
+        allergens: ing.allergens || []
+      };
+    });
+
+    const newRecipe = {
+      id: newId,
+      config: {
+        dishName: dishName,
+        portions: portions,
+        taxRate: (this.R && this.R.config && this.R.config.taxRate) || 10,
+        fcGoal: fcGoal,
+        currency: (this.R && this.R.config && this.R.config.currency) || 'EUR',
+        customPVP: 0,
+        notes: this._reconcileData.notes || '',
+        category: 'General',
+        isSubRecipe: false,
+        yieldQty: portions,
+        yieldUnit: 'ud'
+      },
+      ingredients: ingredients
+    };
+
+    this.db.recipes[newId] = newRecipe;
+    this._save();
+
+    this.closeRecipeReconcileModal();
+    this._selectRecipe(newId);
+    this._render();
+
+    toast('¡Escandallo "' + dishName + '" importado con éxito! 🎉');
+  }
+
+  /* Command Palette: Buscador Rápido del Catálogo (Ctrl+K) */
+  openQuickCatalog() {
+    const modal = document.getElementById('quick-catalog-modal');
+    if (!modal) return;
+    modal.classList.add('open');
+    const input = document.getElementById('quick-cat-input');
+    if (input) {
+      input.value = '';
+      input.focus();
+    }
+    this._renderQuickCatalogResults('');
+  }
+
+  closeQuickCatalog() {
+    const modal = document.getElementById('quick-catalog-modal');
+    if (modal) modal.classList.remove('open');
+  }
+
+  _renderQuickCatalogResults(query) {
+    const container = document.getElementById('quick-cat-results');
+    const totalCountEl = document.getElementById('quick-cat-total-count');
+    if (!container) return;
+
+    const catalog = this.db.catalog || [];
+    if (totalCountEl) totalCountEl.textContent = catalog.length;
+
+    const q = query.toLowerCase().trim();
+    const filtered = q ? catalog.filter(c => 
+      c.name.toLowerCase().includes(q) || 
+      (c.category && c.category.toLowerCase().includes(q))
+    ) : catalog.slice(0, 30);
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div style="padding:24px;text-align:center;color:var(--t3);font-size:0.8rem;">No se encontraron insumos que coincidan con la búsqueda.</div>';
+      return;
+    }
+
+    const cur = (this.R && this.R.config && this.R.config.currency) || 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = String.fromCharCode(36);
+    if (cur === 'PEN') curSym = 'S/.';
+
+    container.innerHTML = filtered.map(item => {
+      const unitLabel = item.unit === 'ud' ? 'ud' : (item.unit === 'ml' ? 'L' : 'kg');
+      const allgStr = item.allergens && item.allergens.length ? item.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
+      return `
+        <div class="quick-cat-item" onclick="if(document.getElementById('ing-name')){ document.getElementById('ing-name').value='${item.name.replace(/'/g, "\\\'")}'; document.getElementById('ing-price').value=${item.price}; document.getElementById('ing-waste').value=${item.waste||0}; window.gc.closeQuickCatalog(); document.getElementById('ing-net').focus(); toast('Insumo cargado en el formulario ✓'); }">
+          <div>
+            <div style="font-weight:700;font-size:0.85rem;color:var(--t1)">${item.name} ${allgStr ? '<span style="font-size:0.75rem;margin-left:4px">' + allgStr + '</span>' : ''}</div>
+            <div style="font-size:0.7rem;color:var(--t3)">${item.category || 'General'} · Merma habitual: ${item.waste || 0}%</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-weight:700;color:var(--cyan);font-size:0.85rem">${F2(item.price)} ${curSym}/${unitLabel}</div>
+            <span style="font-size:0.65rem;color:var(--t4);border:1px solid var(--b1);padding:1px 5px;border-radius:3px">Usar en receta ↵</span>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   /* ═══════════════════════════════════════════════
