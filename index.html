@@ -10632,18 +10632,18 @@ class GC {
         const cellVal = String(row[c] || '').trim();
         const nextVal = (c + 1 < row.length) ? String(row[c+1] || '').trim() : '';
 
-        if (!dishName && /^(nombre|plato|receta|dish|elaboraci[oó]n)(s*:)?$/i.test(cellVal) && nextVal) {
+        if (!dishName && /^(nombre|plato|receta|dish|elaboraci[oó]n)(\s*:)?$/i.test(cellVal) && nextVal) {
           dishName = nextVal;
         }
-        if (/^(raciones|porciones|pax|portions|yield)(s*:)?$/i.test(cellVal) && nextVal) {
+        if (/^(raciones|porciones|pax|portions|yield)(\s*:)?$/i.test(cellVal) && nextVal) {
           const p = parseFloat(nextVal.replace(',', '.'));
           if (p > 0) portions = p;
         }
-        if (/^(foods*cost|fc|objetivo|fcs*obj)(s*\(?%?\)?)?:?$/i.test(cellVal) && nextVal) {
+        if (/(food\s*cost|fc|objetivo)/i.test(cellVal) && nextVal) {
           const fc = parseFloat(nextVal.replace(',', '.'));
           if (fc > 0 && fc <= 100) fcGoal = fc;
         }
-        if (!notes && /^(notas|instrucciones|m[eé]todo|preparaci[oó]n)(s*:)?$/i.test(cellVal) && nextVal) {
+        if (!notes && /^(notas|instrucciones|m[eé]todo|preparaci[oó]n)(\s*:)?$/i.test(cellVal) && nextVal) {
           notes = nextVal;
         }
       }
