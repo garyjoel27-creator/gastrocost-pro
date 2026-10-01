@@ -448,12 +448,6 @@ body {
   border-color: var(--b3);
   background: var(--s4);
 }
-.btn-danger {
-  background: var(--redL);
-  color: var(--red);
-  border: 1px solid rgba(248,113,113,.3);
-}
-.btn-danger:hover { background: var(--red); color: #0a0e16; }
 .btn-icon { padding:8px 10px; }
 
 /* Ripple */
@@ -814,61 +808,11 @@ input[inputmode="decimal"]:focus {
   -webkit-user-select: all;
   user-select: all;
 }
-/* "Done" button hint on mobile keyboard */
-.ing-add-fast-hint {
-  font-size: 0.65rem;
-  color: var(--t4);
-  text-align: center;
-  padding: 4px 0 0;
-  letter-spacing: 0.02em;
-}
 /* Highlight active field nicely */
 .fi:focus {
   ring: 2px solid var(--cyan) !important;
 }
 
-/* V16.0 Dashboard Directivo */
-.dashboard-strip {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  padding: 10px 14px;
-  margin-bottom: 10px;
-  background: linear-gradient(135deg, var(--s1), var(--s2));
-  border-radius: var(--r2);
-  border: 1px solid var(--b1);
-  box-shadow: var(--sh1);
-}
-.dashboard-strip .dash-kpi {
-  text-align: center;
-  padding: 8px 4px;
-  border-radius: var(--r1);
-  background: var(--bg);
-  border: 1px solid var(--b1);
-  box-shadow: inset 2px 2px 4px var(--sh-in1), inset -2px -2px 4px var(--sh-in2);
-}
-.dashboard-strip .dash-kpi-lbl {
-  font-size: 0.58rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--t3);
-  margin-bottom: 2px;
-  font-weight: 600;
-}
-.dashboard-strip .dash-kpi-val {
-  font-size: 1.05rem;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-.dashboard-strip .dash-kpi-sub {
-  font-size: 0.52rem;
-  color: var(--t4);
-  margin-top: 1px;
-}
-@media (max-width: 600px) {
-  .dashboard-strip { grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 8px 10px; }
-  .dashboard-strip .dash-kpi-val { font-size: 0.92rem; }
-}
 
 /* ═══════════════════════════════════════════════
    V16.1 PRICING ASSISTANT & MOBILE DUAL MODE STYLES
@@ -2159,7 +2103,7 @@ input[inputmode="decimal"]:focus {
 .prod-step-card.checked {
   background: var(--kit-row-checked, #f1f5f9) !important;
 }
-.prod-step-card.checked .prod-step-checkbox {
+.prod-step-card.checked .prod-step-check {
   background: var(--cyan);
   border-color: var(--cyan);
 }
@@ -2216,7 +2160,7 @@ input[inputmode="decimal"]:focus {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(6, 9, 17, 0.76);
+  background: rgba(6, 9, 17, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   z-index: 1100;
@@ -2225,11 +2169,20 @@ input[inputmode="decimal"]:focus {
   align-items: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 20px 16px;
+  box-sizing: border-box;
 }
 .modal-overlay.open {
   opacity: 1;
   pointer-events: auto;
+}
+body.modal-open,
+body:has(.modal-overlay.open) {
+  overflow: hidden !important;
 }
 .export-modal-card {
   background: var(--glass);
@@ -2237,14 +2190,54 @@ input[inputmode="decimal"]:focus {
   box-shadow: var(--sh3);
   padding: 24px;
   border-radius: var(--r3);
-  max-width: 580px;
-  width: 90%;
+  max-width: 660px;
+  width: 95%;
+  max-height: min(92vh, 860px);
+  max-height: min(92dvh, 860px);
   position: relative;
-  transform: scale(0.92);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: scale(0.96);
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  margin: auto;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 .modal-overlay.open .export-modal-card {
   transform: scale(1);
+}
+.export-modal-card.has-scroll-body,
+#export-modal .export-modal-card {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  max-height: min(92vh, 860px) !important;
+  max-height: min(92dvh, 860px) !important;
+}
+.modal-scroll-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  touch-action: pan-y !important;
+  overscroll-behavior-y: contain;
+  padding-right: 6px;
+  padding-bottom: 20px;
+}
+.modal-scroll-body::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-scroll-body::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 3px;
+}
+.modal-scroll-body::-webkit-scrollbar-thumb {
+  background: var(--b3);
+  border-radius: 3px;
+}
+.modal-scroll-body::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
 }
 .modal-close {
   position: absolute;
@@ -2263,6 +2256,7 @@ input[inputmode="decimal"]:focus {
   font-size: 0.8rem;
   transition: all 0.2s;
   font-weight: bold;
+  z-index: 10;
 }
 .modal-close:hover {
   background: var(--redL);
@@ -2326,28 +2320,53 @@ input[inputmode="decimal"]:focus {
   gap: 8px;
 }
 
-/* Mobile responsive drawer styling */
-@media (max-width: 480px) {
+/* Mobile responsive drawer styling (Adaptive touch for phones & tablets <= 768px) */
+@media (max-width: 768px) {
   .modal-overlay {
     align-items: flex-end;
+    padding: 0;
   }
   .export-modal-card {
     border-radius: 20px 20px 0 0;
     max-width: 100%;
     width: 100%;
+    max-height: 92vh !important;
+    max-height: 92dvh !important;
+    overflow: hidden !important;
     transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-    margin-bottom: 0;
+    margin: 0;
     border-bottom: none;
     border-left: none;
     border-right: none;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+    padding: 20px 18px calc(24px + env(safe-area-inset-bottom, 0px)) 18px;
   }
   .modal-overlay.open .export-modal-card {
     transform: translateY(0);
   }
+  .export-modal-card.has-scroll-body,
+  #export-modal .export-modal-card {
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    max-height: 92vh !important;
+    max-height: 92dvh !important;
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+  }
+  .export-modal-card.has-scroll-body .modal-scroll-body,
+  #export-modal .modal-scroll-body {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    padding-bottom: 24px;
+  }
+  .export-options-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
 }
-
 /* ═══════════════════════════════════════════════
    V15.0 BULK VENDOR TARIFF IMPORT STYLES (R2)
    ═══════════════════════════════════════════════ */
@@ -2888,14 +2907,14 @@ body.theme-nordic-forest {
    ═══════════════════════════════════════════════ */
 
 /* 1. CARDS & CONTAINERS */
-.card, .export-modal-card, .table-container, .recipe-card-touch {
+.card, .export-modal-card {
   border-radius: var(--r-card) !important;
   box-shadow: var(--nm-out) !important;
   border: 1px solid var(--b1) !important;
   transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease) !important;
 }
 
-.card:hover, .recipe-card-touch:hover {
+.card:hover {
   box-shadow: var(--nm-out), 0 8px 24px var(--shimmer-glow) !important;
 }
 
@@ -2916,7 +2935,7 @@ body.theme-nordic-forest {
   transform: translateY(1px) scale(0.98) !important;
 }
 
-.btn-primary, #btn-save, #btn-open-export, .btn-action-primary {
+.btn-primary, #btn-save, #btn-open-export {
   background: linear-gradient(135deg, var(--cyan), var(--cyanD)) !important;
   color: #0b0f19 !important;
   box-shadow: var(--nm-out-sm), 0 4px 14px var(--shimmer-glow) !important;
@@ -2938,7 +2957,7 @@ body.theme-pearl-bronze #btn-open-export {
   100% { transform: translateX(280%) skewX(-25deg); opacity: 0; }
 }
 
-.btn-primary::after, #btn-save::after, #btn-open-export::after, .btn-action-primary::after {
+.btn-primary::after, #btn-save::after, #btn-open-export::after {
   content: '';
   position: absolute;
   top: 0;
@@ -2952,8 +2971,8 @@ body.theme-pearl-bronze #btn-open-export {
 
 .btn-primary:hover::after, .btn-primary:active::after,
 #btn-save:hover::after, #btn-save:active::after,
-#btn-open-export:hover::after, #btn-open-export:active::after,
-.btn-action-primary:hover::after, .btn-action-primary:active::after {
+#btn-open-export:hover::after, #btn-open-export:active::after {
+
   animation: metallicShimmer 0.85s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -3038,9 +3057,6 @@ body.theme-pearl-bronze #btn-open-export {
   border: 1px solid var(--cyan) !important;
 }
 
-.bottom-tab-btn.active {
-  color: var(--cyan) !important;
-}
 
 /* ═══════════════════════════════════════════════
    V16.3 ERGONOMIC COMMAND BAR & CONSULTA MODE
@@ -3156,10 +3172,10 @@ body.theme-pearl-bronze #btn-open-export {
   cursor: pointer;
   border-radius: var(--r-pill) !important;
 }
-.cmd-save-btn.saved {
-  background: linear-gradient(135deg, var(--green), var(--greenD)) !important;
-  color: #060911 !important;
-}
+
+
+
+
 @media (max-width: 768px) {
   #cmd-bar-ficha,
   .ficha-cmd-bar {
@@ -3532,6 +3548,9 @@ body.theme-pearl-bronze #btn-open-export {
             <button type="button" class="cmd-mode-btn" id="btn-mode-consult" title="Modo Consulta: protección contra toques accidentales">👁️ Modo Consulta</button>
             <button type="button" class="cmd-mode-btn active" id="btn-mode-edit" title="Modo Edición: teclado rápido y edición de valores">✏️ Modo Edición</button>
           </div>
+          <button type="button" class="btn btn-ghost cmd-export-btn" id="btn-cmd-export" onclick="gc.toggleExportModal(true)" title="Exportar Documentos (PDF, Excel, Word)" style="display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;padding:7px 12px;border-color:var(--cyan);color:var(--cyan);">
+            <span>📤 Exportar</span>
+          </button>
           <button type="button" class="btn btn-primary cmd-save-btn" id="btn-cmd-save" title="Guardar Cambios">
             <span id="cmd-save-btn-text">💾 Guardar Cambios</span>
           </button>
@@ -4130,25 +4149,6 @@ body.theme-pearl-bronze #btn-open-export {
         </div>
       </div>
 
-      <!-- Sección 2: Nube y Sincronización -->
-      <div style="border:1px solid var(--b1);border-radius:var(--r2);padding:14px;background:rgba(255,255,255,0.02);">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-          <span style="font-size:1.1rem;">☁️</span>
-          <strong style="color:var(--t1);font-size:0.85rem;">Sincronización en la Nube (Google Drive / Webhook)</strong>
-        </div>
-        <div style="font-size:0.72rem;color:var(--t3);margin-bottom:8px;line-height:1.4;">
-          Conecta con tu Google Apps Script o webhook para sincronizar escandallos entre cocina y oficina.
-        </div>
-        <div class="fg" style="margin-bottom:8px;">
-          <label class="fl" style="font-size:0.68rem;">Endpoint URL del Webhook</label>
-          <input class="fi" id="settings-cfg-cloud-url" type="url" placeholder="https://script.google.com/..." style="margin-bottom:0;font-size:0.75rem;font-family:var(--mono);">
-        </div>
-        <div style="display:flex;gap:8px;">
-          <button type="button" class="btn btn-ghost" id="btn-settings-cloud-push" style="flex:1;font-size:0.75rem;" title="Enviar datos a la nube">☁️ Guardar en Nube (Push)</button>
-          <button type="button" class="btn btn-ghost" id="btn-settings-cloud-pull" style="flex:1;font-size:0.75rem;color:var(--cyan);border-color:var(--cyan);" title="Descargar datos de la nube">☁️ Restaurar de Nube (Pull)</button>
-        </div>
-      </div>
-
       <!-- Sección 3: Preferencias Visuales -->
       <div style="border:1px solid var(--b1);border-radius:var(--r2);padding:14px;background:rgba(255,255,255,0.02);">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
@@ -4243,88 +4243,71 @@ body.theme-pearl-bronze #btn-open-export {
 </div>
 
 <div class="modal-overlay" id="export-modal">
-  <div class="export-modal-card">
-    <button class="modal-close" id="btn-close-export">✕</button>
-    <div class="modal-title">📤 Exportar y Compartir</div>
-    <div class="modal-subtitle">Ficha: <span id="export-dish-name" style="font-weight:700;color:var(--cyan)"></span></div>
+  <div class="export-modal-card has-scroll-body">
+    <button class="modal-close" id="btn-close-export" title="Cerrar modal">✕</button>
+    <div class="modal-header-fixed" style="flex-shrink:0;padding-right:36px;margin-bottom:12px;">
+      <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+        <span>📤</span> <span>Documentos & Exportación</span>
+      </div>
+      <div class="modal-subtitle" style="margin-bottom:0;">Ficha Activa: <span id="export-dish-name" style="font-weight:700;color:var(--cyan)"></span></div>
+    </div>
+    <div class="modal-scroll-body">
     
     <div class="export-options-grid">
       <!-- Ficha de Cocina -->
       <div class="export-card">
         <div>
-          <div class="export-card-header" style="color:var(--cyan)">🍳 Ficha de Cocina</div>
-          <div class="export-card-desc">Formato para uso de cocineros. Incluye foto, ingredientes sin precios, alérgenos y método de elaboración.</div>
+          <div class="export-card-header" style="color:var(--cyan);font-size:0.95rem;">🍳 Ficha Técnica de Cocina</div>
+          <div class="export-card-desc">Uso operativo para cocineros y brigada. Incluye foto del emplatado, gramajes netos sin costes, declaración de alérgenos y elaboración paso a paso.</div>
         </div>
         <div class="export-card-actions">
-          <button class="btn btn-primary" id="btn-export-pdf-kitchen" style="width:100%">📄 Exportar PDF</button>
-          <button class="btn btn-ghost" id="btn-export-doc-kitchen" style="width:100%">📝 Exportar MS Word (.doc)</button>
-          <button class="btn btn-ghost" id="btn-export-gdocs-kitchen" style="width:100%">📝 Exportar Google Docs (.doc)</button>
+          <button class="btn btn-primary" id="btn-export-pdf-kitchen" style="width:100%;font-weight:700;">📄 Exportar PDF Cocina</button>
+          <button class="btn btn-ghost" id="btn-export-doc-kitchen" style="width:100%;">📝 Exportar Word (.doc)</button>
         </div>
       </div>
       
       <!-- Ficha Financiera / Escandallo -->
       <div class="export-card">
         <div>
-          <div class="export-card-header" style="color:var(--green)">📊 Escandallo Financiero</div>
-          <div class="export-card-desc">Para dirección y costes. Incluye desglose de precios, bruto, mermas, márgenes y KPIs financieros.</div>
+          <div class="export-card-header" style="color:var(--green);font-size:0.95rem;">📊 Escandallo Financiero</div>
+          <div class="export-card-desc">Para dirección de F&B y gerencia. Detalle exhaustivo de precios unitarios, mermas calculadas, márgenes netos, PVP y KPIs de rentabilidad.</div>
         </div>
         <div class="export-card-actions">
-          <button class="btn btn-green" id="btn-export-pdf-financial" style="width:100%">📄 Exportar PDF</button>
-          <button class="btn btn-ghost" id="btn-export-doc-financial" style="width:100%">📝 Exportar MS Word (.doc)</button>
-          <button class="btn btn-ghost" id="btn-export-gdocs-financial" style="width:100%">📝 Exportar Google Docs (.doc)</button>
-          <button class="btn btn-ghost" id="btn-export-xls" style="width:100%">📊 Exportar Excel</button>
-        </div>
-      </div>
-
-      <!-- Importador de Escandallos Excel (V16.4) -->
-      <div class="export-card" style="grid-column: 1 / -1; background: rgba(34, 197, 94, 0.03); border-color: rgba(34, 197, 94, 0.25);">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <div style="flex:1;min-width:240px;">
-            <div class="export-card-header" style="color:var(--green); margin-bottom:4px;">📥 Importar Escandallo desde Excel (.xlsx / .csv)</div>
-            <div class="export-card-desc" style="margin-bottom:0;">Sube tu propia hoja de cálculo o descarga nuestra plantilla oficial. Detección automática de mermas, ingredientes, alérgenos y gaveta de reconciliación con tu Catálogo.</div>
-          </div>
-          <button type="button" class="btn btn-green" id="btn-modal-open-recipe-import" style="min-width:190px;">📥 Importar Escandallo</button>
+          <button class="btn btn-green" id="btn-export-pdf-financial" style="width:100%;font-weight:700;">📄 Exportar PDF Financiero</button>
+          <button class="btn btn-primary" id="btn-export-xls" style="width:100%;font-weight:700;background:rgba(34,197,94,0.15);border-color:var(--green);color:var(--green);">📊 Exportar Excel (.xlsx)</button>
+          <button class="btn btn-ghost" id="btn-export-doc-financial" style="width:100%;">📝 Exportar Word (.doc)</button>
         </div>
       </div>
 
       <!-- Libro Digital de Recetas Consolidado (R5) -->
-      <div class="export-card" style="grid-column: 1 / -1; background: rgba(34, 211, 238, 0.03); border-color: rgba(34, 211, 238, 0.2);">
+      <div class="export-card" style="grid-column: 1 / -1; background: rgba(34, 211, 238, 0.04); border-color: rgba(34, 211, 238, 0.25);">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
           <div style="flex:1;min-width:240px;">
-            <div class="export-card-header" style="color:var(--cyan); margin-bottom:4px;">📖 Libro Digital de Recetas (Compilar Todo o Selección)</div>
-            <div class="export-card-desc" style="margin-bottom:0;">Compila múltiples recetas en un único documento oficial con portada ejecutiva, índice general con hipervínculos y fichas técnicas estandarizadas para auditorías APPCC.</div>
+            <div class="export-card-header" style="color:var(--cyan); margin-bottom:4px;font-size:0.95rem;">📖 Libro Digital de Recetas & Dossier APPCC</div>
+            <div class="export-card-desc" style="margin-bottom:0;">Compilación ejecutiva multirreceta en un único documento maestro unificado con portada corporativa, índice interactivo navegable y fichas estandarizadas para auditorías sanitarias y operativas.</div>
           </div>
           <button type="button" class="btn btn-primary" id="btn-open-recipe-book" style="min-width:190px;">📖 Abrir Compilador</button>
         </div>
       </div>
+
+      <!-- Importador de Escandallos Excel (V16.4) -->
+      <div class="export-card" style="grid-column: 1 / -1; background: rgba(34, 197, 94, 0.03); border-color: rgba(34, 197, 94, 0.2);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div style="flex:1;min-width:240px;">
+            <div class="export-card-header" style="color:var(--green); margin-bottom:4px;font-size:0.95rem;">📥 Importar Escandallo desde Excel (.xlsx / .csv)</div>
+            <div class="export-card-desc" style="margin-bottom:0;">Carga recetas desde Excel o CSV con plantilla oficial, autocompletado y reconciliación automática con tu Catálogo Maestro de ingredientes.</div>
+          </div>
+          <button type="button" class="btn btn-green" id="btn-modal-open-recipe-import" style="min-width:190px;">📥 Importar Escandallo</button>
+        </div>
+      </div>
     </div>
     
-    <!-- V15.0 Cloud Sync & Snapshot Persistence (R3) -->
-    <div style="margin-top:20px;border-top:1px solid var(--b1);padding-top:16px;">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:0.85rem;font-weight:700;color:var(--cyan)">
-        <span>☁️ Sincronización Cloud & Google Drive</span>
-      </div>
-      <div style="font-size:0.72rem;color:var(--t3);margin-bottom:10px;">
-        Sincroniza tus escandallos con Google Drive o Webhook serverless. Resiliente offline con soporte en localStorage.
-      </div>
-      <div class="fg" style="margin-bottom:10px;">
-        <label class="fl" style="font-size:0.68rem;color:var(--t2)">URL de Sincronización Cloud (Google Drive / Webhook)</label>
-        <input class="fi" id="cfg-cloud-url" type="url" placeholder="https://script.google.com/macros/s/.../exec" style="margin-bottom:0;font-size:0.75rem;font-family:var(--mono);">
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:14px;">
-        <button class="btn btn-primary" id="btn-cloud-push" style="flex:1;font-size:0.75rem;">☁️ Enviar Copia a la Nube (Push)</button>
-        <button class="btn btn-ghost" id="btn-cloud-pull" style="flex:1;font-size:0.75rem;color:var(--cyan);border-color:var(--cyan);">☁️ Descargar Copia de la Nube (Pull)</button>
-      </div>
-
-      <div style="border-top:1px dashed var(--b1);padding-top:12px;display:flex;justify-content:space-between;gap:8px">
-        <button class="btn btn-ghost" id="btn-export-backup" style="flex:1;font-size:0.75rem;" title="Descargar snapshot JSON enriquecido">💾 Snapshot JSON</button>
-        <button class="btn btn-ghost" id="btn-export-import" style="flex:1;font-size:0.75rem;" title="Restaurar copia local con opciones de fusión">📂 Restaurar Snapshot Local</button>
-      </div>
+    </div>
+    <div class="modal-footer-fixed" style="display:flex;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid var(--b1);flex-shrink:0;">
+      <button type="button" class="btn btn-ghost" id="btn-close-export-footer" style="font-size:0.78rem;padding:7px 18px;">Cerrar</button>
     </div>
   </div>
-</div>
-
-<!-- V16.4 Modal de Importación de Escandallos Excel -->
+</div><!-- V16.4 Modal de Importación de Escandallos Excel -->
 <div class="modal-overlay" id="recipe-import-modal">
   <div class="export-modal-card" style="max-width:620px;padding:24px;">
     <button class="modal-close" id="btn-close-recipe-import-modal" title="Cerrar">✕</button>
@@ -5954,53 +5937,70 @@ class GC {
     const exportModal = document.getElementById('export-modal');
     
     // Header Open button
-    document.getElementById('btn-open-export').addEventListener('click', () => this.toggleExportModal(true));
+    const btnOpenExport = document.getElementById('btn-open-export');
+    if (btnOpenExport) btnOpenExport.addEventListener('click', () => this.toggleExportModal(true));
     
     // Close button and overlay click
-    document.getElementById('btn-close-export').addEventListener('click', () => this.toggleExportModal(false));
-    exportModal.addEventListener('click', e => {
-      if (e.target === exportModal) this.toggleExportModal(false);
-    });
+    const btnCloseExport = document.getElementById('btn-close-export');
+    if (btnCloseExport) btnCloseExport.addEventListener('click', () => this.toggleExportModal(false));
+    const btnCloseExportFooter = document.getElementById('btn-close-export-footer');
+    if (btnCloseExportFooter) btnCloseExportFooter.addEventListener('click', () => this.toggleExportModal(false));
+    if (exportModal) {
+      exportModal.addEventListener('click', e => {
+        if (e.target === exportModal) this.toggleExportModal(false);
+      });
+    }
     
     // Modal action buttons
-    document.getElementById('btn-export-pdf-kitchen').addEventListener('click', () => {
+    const btnExpPdfKitchen = document.getElementById('btn-export-pdf-kitchen');
+    if (btnExpPdfKitchen) btnExpPdfKitchen.addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportPDFKitchen();
     });
-    document.getElementById('btn-export-doc-kitchen').addEventListener('click', () => {
+    const btnExpDocKitchen = document.getElementById('btn-export-doc-kitchen');
+    if (btnExpDocKitchen) btnExpDocKitchen.addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportDOCKitchen();
     });
-    document.getElementById('btn-export-gdocs-kitchen').addEventListener('click', () => {
+    const btnExpGdocsKitchen = document.getElementById('btn-export-gdocs-kitchen');
+    if (btnExpGdocsKitchen) btnExpGdocsKitchen.addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportGDocsKitchen();
     });
-    document.getElementById('btn-export-pdf-financial').addEventListener('click', () => {
+    const btnExpPdfFinancial = document.getElementById('btn-export-pdf-financial');
+    if (btnExpPdfFinancial) btnExpPdfFinancial.addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportPDF();
     });
-    document.getElementById('btn-export-doc-financial').addEventListener('click', () => {
+    const btnExpDocFinancial = document.getElementById('btn-export-doc-financial');
+    if (btnExpDocFinancial) btnExpDocFinancial.addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportDOC();
     });
-    document.getElementById('btn-export-gdocs-financial').addEventListener('click', () => {
+    const btnExpGdocsFinancial = document.getElementById('btn-export-gdocs-financial');
+    if (btnExpGdocsFinancial) btnExpGdocsFinancial.addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportGDocs();
     });
-    document.getElementById('btn-export-xls').addEventListener('click', () => {
+    const btnExpXls = document.getElementById('btn-export-xls');
+    if (btnExpXls) btnExpXls.addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportExcel();
     });
-    document.getElementById('btn-export-backup').addEventListener('click', () => {
+    const btnExpBackup = document.getElementById('btn-export-backup');
+    if (btnExpBackup) btnExpBackup.addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportBackup();
     });
-    document.getElementById('btn-export-import').addEventListener('click', () => {
+    const btnExpImport = document.getElementById('btn-export-import');
+    if (btnExpImport) btnExpImport.addEventListener('click', () => {
       this.toggleExportModal(false);
-      document.getElementById('fi-import').click();
+      const fi = document.getElementById('fi-import');
+      if (fi) fi.click();
     });
     
-    document.getElementById('fi-import').addEventListener('change', e => this._importBackup(e));
+    const fiImport = document.getElementById('fi-import');
+    if (fiImport) fiImport.addEventListener('change', e => this._importBackup(e));
 
     /* V15.0 R4 & R5 Kitchen Tablet & Recipe Book Event Listeners */
     // Open Recipe Book from Export Modal
@@ -6015,7 +6015,6 @@ class GC {
     // Recipe Book Modal controls
     const recipeBookModal = document.getElementById('recipe-book-modal');
     const btnCloseBookModal = document.getElementById('btn-close-book-modal');
-    const btnBookCancel = document.getElementById('btn-book-cancel');
     const bookSearchInput = document.getElementById('book-recipe-search');
     const btnBookSelectAll = document.getElementById('btn-book-select-all');
     const btnBookDeselectAll = document.getElementById('btn-book-deselect-all');
@@ -6024,7 +6023,6 @@ class GC {
     const btnBookExportPdf = document.getElementById('btn-book-export-pdf');
 
     if (btnCloseBookModal) btnCloseBookModal.addEventListener('click', () => this.closeRecipeBookModal());
-    if (btnBookCancel) btnBookCancel.addEventListener('click', () => this.closeRecipeBookModal());
     if (recipeBookModal) {
       recipeBookModal.addEventListener('click', e => {
         if (e.target === recipeBookModal) this.closeRecipeBookModal();
@@ -6157,32 +6155,6 @@ class GC {
       btnCloudPull.addEventListener('click', () => {
         this.toggleExportModal(false);
         this._cloudPull();
-      });
-    }
-
-    const btnSidebarPush = document.getElementById('btn-sidebar-cloud-push');
-    if (btnSidebarPush) btnSidebarPush.addEventListener('click', () => this._cloudPush());
-
-    const btnSidebarPull = document.getElementById('btn-sidebar-cloud-pull');
-    if (btnSidebarPull) btnSidebarPull.addEventListener('click', () => this._cloudPull());
-
-    const cloudUrlInput = document.getElementById('cfg-cloud-url');
-    const sidebarCloudUrlInput = document.getElementById('sidebar-cfg-cloud-url');
-    const savedCloudUrl = typeof localStorage !== 'undefined' ? (localStorage.getItem('gc_cloud_sync_url') || '') : '';
-    if (cloudUrlInput) {
-      cloudUrlInput.value = savedCloudUrl;
-      cloudUrlInput.addEventListener('input', e => {
-        const val = e.target.value.trim();
-        if (typeof localStorage !== 'undefined') localStorage.setItem('gc_cloud_sync_url', val);
-        if (sidebarCloudUrlInput) sidebarCloudUrlInput.value = val;
-      });
-    }
-    if (sidebarCloudUrlInput) {
-      sidebarCloudUrlInput.value = savedCloudUrl;
-      sidebarCloudUrlInput.addEventListener('input', e => {
-        const val = e.target.value.trim();
-        if (typeof localStorage !== 'undefined') localStorage.setItem('gc_cloud_sync_url', val);
-        if (cloudUrlInput) cloudUrlInput.value = val;
       });
     }
 
@@ -6555,6 +6527,56 @@ class GC {
       });
     }
 
+    const btnSettingsBackup = document.getElementById('btn-settings-backup');
+    if (btnSettingsBackup) {
+      btnSettingsBackup.addEventListener('click', () => {
+        this.toggleSettingsModal(false);
+        this._exportBackup();
+      });
+    }
+
+    const btnSettingsImport = document.getElementById('btn-settings-import');
+    if (btnSettingsImport) {
+      btnSettingsImport.addEventListener('click', () => {
+        this.toggleSettingsModal(false);
+        const fi = document.getElementById('fi-import');
+        if (fi) fi.click();
+      });
+    }
+
+    const btnSettingsCloudPush = document.getElementById('btn-settings-cloud-push');
+    if (btnSettingsCloudPush) {
+      btnSettingsCloudPush.addEventListener('click', () => this._cloudPush());
+    }
+
+    const btnSettingsCloudPull = document.getElementById('btn-settings-cloud-pull');
+    if (btnSettingsCloudPull) {
+      btnSettingsCloudPull.addEventListener('click', () => {
+        this.toggleSettingsModal(false);
+        this._cloudPull();
+      });
+    }
+
+    const btnSettingsSaveClose = document.getElementById('btn-settings-save-close');
+    if (btnSettingsSaveClose) {
+      btnSettingsSaveClose.addEventListener('click', () => {
+        const apiKeyInput = document.getElementById('cfg-apikey');
+        if (apiKeyInput && typeof localStorage !== 'undefined') {
+          localStorage.setItem('gastrocost_gemini_api_key', apiKeyInput.value.trim());
+        }
+        const cloudUrlInput = document.getElementById('settings-cfg-cloud-url');
+        if (cloudUrlInput && typeof localStorage !== 'undefined') {
+          localStorage.setItem('gc_cloud_sync_url', cloudUrlInput.value.trim());
+        }
+        const themeSelect = document.getElementById('cfg-theme');
+        if (themeSelect) {
+          this.setTheme(themeSelect.value);
+        }
+        this.toggleSettingsModal(false);
+        toast('Ajustes guardados ✓');
+      });
+    }
+
     const btnSyncAllToCat = document.getElementById('btn-sync-all-to-cat');
     if (btnSyncAllToCat) btnSyncAllToCat.addEventListener('click', () => this._syncAllToCatalog());
 
@@ -6630,6 +6652,11 @@ class GC {
             this._exportExcel();
           }
         }
+      } else if (e.key === 'Escape') {
+        const openModals = document.querySelectorAll('.modal-overlay.open');
+        openModals.forEach(m => m.classList.remove('open'));
+        const drawer = document.getElementById('ai-chat-drawer');
+        if (drawer && drawer.classList.contains('open')) drawer.classList.remove('open');
       }
     });
   }
@@ -7060,8 +7087,7 @@ class GC {
     this._renderTable();
     this._renderCards();
     this._renderPricingAssistant();
-    this._renderDashboard();
-    this._renderKPIs();
+        this._renderKPIs();
     this._renderActiveTab();
     this._updateSubRecipeCostInfo();
     const cmdDishTitle = document.getElementById('cmd-dish-title');
@@ -7700,64 +7726,6 @@ class GC {
       pill.classList.toggle('active', isTargetMatch);
     });
   }
-
-  /* ── V16.0 Dashboard Directivo ── */
-  _renderDashboard() {
-    const recipes = this.db.recipes;
-    const ids = Object.keys(recipes);
-    const total = ids.length;
-
-    let sumFC = 0;
-    let sumMargin = 0;
-    let sumRevenue = 0;
-    let sumCost = 0;
-    let countValid = 0;
-
-    ids.forEach(id => {
-      const r = recipes[id];
-      if (!r || !r.config || !r.ingredients || r.ingredients.length === 0) return;
-      const cfg = r.config;
-      const port = Math.max(cfg.portions || 1, 1);
-      const lote = r.ingredients.reduce((s, i) => s + (i.cost || 0), 0);
-      const unit = lote / port;
-      const pvpN = cfg.fcGoal > 0 ? unit / (cfg.fcGoal / 100) : (cfg.customPVP || 0);
-      if (pvpN <= 0) return;
-      const fc = (unit / pvpN) * 100;
-      const margin = pvpN - unit;
-      sumFC += fc;
-      sumMargin += margin;
-      sumRevenue += pvpN * port;
-      sumCost += lote;
-      countValid++;
-    });
-
-    const avgFC = countValid > 0 ? (sumFC / countValid) : 0;
-    const avgMargin = countValid > 0 ? (sumMargin / countValid) : 0;
-    const profitRatio = sumRevenue > 0 ? ((sumRevenue - sumCost) / sumRevenue * 100) : 0;
-
-    const fmt = v => v.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-    const elTotal = document.getElementById('dash-total-recipes');
-    const elFC = document.getElementById('dash-avg-fc');
-    const elMargin = document.getElementById('dash-avg-margin');
-    const elProfit = document.getElementById('dash-profitability');
-    const elFCSub = document.getElementById('dash-fc-sub');
-    const elProfitSub = document.getElementById('dash-profit-sub');
-
-    if (elTotal) elTotal.textContent = total;
-    if (elFC) {
-      elFC.textContent = fmt(avgFC) + '%';
-      elFC.className = 'dash-kpi-val ' + (avgFC <= 30 ? 'c-green' : avgFC <= 35 ? 'c-amber' : 'c-red');
-    }
-    if (elFCSub) elFCSub.textContent = countValid > 0 ? `de ${countValid} recetas con precio` : 'sin datos';
-    if (elMargin) elMargin.textContent = fmt(avgMargin) + ' €';
-    if (elProfit) {
-      elProfit.textContent = fmt(profitRatio) + '%';
-      elProfit.className = 'dash-kpi-val ' + (profitRatio >= 65 ? 'c-green' : profitRatio >= 50 ? 'c-amber' : 'c-red');
-    }
-    if (elProfitSub) elProfitSub.textContent = sumRevenue > 0 ? `Ingresos: ${fmt(sumRevenue)} €` : 'sin ventas';
-  }
-
   /* ── KPIs ── */
   _renderKPIs() {
     const cfg = this.R.config;
@@ -8235,11 +8203,6 @@ class GC {
     this._renderCatalogTab();
     toast(`"${name}" añadido al catálogo maestro ✓`);
   }
-
-  _renderCat() {
-    return this._renderCatalogTab();
-  }
-
   /* ═══════════════════════════════════════════════
      V15.0 BULK VENDOR TARIFF IMPORT (R2)
      ═══════════════════════════════════════════════ */
@@ -9451,12 +9414,16 @@ class GC {
   }
 
   _updateBookSelectionSummary() {
-    const countEl = document.getElementById('book-selection-count');
     const total = Object.keys(this.db.recipes || {}).length;
-    const selected = this.bookSelectedIds.size;
+    const selected = this.bookSelectedIds ? this.bookSelectedIds.size : 0;
+    const countEl = document.getElementById('book-selection-count');
     if (countEl) {
       countEl.textContent = `${selected} de ${total} recetas seleccionadas`;
     }
+    const selEl = document.getElementById('book-sel-count');
+    if (selEl) selEl.textContent = selected;
+    const totEl = document.getElementById('book-total-count');
+    if (totEl) totEl.textContent = total;
   }
 
   _compileRecipeBook(recipeIds, format = 'html') {
@@ -9939,6 +9906,10 @@ class GC {
       if (settingsCloudUrl && typeof localStorage !== 'undefined') {
         settingsCloudUrl.value = localStorage.getItem('gc_cloud_sync_url') || '';
       }
+      const themeSelect = document.getElementById('cfg-theme');
+      if (themeSelect) {
+        themeSelect.value = this.db.theme || 'theme-carbon-gold';
+      }
     } else {
       modal.classList.remove('open');
     }
@@ -9952,6 +9923,7 @@ class GC {
       const nameEl = document.getElementById('export-dish-name');
       if (nameEl) nameEl.textContent = this.R.config.dishName || 'Nueva Ficha';
       modal.classList.add('open');
+      document.body.classList.add('modal-open');
     } else {
       modal.classList.remove('open');
     }
@@ -10329,17 +10301,6 @@ class GC {
       db: JSON.parse(JSON.stringify(database))
     };
   }
-
-  _buildCloudPayload(db, authKey = '') {
-    return {
-      action: 'sync_backup',
-      timestamp: Date.now(),
-      client: 'GastroCost PRO v15',
-      authKey: authKey || (typeof localStorage !== 'undefined' ? localStorage.getItem('gc_cloud_auth_key') : '') || '',
-      data: db || this.db
-    };
-  }
-
   _exportBackup() {
     const snapshot = this._createSnapshot(this.db);
     const jsonStr = JSON.stringify(snapshot, null, 2);
@@ -10444,7 +10405,7 @@ class GC {
       toast('Sin conexión a Internet. Sincronización en la nube no disponible.', 'e');
       return;
     }
-    const inputEl = document.getElementById('cfg-cloud-url') || document.getElementById('sidebar-cfg-cloud-url');
+    const inputEl = document.getElementById('settings-cfg-cloud-url') || document.getElementById('cfg-cloud-url') || document.getElementById('sidebar-cfg-cloud-url');
     const cloudUrl = (inputEl ? inputEl.value : (typeof localStorage !== 'undefined' ? localStorage.getItem('gc_cloud_sync_url') : '')) || '';
     if (!cloudUrl.trim()) {
       toast('Configura la URL de Sincronización Cloud (Google Drive / Webhook)', 'e');
@@ -10453,7 +10414,7 @@ class GC {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('gc_cloud_sync_url', cloudUrl.trim());
     }
-    const btn = document.getElementById('btn-cloud-push');
+    const btn = document.getElementById('btn-settings-cloud-push') || document.getElementById('btn-cloud-push');
     const origText = btn ? btn.innerHTML : '';
     if (btn) { btn.innerHTML = '⏳ Enviando…'; btn.disabled = true; }
 
@@ -10479,7 +10440,7 @@ class GC {
       toast('Sin conexión a Internet. No se puede descargar de la nube.', 'e');
       return;
     }
-    const inputEl = document.getElementById('cfg-cloud-url') || document.getElementById('sidebar-cfg-cloud-url');
+    const inputEl = document.getElementById('settings-cfg-cloud-url') || document.getElementById('cfg-cloud-url') || document.getElementById('sidebar-cfg-cloud-url');
     const cloudUrl = (inputEl ? inputEl.value : (typeof localStorage !== 'undefined' ? localStorage.getItem('gc_cloud_sync_url') : '')) || '';
     if (!cloudUrl.trim()) {
       toast('Configura la URL de Sincronización Cloud (Google Drive / Webhook)', 'e');
@@ -10488,7 +10449,7 @@ class GC {
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('gc_cloud_sync_url', cloudUrl.trim());
     }
-    const btn = document.getElementById('btn-cloud-pull');
+    const btn = document.getElementById('btn-settings-cloud-pull') || document.getElementById('btn-cloud-pull');
     const origText = btn ? btn.innerHTML : '';
     if (btn) { btn.innerHTML = '⏳ Descargando…'; btn.disabled = true; }
 
@@ -11144,16 +11105,6 @@ class GC {
     ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:10}}, {s:{r:1,c:0},e:{r:1,c:10}}];
     XLSX.utils.book_append_sheet(wb, ws, 'Comparativo');
   }
-
-  exportPDFChooser() {
-    const choice = confirm("¿Deseas exportar la Ficha Técnica de Cocina? (Haz clic en Cancelar para exportar el Escandallo Financiero de Costes)");
-    if (choice) {
-      this._exportPDFKitchen();
-    } else {
-      this._exportPDF();
-    }
-  }
-
   async _exportPDFKitchen() {
     const btn = document.getElementById('btn-export-pdf-kitchen') || { set innerHTML(v){}, set disabled(v){} };
     const orig = btn.innerHTML || '🍳 Ficha Cocina';
