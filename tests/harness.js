@@ -181,6 +181,7 @@ function createSandbox(initialStorage = {}) {
   function getOrCreateElement(id, tag = 'div', className = '') {
     if (elementsById.has(id)) return elementsById.get(id);
     const el = new VirtualElement(tag, id, className);
+    if (id && id.endsWith('-modal')) el.classList.add('modal-overlay');
     elementsById.set(id, el);
     allElements.push(el);
     return el;
@@ -252,13 +253,30 @@ function createSandbox(initialStorage = {}) {
         return [];
       }
       return allElements.filter(el => {
-        if (sel.startsWith('.')) return el.classList.contains(sel.slice(1));
+        if (sel.startsWith('.')) {
+          const classes = sel.slice(1).split('.');
+          return classes.every(c => el.classList.contains(c));
+        }
         if (sel.startsWith('#')) return el.id === sel.slice(1);
         return el.tagName.toLowerCase() === sel.toLowerCase();
       });
     },
-    addEventListener: () => {},
-    removeEventListener: () => {},
+    listeners: {},
+    addEventListener(event, handler) {
+      if (!this.listeners[event]) this.listeners[event] = [];
+      this.listeners[event].push(handler);
+    },
+    removeEventListener(event, handler) {
+      if (!this.listeners[event]) return;
+      this.listeners[event] = this.listeners[event].filter(h => h !== handler);
+    },
+    dispatchEvent(event, detail) {
+      const type = typeof event === 'string' ? event : event.type;
+      const ev = Object.assign({ type, target: this, preventDefault: () => {} }, typeof event === 'object' ? event : detail);
+      if (this.listeners[type]) {
+        this.listeners[type].forEach(h => h.call(this, ev));
+      }
+    },
     createDocumentFragment: () => {
       const frag = new VirtualElement('fragment');
       allElements.push(frag);

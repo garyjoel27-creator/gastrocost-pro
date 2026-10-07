@@ -6667,6 +6667,7 @@ class GC {
       } else if (e.key === 'Escape') {
         const openModals = document.querySelectorAll('.modal-overlay.open');
         openModals.forEach(m => m.classList.remove('open'));
+        document.body.classList.remove('modal-open');
         const drawer = document.getElementById('ai-chat-drawer');
         if (drawer && drawer.classList.contains('open')) drawer.classList.remove('open');
       }
@@ -9600,10 +9601,13 @@ class GC {
         renderTarget.innerHTML = fullHtml;
         renderTarget.style.display = 'block';
         window.print();
-        setTimeout(() => {
+        const cleanup = () => {
           renderTarget.style.display = 'none';
           renderTarget.innerHTML = '';
-        }, 1200);
+          window.removeEventListener('afterprint', cleanup);
+        };
+        window.addEventListener('afterprint', cleanup);
+        setTimeout(cleanup, 60000);
       } else {
         window.print();
       }
@@ -9633,7 +9637,8 @@ class GC {
     toast('⏳ Preparando compilación PDF del libro...');
     const loaded = await this._ensureHTML2PDF();
     if (!loaded || !window.html2pdf) {
-      toast('Librería html2pdf no disponible. Utiliza "Imprimir / Vista Previa".', 'e');
+      toast('html2pdf no disponible. Abriendo vista de impresión nativa...', 'w');
+      this._compileRecipeBook(recipeIds, 'print');
       return;
     }
 
@@ -9661,7 +9666,9 @@ class GC {
       await window.html2pdf().from(tempContainer).set(opt).save();
       toast('PDF del Libro Digital generado ✓');
     } catch (err) {
-      toast(`Error generando PDF: ${err.message}`, 'e');
+      console.warn('html2pdf Recipe Book error, falling back to native print:', err);
+      toast('Fallo al generar PDF con html2pdf. Abriendo visor de impresión...', 'w');
+      this._compileRecipeBook(recipeIds, 'print');
     } finally {
       if (tempContainer.parentElement) tempContainer.parentElement.removeChild(tempContainer);
       scratch.innerHTML = '';
@@ -11134,20 +11141,33 @@ class GC {
     ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:10}}, {s:{r:1,c:0},e:{r:1,c:10}}];
     XLSX.utils.book_append_sheet(wb, ws, 'Comparativo');
   }
+  _safeFilename(dishName, prefix, ext) {
+    const cleanName = (dishName || 'ficha')
+      .replace(/[\/\\:*?"<>|]/g, '_')
+      .replace(/\s+/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    const dateStr = new Date().toISOString().slice(0, 10);
+    return `${prefix}_${cleanName || 'ficha'}_${dateStr}.${ext}`;
+  }
+
   _downloadBlob(content, filename, mimeType) {
     if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
       return;
     }
     const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
+    a.href = url;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
     setTimeout(() => {
-      if (a.parentElement) document.body.removeChild(a);
-      URL.revokeObjectURL(a.href);
-    }, 200);
+      if (a.parentElement) a.remove();
+    }, 500);
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 30000);
   }
 
   _buildWordMHTML(bodyHtml, imageBase64, brandFont, brandColor, title) {
@@ -11157,18 +11177,22 @@ class GC {
     let imageSrc = '';
 
     if (imageBase64 && typeof imageBase64 === 'string' && imageBase64.startsWith('data:image/')) {
-      const match = imageBase64.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/s);
+      const match = imageBase64.match(/^data:image\/([a-zA-Z0-9+.-]+);base64,(.+)$/s);
       if (match) {
         hasImage = true;
-        const subtype = match[1].toLowerCase() === 'png' ? 'png' : 'jpeg';
-        const ext = subtype === 'png' ? 'png' : 'jpg';
+        let subtype = match[1].toLowerCase();
+        let ext = 'jpg';
+        if (subtype.includes('png')) { subtype = 'png'; ext = 'png'; }
+        else if (subtype.includes('gif')) { subtype = 'gif'; ext = 'gif'; }
+        else { subtype = 'jpeg'; ext = 'jpg'; }
         imageSrc = 'dish-photo.' + ext;
-        const rawBase64 = match[2].trim();
+        const rawBase64 = match[2].trim().replace(/\s+/g, '');
+        const chunkedBase64 = rawBase64.replace(/(.{76})/g, '$1\r\n');
         imagePart = '\r\n--' + boundary + '\r\n' +
           'Content-Type: image/' + subtype + '\r\n' +
           'Content-Transfer-Encoding: base64\r\n' +
           'Content-Location: ' + imageSrc + '\r\n\r\n' +
-          rawBase64 + '\r\n';
+          chunkedBase64 + '\r\n';
       }
     }
 
@@ -11178,7 +11202,7 @@ class GC {
     } else if (imageBase64 && typeof imageBase64 === 'string' && (imageBase64.startsWith('http://') || imageBase64.startsWith('https://'))) {
       finalHtmlBody = bodyHtml.replace(/__IMAGE_SRC__/g, imageBase64);
     } else {
-      finalHtmlBody = bodyHtml.replace(/__IMAGE_SRC__/g, '');
+      finalHtmlBody = bodyHtml.replace(/<p[^>]*>\s*<img[^>]*__IMAGE_SRC__[^>]*>\s*<\/p>/gi, '').replace(/__IMAGE_SRC__/g, '');
     }
 
     const htmlContent = '<!DOCTYPE html>\r\n' +
@@ -11229,10 +11253,11 @@ class GC {
   }
 
   _buildKitchenFichaHTML() {
-    const cfg = this.R.config || {}, ings = this.R.ingredients || [], sc = this._scale();
+    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+    const cfg = r.config || {}, ings = r.ingredients || [], sc = this._scale();
     const port = Math.max(Number(cfg.portions) || 1, 1);
 
-    const theme = this.db.theme || 'theme-default';
+    const theme = (this.db && this.db.theme) || 'theme-default';
     let brandColor = '#0f172a';
     let brandColorLight = '#f8fafc';
     let brandBorder = '#e2e8f0';
@@ -11253,7 +11278,7 @@ class GC {
     }
 
     const rows = ings.map(ing => {
-      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
+      const ingAllergensStr = ing.allergens && Array.isArray(ing.allergens) && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
         <tr>
           <td style="padding:8px 10px;border-bottom:1px solid ${brandBorder};font-weight:bold;color:#334155">
@@ -11268,7 +11293,9 @@ class GC {
 
     const allAllergens = new Set();
     ings.forEach(ing => {
-      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+      if (ing.allergens && Array.isArray(ing.allergens)) {
+        ing.allergens.forEach(a => allAllergens.add(a));
+      }
     });
 
     const allergensPdfSection = allAllergens.size > 0 ? `
@@ -11353,7 +11380,8 @@ class GC {
   }
 
   _buildFinancialFichaHTML() {
-    const cfg = this.R.config || {}, ings = this.R.ingredients || [], sc = this._scale();
+    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+    const cfg = r.config || {}, ings = r.ingredients || [], sc = this._scale();
     const lote = ings.reduce((s, i) => s + (i.cost || 0) * sc, 0);
     const port = Math.max(Number(cfg.portions) || 1, 1);
     const unit = lote / port;
@@ -11362,7 +11390,7 @@ class GC {
     const marg = pvpN - unit;
     const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
     
-    const theme = this.db.theme || 'theme-default';
+    const theme = (this.db && this.db.theme) || 'theme-default';
     let brandColor = '#1c4b6e';
     let brandColorLight = '#e8f4f8';
     let brandBorder = '#cbd5e1';
@@ -11382,23 +11410,22 @@ class GC {
       brandFont = 'system-ui, -apple-system, sans-serif';
     }
 
-    const fcCol = fcR <= cfg.fcGoal ? '#059669' : fcR <= cfg.fcGoal * 1.15 ? '#d97706' : '#dc2626';
     const cur = cfg.currency || 'EUR';
     let curSym = '€';
     if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
     if (cur === 'PEN') curSym = 'S/.';
 
     const rows = ings.map(ing => {
-      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
+      const ingAllergensStr = ing.allergens && Array.isArray(ing.allergens) && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
         <tr>
           <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder}">
             ${ing.name}
             ${ingAllergensStr ? `<span style="font-size:7.5px;margin-left:5px;vertical-align:middle">${ingAllergensStr}</span>` : ''}
           </td>
-          <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right">${F1(ing.net*sc)} ${ing.unit === 'ud' ? 'ud' : 'g'}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right">${F1(ing.net*sc)} ${ing.unit === 'ud' ? 'ud' : (ing.unit || 'g')}</td>
           <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right">${ing.waste}%</td>
-          <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right">${F1(ing.gross*sc)} ${ing.unit === 'ud' ? 'ud' : 'g'}</td>
+          <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right">${F1(ing.gross*sc)} ${ing.unit === 'ud' ? 'ud' : (ing.unit || 'g')}</td>
           <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right">${F2(ing.originalPrice)} ${curSym}/${ing.unit === 'ud' ? 'ud' : 'kg'}</td>
           <td style="padding:6px 8px;border-bottom:1px solid ${brandBorder};text-align:right;font-weight:700;color:${brandColor}">${EUR.format(ing.cost*sc)}</td>
         </tr>`;
@@ -11406,7 +11433,9 @@ class GC {
 
     const allAllergens = new Set();
     ings.forEach(ing => {
-      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+      if (ing.allergens && Array.isArray(ing.allergens)) {
+        ing.allergens.forEach(a => allAllergens.add(a));
+      }
     });
 
     const allergensPdfSection = allAllergens.size > 0 ? `
@@ -11438,50 +11467,54 @@ class GC {
           </div>
         </div>
       </div>` : `
-      <div>
+      <div style="margin-bottom:12px">
         ${allergensPdfSection}
         ${notesSection}
       </div>`;
 
-    return `<div style="font-family:${brandFont};font-size:11px;color:#111;max-width:780px;margin:0 auto;padding:24px;background:#ffffff">
-      <div style="border-bottom:3px solid ${brandColor};padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end">
+    return `<div style="font-family:${brandFont};font-size:11px;color:#1e293b;max-width:780px;margin:0 auto;padding:20px;background:#ffffff">
+      <div style="border-bottom:3px solid ${brandColor};padding-bottom:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end">
         <div>
-          <div style="font-size:7px;font-weight:700;color:${brandColor};letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Ficha Técnica de Escandallo</div>
-          <div style="font-size:20px;font-weight:900;color:#111;letter-spacing:-.5px;font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName || 'Sin Nombre'}</div>
+          <div style="font-size:7px;font-weight:800;color:#64748b;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px">Ficha Técnica de Escandallo Financiero</div>
+          <div style="font-size:20px;font-weight:900;color:#0f172a;letter-spacing:-.5px;font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName || 'Sin Nombre'}</div>
         </div>
-        <div style="text-align:right;font-size:9px;color:#6b7280">
-          <div style="font-weight:700;color:${brandColor}">GastroCost PRO</div>
-          <div>${new Date().toLocaleDateString('es-ES')}</div>
-          <div>Raciones: ${port} · Escala: ×${sc} · Divisa: ${cur}</div>
+        <div style="text-align:right;font-size:8.5px;color:#64748b">
+          <div style="font-weight:800;color:${brandColor}">GastroCost PRO</div>
+          <div>${new Date().toLocaleDateString('es-ES')} · Raciones: ${port} · Escala: ×${sc}</div>
+          <div>Divisa: ${cur} · IGIC/IVA: ${cfg.taxRate}%</div>
         </div>
       </div>
+
       ${layoutSection}
-      <table style="width:100%;border-collapse:collapse;font-size:10px;margin-bottom:16px">
+
+      <div style="font-size:8.5px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;border-bottom:2px solid ${brandColor};padding-bottom:3px">Desglose de Costes de Insumos</div>
+      <table style="width:100%;border-collapse:collapse;font-size:9.5px;margin-bottom:12px">
         <thead>
-          <tr style="background:${brandColor};color:white">
-            <th style="padding:7px 8px;text-align:left;font-weight:700">Ingrediente</th>
-            <th style="padding:7px 8px;text-align:right">Neto (g)</th>
-            <th style="padding:7px 8px;text-align:right">Merma</th>
-            <th style="padding:7px 8px;text-align:right">Bruto (g)</th>
-            <th style="padding:7px 8px;text-align:right">${curSym}/kg</th>
-            <th style="padding:7px 8px;text-align:right">Costo Lote</th>
+          <tr style="background:${brandColorLight};color:#475569;border-bottom:1px solid ${brandBorder}">
+            <th style="padding:5px 8px;text-align:left;font-weight:700">Ingrediente</th>
+            <th style="padding:5px 8px;text-align:right;font-weight:700">Neto</th>
+            <th style="padding:5px 8px;text-align:right;font-weight:700">Merma</th>
+            <th style="padding:5px 8px;text-align:right;font-weight:700">Bruto</th>
+            <th style="padding:5px 8px;text-align:right;font-weight:700">Precio Ref.</th>
+            <th style="padding:5px 8px;text-align:right;font-weight:700">Costo Total</th>
           </tr>
         </thead>
         <tbody>${rows}</tbody>
         <tfoot>
-          <tr style="background:${brandColorLight}">
-            <td colspan="5" style="padding:7px 8px;text-align:right;font-weight:800;color:${brandColor};border-top:2px solid ${brandColor}">TOTAL LOTE (${port} rac.)</td>
-            <td style="padding:7px 8px;text-align:right;font-weight:900;color:${brandColor};border-top:2px solid ${brandColor}">${EUR.format(lote)}</td>
+          <tr style="background:#f8fafc;border-top:2px solid ${brandBorder}">
+            <td colspan="5" style="padding:6px 8px;text-align:right;font-weight:800;color:${brandColor}">COSTE TOTAL LOTE:</td>
+            <td style="padding:6px 8px;text-align:right;font-weight:900;color:${brandColor};font-family:monospace;font-size:11px">${EUR.format(lote)}</td>
           </tr>
         </tfoot>
       </table>
-      
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px;page-break-inside:avoid">
+
+      <div style="font-size:8.5px;font-weight:800;color:#0f172a;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-bottom:2px solid ${brandColor};padding-bottom:3px">Métricas de Rentabilidad</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;page-break-inside:avoid">
         ${[
-          ['Costo / Ración', EUR.format(unit),  brandColor],
-          ['PVP Carta',      EUR.format(pvpT),  '#059669'],
-          ['Margen Bruto',   EUR.format(marg),  '#d97706'],
-          ['Food Cost Real', `${fcR}%`,          fcCol]
+          ['Costo / Ración', EUR.format(unit), '#0f172a'],
+          ['PVP Carta (Imp. Inc.)', EUR.format(pvpT), brandColor],
+          ['Margen Neto / Ración', EUR.format(marg), '#059669'],
+          ['Food Cost Real', `${fcR}%`, '#6b21a8'],
         ].map(([l,v,c]) => `
           <div style="border:1.5px solid ${c};border-radius:6px;padding:10px 8px;text-align:center">
             <div style="font-size:7px;font-weight:700;color:#6b21a8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${l}</div>
@@ -11523,10 +11556,13 @@ class GC {
     target.innerHTML = this._buildKitchenFichaHTML();
     target.style.display = 'block';
     window.print();
-    setTimeout(() => {
+    const cleanup = () => {
       target.innerHTML = '';
       target.style.display = 'none';
-    }, 800);
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+    setTimeout(cleanup, 60000);
   }
 
   _printFinancialFicha() {
@@ -11538,10 +11574,13 @@ class GC {
     target.innerHTML = this._buildFinancialFichaHTML();
     target.style.display = 'block';
     window.print();
-    setTimeout(() => {
+    const cleanup = () => {
       target.innerHTML = '';
       target.style.display = 'none';
-    }, 800);
+      window.removeEventListener('afterprint', cleanup);
+    };
+    window.addEventListener('afterprint', cleanup);
+    setTimeout(cleanup, 60000);
   }
 
   async _exportPDFKitchen() {
@@ -11550,8 +11589,10 @@ class GC {
     btn.innerHTML = '⏳ Generando…';
     btn.disabled = true;
 
-    const cfg = this.R.config || {};
+    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+    const cfg = r.config || {};
     const html = this._buildKitchenFichaHTML();
+    const filename = this._safeFilename(cfg.dishName, 'Ficha_Cocina', 'pdf');
 
     let loaded = false;
     try {
@@ -11589,19 +11630,28 @@ class GC {
     await Promise.all(Array.from(imgsToLoad).map(img => {
       if (img.complete) return Promise.resolve();
       return new Promise(resolve => {
-        img.onload = resolve;
-        img.onerror = resolve;
+        const timer = setTimeout(resolve, 3000);
+        img.onload = () => { clearTimeout(timer); resolve(); };
+        img.onerror = () => { clearTimeout(timer); resolve(); };
       });
     }));
 
+    const targetEl = wrap.firstElementChild || wrap;
     try {
       await window.html2pdf().set({
         margin: [10, 10, 10, 10],
-        filename: `Ficha_Cocina_${(cfg.dishName || 'receta').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`,
+        filename: filename,
         image: { type:'jpeg', quality:.95 },
-        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: 794,
+          windowHeight: Math.max(1123, targetEl.scrollHeight || 1123)
+        },
         jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
-      }).from(wrap.firstElementChild).save();
+      }).from(targetEl).save();
       toast('Ficha de Cocina PDF generada ✓');
     } catch (err) {
       console.warn('html2pdf error, falling back to native print:', err);
@@ -11627,8 +11677,10 @@ class GC {
     btn.innerHTML = '⏳ Generando…';
     btn.disabled = true;
 
-    const cfg = this.R.config || {};
+    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+    const cfg = r.config || {};
     const html = this._buildFinancialFichaHTML();
+    const filename = this._safeFilename(cfg.dishName, 'Escandallo', 'pdf');
 
     let loaded = false;
     try {
@@ -11666,19 +11718,28 @@ class GC {
     await Promise.all(Array.from(imgsToLoad).map(img => {
       if (img.complete) return Promise.resolve();
       return new Promise(resolve => {
-        img.onload = resolve;
-        img.onerror = resolve;
+        const timer = setTimeout(resolve, 3000);
+        img.onload = () => { clearTimeout(timer); resolve(); };
+        img.onerror = () => { clearTimeout(timer); resolve(); };
       });
     }));
 
+    const targetEl = wrap.firstElementChild || wrap;
     try {
       await window.html2pdf().set({
         margin: [8, 8, 8, 8],
-        filename: `Escandallo_${(cfg.dishName || 'ficha').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`,
+        filename: filename,
         image: { type:'jpeg', quality:.95 },
-        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
+        html2canvas: {
+          scale: 2,
+          useCORS: true,
+          scrollX: 0,
+          scrollY: 0,
+          windowWidth: 794,
+          windowHeight: Math.max(1123, targetEl.scrollHeight || 1123)
+        },
         jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
-      }).from(wrap.firstElementChild).save();
+      }).from(targetEl).save();
       toast('PDF generado ✓');
     } catch (err) {
       console.warn('html2pdf error, falling back to native print:', err);
@@ -11699,10 +11760,11 @@ class GC {
   }
 
   _exportDOCKitchen() {
-    const cfg = this.R.config || {}, ings = this.R.ingredients || [], sc = this._scale();
+    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+    const cfg = r.config || {}, ings = r.ingredients || [], sc = this._scale();
     const port = Math.max(Number(cfg.portions) || 1, 1);
     
-    const theme = this.db.theme || 'theme-default';
+    const theme = (this.db && this.db.theme) || 'theme-default';
     let brandColor = '#0f172a';
     let brandBorder = '#e2e8f0';
     let brandFont = 'Calibri, Arial, sans-serif';
@@ -11720,7 +11782,7 @@ class GC {
     }
 
     const rows = ings.map(ing => {
-      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
+      const ingAllergensStr = ing.allergens && Array.isArray(ing.allergens) && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
         <tr>
           <td style="border:1px solid ${brandBorder};padding:8px;font-weight:bold;color:#334155">
@@ -11735,7 +11797,9 @@ class GC {
 
     const allAllergens = new Set();
     ings.forEach(ing => {
-      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+      if (ing.allergens && Array.isArray(ing.allergens)) {
+        ing.allergens.forEach(a => allAllergens.add(a));
+      }
     });
 
     const allergensDocSection = allAllergens.size > 0 ? `
@@ -11791,24 +11855,25 @@ class GC {
       <p class="footer">Documento técnico confidencial reservado para uso en cocina. GastroCost PRO</p>`;
 
     const doc = this._buildWordMHTML(bodyHtml, cfg.image, brandFont, brandColor, cfg.dishName || 'Ficha Cocina');
-    const filename = `Ficha_Cocina_${(cfg.dishName || 'receta').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
+    const filename = this._safeFilename(cfg.dishName, 'Ficha_Cocina', 'doc');
     this._downloadBlob(doc, filename, 'application/msword;charset=utf-8');
     toast('Word de cocina exportado ✓');
   }
 
   _exportDOC() {
-    const cfg = this.R.config || {}, ings = this.R.ingredients || [], sc = this._scale();
-    const lote = ings.reduce((s, i) => s + (i.cost || 0) * sc, 0);
+    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+    const cfg = r.config || {}, ings = r.ingredients || [], sc = this._scale();
     const port = Math.max(Number(cfg.portions) || 1, 1);
+    const lote = ings.reduce((s, i) => s + (i.cost || 0) * sc, 0);
     const unit = lote / port;
     const pvpN = cfg.fcGoal > 0 ? unit / (cfg.fcGoal / 100) : (cfg.customPVP || 0);
     const pvpT = pvpN * (1 + (cfg.taxRate || 0) / 100);
     const marg = pvpN - unit;
     const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
 
-    const theme = this.db.theme || 'theme-default';
-    let brandColor = '#1c4b6e';
-    let brandBorder = '#cbd5e1';
+    const theme = (this.db && this.db.theme) || 'theme-default';
+    let brandColor = '#0f172a';
+    let brandBorder = '#e2e8f0';
     let brandFont = 'Calibri, Arial, sans-serif';
     let isSerif = false;
     
@@ -11829,7 +11894,7 @@ class GC {
     if (cur === 'PEN') curSym = 'S/.';
 
     const rows = ings.map(ing => {
-      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
+      const ingAllergensStr = ing.allergens && Array.isArray(ing.allergens) && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
         <tr>
           <td style="border:1px solid ${brandBorder};padding:5pt">
@@ -11846,7 +11911,9 @@ class GC {
 
     const allAllergens = new Set();
     ings.forEach(ing => {
-      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
+      if (ing.allergens && Array.isArray(ing.allergens)) {
+        ing.allergens.forEach(a => allAllergens.add(a));
+      }
     });
 
     const allergensDocSection = allAllergens.size > 0 ? `
@@ -11925,7 +11992,7 @@ class GC {
       <p class="footer">GastroCost PRO · Generado el ${new Date().toLocaleDateString('es-ES')}</p>`;
 
     const doc = this._buildWordMHTML(bodyHtml, cfg.image, brandFont, brandColor, cfg.dishName || 'Escandallo');
-    const filename = `Escandallo_${(cfg.dishName || 'ficha').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
+    const filename = this._safeFilename(cfg.dishName, 'Escandallo', 'doc');
     this._downloadBlob(doc, filename, 'application/msword;charset=utf-8');
     toast('Word de escandallo exportado ✓');
   }
