@@ -156,6 +156,12 @@ class VirtualElement {
     return child;
   }
 
+  remove() {
+    if (this.parentElement) {
+      this.parentElement.removeChild(this);
+    }
+  }
+
   focus() {}
   scrollIntoView() {}
   click() { this.dispatchEvent('click'); }

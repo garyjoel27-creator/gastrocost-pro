@@ -4263,6 +4263,7 @@ body.theme-pearl-bronze #btn-open-export {
         <div class="export-card-actions">
           <button class="btn btn-primary" id="btn-export-pdf-kitchen" style="width:100%;font-weight:700;">📄 Exportar PDF Cocina</button>
           <button class="btn btn-ghost" id="btn-export-doc-kitchen" style="width:100%;">📝 Exportar Word (.doc)</button>
+          <button class="btn btn-ghost" id="btn-print-kitchen" style="width:100%;font-size:0.8rem;">🖨️ Imprimir / Guardar PDF (Nativo)</button>
         </div>
       </div>
       
@@ -4276,6 +4277,7 @@ body.theme-pearl-bronze #btn-open-export {
           <button class="btn btn-green" id="btn-export-pdf-financial" style="width:100%;font-weight:700;">📄 Exportar PDF Financiero</button>
           <button class="btn btn-primary" id="btn-export-xls" style="width:100%;font-weight:700;background:rgba(34,197,94,0.15);border-color:var(--green);color:var(--green);">📊 Exportar Excel (.xlsx)</button>
           <button class="btn btn-ghost" id="btn-export-doc-financial" style="width:100%;">📝 Exportar Word (.doc)</button>
+          <button class="btn btn-ghost" id="btn-print-financial" style="width:100%;font-size:0.8rem;">🖨️ Imprimir / Guardar PDF (Nativo)</button>
         </div>
       </div>
 
@@ -5962,6 +5964,11 @@ class GC {
       this.toggleExportModal(false);
       this._exportDOCKitchen();
     });
+    const btnPrintKitchen = document.getElementById('btn-print-kitchen');
+    if (btnPrintKitchen) btnPrintKitchen.addEventListener('click', () => {
+      this.toggleExportModal(false);
+      this._printKitchenFicha();
+    });
     const btnExpGdocsKitchen = document.getElementById('btn-export-gdocs-kitchen');
     if (btnExpGdocsKitchen) btnExpGdocsKitchen.addEventListener('click', () => {
       this.toggleExportModal(false);
@@ -5976,6 +5983,11 @@ class GC {
     if (btnExpDocFinancial) btnExpDocFinancial.addEventListener('click', () => {
       this.toggleExportModal(false);
       this._exportDOC();
+    });
+    const btnPrintFinancial = document.getElementById('btn-print-financial');
+    if (btnPrintFinancial) btnPrintFinancial.addEventListener('click', () => {
+      this.toggleExportModal(false);
+      this._printFinancialFicha();
     });
     const btnExpGdocsFinancial = document.getElementById('btn-export-gdocs-financial');
     if (btnExpGdocsFinancial) btnExpGdocsFinancial.addEventListener('click', () => {
@@ -9626,6 +9638,14 @@ class GC {
     }
 
     const scratch = document.getElementById('pdf-scratch') || document.body;
+    scratch.style.position = 'fixed';
+    scratch.style.top = '0';
+    scratch.style.left = '0';
+    scratch.style.width = '794px';
+    scratch.style.zIndex = '999999';
+    scratch.style.background = '#ffffff';
+    scratch.style.display = 'block';
+
     const tempContainer = document.createElement('div');
     tempContainer.innerHTML = fullHtml;
     scratch.appendChild(tempContainer);
@@ -9635,7 +9655,7 @@ class GC {
         margin: [10, 10, 10, 10],
         filename: `Libro_Maestro_Recetas_${new Date().toISOString().slice(0, 10)}.pdf`,
         image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 1.8, useCORS: true },
+        html2canvas: { scale: 1.8, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
       await window.html2pdf().from(tempContainer).set(opt).save();
@@ -9644,6 +9664,14 @@ class GC {
       toast(`Error generando PDF: ${err.message}`, 'e');
     } finally {
       if (tempContainer.parentElement) tempContainer.parentElement.removeChild(tempContainer);
+      scratch.innerHTML = '';
+      scratch.style.display = 'none';
+      scratch.style.position = '';
+      scratch.style.top = '';
+      scratch.style.left = '';
+      scratch.style.width = '';
+      scratch.style.zIndex = '';
+      scratch.style.background = '';
     }
   }
 
@@ -9926,6 +9954,7 @@ class GC {
       document.body.classList.add('modal-open');
     } else {
       modal.classList.remove('open');
+      document.body.classList.remove('modal-open');
     }
   }
 
@@ -11105,23 +11134,104 @@ class GC {
     ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:10}}, {s:{r:1,c:0},e:{r:1,c:10}}];
     XLSX.utils.book_append_sheet(wb, ws, 'Comparativo');
   }
-  async _exportPDFKitchen() {
-    const btn = document.getElementById('btn-export-pdf-kitchen') || { set innerHTML(v){}, set disabled(v){} };
-    const orig = btn.innerHTML || '🍳 Ficha Cocina';
-    btn.innerHTML = '⏳ Generando…';
-    btn.disabled = true;
-
-    if (!await this._ensureHTML2PDF()) {
-      toast('Error al cargar html2pdf. Verifica tu conexión.', 'e');
-      btn.innerHTML = orig;
-      btn.disabled = false;
+  _downloadBlob(content, filename, mimeType) {
+    if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
       return;
     }
+    const blob = new Blob([content], { type: mimeType });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      if (a.parentElement) document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    }, 200);
+  }
 
-    const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
-    const port = Math.max(cfg.portions, 1);
+  _buildWordMHTML(bodyHtml, imageBase64, brandFont, brandColor, title) {
+    const boundary = '----=_NextPart_000_GC_DOC';
+    let hasImage = false;
+    let imagePart = '';
+    let imageSrc = '';
 
-    // V14.1 Brand Variables for Print Adaptation
+    if (imageBase64 && typeof imageBase64 === 'string' && imageBase64.startsWith('data:image/')) {
+      const match = imageBase64.match(/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/s);
+      if (match) {
+        hasImage = true;
+        const subtype = match[1].toLowerCase() === 'png' ? 'png' : 'jpeg';
+        const ext = subtype === 'png' ? 'png' : 'jpg';
+        imageSrc = 'dish-photo.' + ext;
+        const rawBase64 = match[2].trim();
+        imagePart = '\r\n--' + boundary + '\r\n' +
+          'Content-Type: image/' + subtype + '\r\n' +
+          'Content-Transfer-Encoding: base64\r\n' +
+          'Content-Location: ' + imageSrc + '\r\n\r\n' +
+          rawBase64 + '\r\n';
+      }
+    }
+
+    let finalHtmlBody = bodyHtml;
+    if (hasImage) {
+      finalHtmlBody = bodyHtml.replace(/__IMAGE_SRC__/g, imageSrc);
+    } else if (imageBase64 && typeof imageBase64 === 'string' && (imageBase64.startsWith('http://') || imageBase64.startsWith('https://'))) {
+      finalHtmlBody = bodyHtml.replace(/__IMAGE_SRC__/g, imageBase64);
+    } else {
+      finalHtmlBody = bodyHtml.replace(/__IMAGE_SRC__/g, '');
+    }
+
+    const htmlContent = '<!DOCTYPE html>\r\n' +
+      '<html xmlns:v="urn:schemas-microsoft-com:vml"\r\n' +
+      'xmlns:o="urn:schemas-microsoft-com:office:office"\r\n' +
+      'xmlns:w="urn:schemas-microsoft-com:office:word"\r\n' +
+      'xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"\r\n' +
+      'xmlns="http://www.w3.org/TR/REC-html40">\r\n' +
+      '<head>\r\n' +
+      '<meta charset="utf-8">\r\n' +
+      '<title>' + (title || 'Ficha Técnica') + '</title>\r\n' +
+      '<!--[if gte mso 9]><xml>\r\n' +
+      '<w:WordDocument>\r\n' +
+      '<w:View>Print</w:View>\r\n' +
+      '<w:Zoom>100</w:Zoom>\r\n' +
+      '<w:DoNotOptimizeForBrowser/>\r\n' +
+      '</w:WordDocument>\r\n' +
+      '</xml><![endif]-->\r\n' +
+      '<style>\r\n' +
+      '@page { size: A4; margin: 2cm; }\r\n' +
+      'body { font-family: ' + brandFont + '; font-size: 10pt; color: #1e293b; margin: 0; padding: 0; }\r\n' +
+      'h1 { font-size: 20pt; font-weight: 900; color: ' + brandColor + '; margin: 0 0 4pt; }\r\n' +
+      'h2 { font-size: 10pt; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 14pt; }\r\n' +
+      'table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin-bottom: 14pt; }\r\n' +
+      'th { background: #f8fafc; color: #475569; padding: 6pt 8pt; text-align: left; font-size: 9pt; border: 1pt solid #cbd5e1; }\r\n' +
+      'td { padding: 6pt 8pt; border: 1pt solid #cbd5e1; }\r\n' +
+      '.meta { font-size: 9pt; color: #64748b; margin-bottom: 14pt; }\r\n' +
+      '.footer { font-size: 8pt; color: #94a3b8; border-top: 1pt solid #e2e8f0; margin-top: 20pt; padding-top: 8pt; }\r\n' +
+      '</style>\r\n' +
+      '</head>\r\n' +
+      '<body>\r\n' +
+      finalHtmlBody + '\r\n' +
+      '</body>\r\n' +
+      '</html>';
+
+    if (hasImage) {
+      return 'MIME-Version: 1.0\r\n' +
+        'Content-Type: multipart/related; boundary="' + boundary + '"; type="text/html"\r\n\r\n' +
+        '--' + boundary + '\r\n' +
+        'Content-Type: text/html; charset="utf-8"\r\n' +
+        'Content-Transfer-Encoding: 8bit\r\n\r\n' +
+        htmlContent +
+        imagePart +
+        '--' + boundary + '--\r\n';
+    } else {
+      return htmlContent;
+    }
+  }
+
+  _buildKitchenFichaHTML() {
+    const cfg = this.R.config || {}, ings = this.R.ingredients || [], sc = this._scale();
+    const port = Math.max(Number(cfg.portions) || 1, 1);
+
     const theme = this.db.theme || 'theme-default';
     let brandColor = '#0f172a';
     let brandColorLight = '#f8fafc';
@@ -11129,16 +11239,16 @@ class GC {
     let brandFont = 'Arial, sans-serif';
     let isSerif = false;
     
-    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
-      brandColor = '#800020'; // Borgoña
-      brandColorLight = '#fdfbf7'; // Beige crema
-      brandBorder = '#eae5da'; // Beige
+    if (theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze') {
+      brandColor = '#800020';
+      brandColorLight = '#fdfbf7';
+      brandBorder = '#eae5da';
       brandFont = 'Georgia, "Times New Roman", serif';
       isSerif = true;
-    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
-      brandColor = '#059669'; // Verde Esmeralda
-      brandColorLight = '#f0fdf4'; // Menta claro
-      brandBorder = '#d1fae5'; // Verde claro
+    } else if (theme === 'theme-nordic-forest' || theme === 'theme-navy-silver') {
+      brandColor = '#059669';
+      brandColorLight = '#f0fdf4';
+      brandBorder = '#d1fae5';
       brandFont = 'system-ui, -apple-system, sans-serif';
     }
 
@@ -11151,7 +11261,7 @@ class GC {
             ${ingAllergensStr ? `<span style="font-size:8px;margin-left:6px;vertical-align:middle">${ingAllergensStr}</span>` : ''}
           </td>
           <td style="padding:8px 10px;border-bottom:1px solid ${brandBorder};text-align:right;font-family:monospace;font-size:11px;color:#0f172a;font-weight:600">
-            ${F1(ing.net*sc)} ${ing.unit === 'ud' ? 'ud' : 'g'}
+            ${F1(ing.net * sc)} ${ing.unit === 'ud' ? 'ud' : (ing.unit || 'g')}
           </td>
         </tr>`;
     }).join('');
@@ -11186,14 +11296,14 @@ class GC {
         <img src="${cfg.image}" style="width:100%;max-height:240px;object-fit:cover;border-radius:8px;border:1px solid ${brandBorder}" alt="Foto">
       </div>` : '';
 
-    const html = `<div style="font-family:${brandFont};font-size:11px;color:#1e293b;max-width:780px;margin:0 auto;padding:24px;background:#ffffff">
+    return `<div style="font-family:${brandFont};font-size:11px;color:#1e293b;max-width:780px;margin:0 auto;padding:24px;background:#ffffff">
       <div style="border-bottom:4px solid ${brandColor};padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end">
         <div>
           <div style="font-size:7px;font-weight:800;color:#64748b;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Ficha Técnica de Cocina · Chef Ejecutivo</div>
-          <div style="font-size:22px;font-weight:900;color:#0f172a;letter-spacing:-.5px;font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</div>
+          <div style="font-size:22px;font-weight:900;color:#0f172a;letter-spacing:-.5px;font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName || 'Sin Nombre'}</div>
         </div>
         <div style="text-align:right;font-size:9px;color:#64748b">
-          <div style="font-weight:800;color:${brandColor}">GastroCost PRO V14.4</div>
+          <div style="font-weight:800;color:${brandColor}">GastroCost PRO</div>
           <div>Fecha: ${new Date().toLocaleDateString('es-ES')}</div>
           <div>Raciones: ${port} · Escala: ×${sc}</div>
         </div>
@@ -11222,7 +11332,6 @@ class GC {
         </div>
       </div>
 
-      <!-- Firmas y validación V14.1 -->
       <div style="margin-top:28px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#475569;page-break-inside:avoid">
         <div style="width:45%">
           <p style="margin:0;font-weight:700;color:${brandColor}">Elaborado y Verificado por:</p>
@@ -11238,86 +11347,38 @@ class GC {
       </div>
 
       <div style="margin-top:24px;font-size:8px;color:#94a3b8;border-top:1px solid #e2e8f0;padding-top:8px;text-align:center;page-break-inside:avoid">
-        Documento técnico confidencial reservado para uso en cocina. GastroCost PRO V14.4
+        Documento técnico confidencial reservado para uso en cocina. GastroCost PRO
       </div>
     </div>`;
-
-    const wrap = document.getElementById('pdf-scratch');
-    wrap.innerHTML = html;
-    wrap.style.display = 'block';
-
-    const imgsToLoad = wrap.querySelectorAll('img');
-    await Promise.all(Array.from(imgsToLoad).map(img => {
-      if (img.complete) return Promise.resolve();
-      return new Promise(resolve => {
-        img.onload = resolve;
-        img.onerror = resolve;
-      });
-    }));
-
-    try {
-      await html2pdf().set({
-        margin: 10,
-        filename: `Ficha_Cocina_${(cfg.dishName || 'receta').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`,
-        image: { type:'jpeg', quality:.98 },
-        html2canvas: { scale:2.5, useCORS:true },
-        jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
-      }).from(wrap.firstElementChild).save();
-      toast('Ficha de Cocina PDF generada ✓');
-    } catch (err) {
-      console.error(err);
-      toast('Error al generar PDF de cocina', 'e');
-    } finally {
-      wrap.innerHTML = '';
-      wrap.style.display = 'none';
-      btn.innerHTML = orig;
-      btn.disabled = false;
-    }
   }
 
-  /* ═══════════════════════════════════════════════
-     EXPORT PDF (lazy-loaded)
-     ═══════════════════════════════════════════════ */
-  async _exportPDF() {
-    const btn = document.getElementById('btn-export-pdf-financial') || { set innerHTML(v){}, set disabled(v){} };
-    const orig = btn.innerHTML;
-    btn.innerHTML = '⏳ Generando…';
-    btn.disabled = true;
-
-    if (!await this._ensureHTML2PDF()) {
-      toast('Error al cargar html2pdf. Verifica tu conexión.', 'e');
-      btn.innerHTML = orig;
-      btn.disabled = false;
-      return;
-    }
-
-    const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
-    const lote = ings.reduce((s,i) => s + i.cost * sc, 0);
-    const port = Math.max(cfg.portions, 1);
+  _buildFinancialFichaHTML() {
+    const cfg = this.R.config || {}, ings = this.R.ingredients || [], sc = this._scale();
+    const lote = ings.reduce((s, i) => s + (i.cost || 0) * sc, 0);
+    const port = Math.max(Number(cfg.portions) || 1, 1);
     const unit = lote / port;
-    const pvpN = cfg.fcGoal > 0 ? unit / (cfg.fcGoal / 100) : 0;
-    const pvpT = pvpN * (1 + cfg.taxRate / 100);
+    const pvpN = cfg.fcGoal > 0 ? unit / (cfg.fcGoal / 100) : (cfg.customPVP || 0);
+    const pvpT = pvpN * (1 + (cfg.taxRate || 0) / 100);
     const marg = pvpN - unit;
     const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
     
-    // V14.1 Brand Variables for Print Adaptation
     const theme = this.db.theme || 'theme-default';
-    let brandColor = '#1c4b6e'; // Azul Neon Cyan
+    let brandColor = '#1c4b6e';
     let brandColorLight = '#e8f4f8';
     let brandBorder = '#cbd5e1';
     let brandFont = 'Arial, sans-serif';
     let isSerif = false;
     
-    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
-      brandColor = '#800020'; // Borgoña
-      brandColorLight = '#fdfbf7'; // Beige crema
-      brandBorder = '#eae5da'; // Beige
+    if (theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze') {
+      brandColor = '#800020';
+      brandColorLight = '#fdfbf7';
+      brandBorder = '#eae5da';
       brandFont = 'Georgia, "Times New Roman", serif';
       isSerif = true;
-    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
-      brandColor = '#059669'; // Verde Esmeralda
-      brandColorLight = '#f0fdf4'; // Menta claro
-      brandBorder = '#d1fae5'; // Verde claro
+    } else if (theme === 'theme-nordic-forest' || theme === 'theme-navy-silver') {
+      brandColor = '#059669';
+      brandColorLight = '#f0fdf4';
+      brandBorder = '#d1fae5';
       brandFont = 'system-ui, -apple-system, sans-serif';
     }
 
@@ -11382,14 +11443,14 @@ class GC {
         ${notesSection}
       </div>`;
 
-    const html = `<div style="font-family:${brandFont};font-size:11px;color:#111;max-width:780px;margin:0 auto;padding:24px;background:#ffffff">
+    return `<div style="font-family:${brandFont};font-size:11px;color:#111;max-width:780px;margin:0 auto;padding:24px;background:#ffffff">
       <div style="border-bottom:3px solid ${brandColor};padding-bottom:12px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-end">
         <div>
           <div style="font-size:7px;font-weight:700;color:${brandColor};letter-spacing:2px;text-transform:uppercase;margin-bottom:4px">Ficha Técnica de Escandallo</div>
-          <div style="font-size:20px;font-weight:900;color:#111;letter-spacing:-.5px;font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</div>
+          <div style="font-size:20px;font-weight:900;color:#111;letter-spacing:-.5px;font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName || 'Sin Nombre'}</div>
         </div>
         <div style="text-align:right;font-size:9px;color:#6b7280">
-          <div style="font-weight:700;color:${brandColor}">GastroCost PRO V14.4</div>
+          <div style="font-weight:700;color:${brandColor}">GastroCost PRO</div>
           <div>${new Date().toLocaleDateString('es-ES')}</div>
           <div>Raciones: ${port} · Escala: ×${sc} · Divisa: ${cur}</div>
         </div>
@@ -11423,7 +11484,7 @@ class GC {
           ['Food Cost Real', `${fcR}%`,          fcCol]
         ].map(([l,v,c]) => `
           <div style="border:1.5px solid ${c};border-radius:6px;padding:10px 8px;text-align:center">
-            <div style="font-size:7px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${l}</div>
+            <div style="font-size:7px;font-weight:700;color:#6b21a8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${l}</div>
             <div style="font-size:15px;font-weight:900;color:${c}">${v}</div>
           </div>`).join('')}
       </div>
@@ -11433,7 +11494,6 @@ class GC {
         PVP Neto: <b>${EUR.format(pvpN)}</b> · Beneficio Lote: <b>${EUR.format(marg*port)}</b>
       </div>
 
-      <!-- Firmas y validación V14.1 -->
       <div style="margin-top:28px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;font-size:9px;color:#475569;page-break-inside:avoid">
         <div style="width:45%">
           <p style="margin:0;font-weight:700;color:${brandColor}">Elaborado y Verificado por:</p>
@@ -11449,12 +11509,80 @@ class GC {
       </div>
 
       <div style="margin-top:24px;font-size:8px;color:#9ca3af;border-top:1px solid #e5e7eb;padding-top:8px;page-break-inside:avoid">
-        GastroCost PRO V14.4 · Documento generado el ${new Date().toLocaleDateString('es-ES')}
+        GastroCost PRO · Documento generado el ${new Date().toLocaleDateString('es-ES')}
       </div>
     </div>`;
+  }
+
+  _printKitchenFicha() {
+    const target = document.getElementById('recipe-book-render-target');
+    if (!target) {
+      window.print();
+      return;
+    }
+    target.innerHTML = this._buildKitchenFichaHTML();
+    target.style.display = 'block';
+    window.print();
+    setTimeout(() => {
+      target.innerHTML = '';
+      target.style.display = 'none';
+    }, 800);
+  }
+
+  _printFinancialFicha() {
+    const target = document.getElementById('recipe-book-render-target');
+    if (!target) {
+      window.print();
+      return;
+    }
+    target.innerHTML = this._buildFinancialFichaHTML();
+    target.style.display = 'block';
+    window.print();
+    setTimeout(() => {
+      target.innerHTML = '';
+      target.style.display = 'none';
+    }, 800);
+  }
+
+  async _exportPDFKitchen() {
+    const btn = document.getElementById('btn-export-pdf-kitchen') || { set innerHTML(v){}, set disabled(v){} };
+    const orig = btn.innerHTML || '🍳 Ficha Cocina';
+    btn.innerHTML = '⏳ Generando…';
+    btn.disabled = true;
+
+    const cfg = this.R.config || {};
+    const html = this._buildKitchenFichaHTML();
+
+    let loaded = false;
+    try {
+      loaded = await this._ensureHTML2PDF();
+    } catch {
+      loaded = false;
+    }
+
+    if (!loaded || !window.html2pdf) {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      toast('html2pdf no disponible. Abriendo vista de impresión nativa...', 'w');
+      this._printKitchenFicha();
+      return;
+    }
 
     const wrap = document.getElementById('pdf-scratch');
+    if (!wrap) {
+      this._printKitchenFicha();
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      return;
+    }
+
     wrap.innerHTML = html;
+    wrap.style.position = 'fixed';
+    wrap.style.top = '0';
+    wrap.style.left = '0';
+    wrap.style.width = '794px';
+    wrap.style.zIndex = '999999';
+    wrap.style.background = '#ffffff';
     wrap.style.display = 'block';
 
     const imgsToLoad = wrap.querySelectorAll('img');
@@ -11467,213 +11595,127 @@ class GC {
     }));
 
     try {
-      await html2pdf().set({
-        margin: 8,
-        filename: `Escandallo_${(cfg.dishName || 'ficha').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`,
-        image: { type:'jpeg', quality:.98 },
-        html2canvas: { scale:2, useCORS:true },
+      await window.html2pdf().set({
+        margin: [10, 10, 10, 10],
+        filename: `Ficha_Cocina_${(cfg.dishName || 'receta').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`,
+        image: { type:'jpeg', quality:.95 },
+        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
         jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
       }).from(wrap.firstElementChild).save();
-      toast('PDF generado ✓');
+      toast('Ficha de Cocina PDF generada ✓');
     } catch (err) {
-      toast('Error al generar PDF', 'e');
+      console.warn('html2pdf error, falling back to native print:', err);
+      toast('Fallo al generar con html2pdf. Abriendo visor de impresión...', 'w');
+      this._printKitchenFicha();
     } finally {
       wrap.innerHTML = '';
       wrap.style.display = 'none';
+      wrap.style.position = '';
+      wrap.style.top = '';
+      wrap.style.left = '';
+      wrap.style.width = '';
+      wrap.style.zIndex = '';
+      wrap.style.background = '';
       btn.innerHTML = orig;
       btn.disabled = false;
     }
   }
 
-  /* ═══════════════════════════════════════════════
-     EXPORT WORD
-     ═══════════════════════════════════════════════ */
-  _exportDOC() {
-    if (window.innerWidth <= 900 || ('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
-      const proceed = confirm("⚠️ AVISO DE COMPATIBILIDAD\n\nLos teléfonos móviles (como Google Docs en Android/iOS) bloquean las exportaciones a Word generadas en la web.\n\n👉 Recomendamos encarecidamente utilizar la Exportación a PDF para visualizar y compartir correctamente tu receta por WhatsApp.\n\n¿Deseas descargar el archivo Word de todos modos bajo tu propia responsabilidad?");
-      if (!proceed) return;
-    }
-    const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
-    const lote = ings.reduce((s,i) => s + i.cost * sc, 0);
-    const port = Math.max(cfg.portions, 1);
-    const unit = lote / port;
-    const pvpN = cfg.fcGoal > 0 ? unit / (cfg.fcGoal / 100) : 0;
-    const pvpT = pvpN * (1 + cfg.taxRate / 100);
-    const marg = pvpN - unit;
-    const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
+  async _exportPDF() {
+    const btn = document.getElementById('btn-export-pdf-financial') || { set innerHTML(v){}, set disabled(v){} };
+    const orig = btn.innerHTML || '📄 Ficha Financiera';
+    btn.innerHTML = '⏳ Generando…';
+    btn.disabled = true;
 
-    // V14.1 Brand Variables for Word Export (Print/Layout adapt)
-    const theme = this.db.theme || 'theme-default';
-    let brandColor = '#1c4b6e'; // Azul Neon
-    let brandColorLight = '#e8f4f8';
-    let brandBorder = '#cbd5e1';
-    let brandFont = 'Calibri, Arial, sans-serif';
-    let isSerif = false;
-    
-    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
-      brandColor = '#800020'; // Borgoña
-      brandColorLight = '#fdfbf7'; // Crema
-      brandBorder = '#dfd9cb'; // Beige
-      brandFont = 'Georgia, serif';
-      isSerif = true;
-    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
-      brandColor = '#059669'; // Verde
-      brandColorLight = '#f0fdf4'; // Menta claro
-      brandBorder = '#d1fae5'; // Verde claro
-      brandFont = 'system-ui, -apple-system, sans-serif';
+    const cfg = this.R.config || {};
+    const html = this._buildFinancialFichaHTML();
+
+    let loaded = false;
+    try {
+      loaded = await this._ensureHTML2PDF();
+    } catch {
+      loaded = false;
     }
 
-    const cur = cfg.currency || 'EUR';
-    let curSym = '€';
-    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
-    if (cur === 'PEN') curSym = 'S/.';
+    if (!loaded || !window.html2pdf) {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      toast('html2pdf no disponible. Abriendo vista de impresión nativa...', 'w');
+      this._printFinancialFicha();
+      return;
+    }
 
-    const rows = ings.map(ing => {
-      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
-      return `
-        <tr>
-          <td style="border:1px solid ${brandBorder};padding:5pt">
-            ${ing.name}
-            ${ingAllergensStr ? `<span style="font-size:8pt;color:#555;margin-left:5px">(${ingAllergensStr})</span>` : ''}
-          </td>
-          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.net*sc)} ${ing.unit === 'ud' ? 'ud' : 'g'}</td>
-          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${ing.waste}%</td>
-          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.gross*sc)} ${ing.unit === 'ud' ? 'ud' : 'g'}</td>
-          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F2(ing.originalPrice)} ${curSym}/${ing.unit === 'ud' ? 'ud' : 'kg'}</td>
-          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right;font-weight:bold;color:${brandColor}">${EUR.format(ing.cost*sc)}</td>
-        </tr>`;
-    }).join('');
+    const wrap = document.getElementById('pdf-scratch');
+    if (!wrap) {
+      this._printFinancialFicha();
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      return;
+    }
 
-    const allAllergens = new Set();
-    ings.forEach(ing => {
-      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
-    });
+    wrap.innerHTML = html;
+    wrap.style.position = 'fixed';
+    wrap.style.top = '0';
+    wrap.style.left = '0';
+    wrap.style.width = '794px';
+    wrap.style.zIndex = '999999';
+    wrap.style.background = '#ffffff';
+    wrap.style.display = 'block';
 
-    const allergensDocSection = allAllergens.size > 0 ? `
-      <p style="font-size:10pt;font-weight:700;color:#6b21a8;margin:16pt 0 6pt">ALÉRGENOS DECLARADOS</p>
-      <div style="background:#faf5ff;border:1px solid #e9d5ff;padding:8pt 10pt;border-radius:4pt;font-size:9.5pt;color:#6b21a8">
-        ${Array.from(allAllergens).map(a => `${ALLERGENS[a] ? ALLERGENS[a].emoji + ' ' + ALLERGENS[a].name : a}`).join('  |  ')}
-      </div>` : '';
+    const imgsToLoad = wrap.querySelectorAll('img');
+    await Promise.all(Array.from(imgsToLoad).map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise(resolve => {
+        img.onload = resolve;
+        img.onerror = resolve;
+      });
+    }));
 
-    const notesSection = cfg.notes && cfg.notes.trim() ? `
-      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">NOTAS DE ELABORACIÓN</p>
-      <div style="background:${brandColorLight};border:1px solid ${brandBorder};padding:8pt 10pt;border-radius:4pt;font-size:9pt;color:#374151;white-space:pre-wrap">${cfg.notes}</div>` : '';
-
-    const imageDocHtml = cfg.image ? `
-      <p style="text-align:center;margin-bottom:12pt">
-        <img src="${cfg.image}" width="280" style="width:280px;height:auto;border-radius:4pt;border:1px solid #ccc" alt="Foto">
-      </p>` : '';
-
-    const doc = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
-      xmlns:w="urn:schemas-microsoft-com:office:word"
-      xmlns="http://www.w3.org/TR/REC-html40">
-    <head><meta charset="utf-8">
-    <style>
-      body{font-family:${brandFont};font-size:11pt;color:#111;margin:2cm}
-      h1{font-size:20pt;font-weight:900;color:${brandColor};margin:0 0 4pt}
-      h2{font-size:12pt;font-weight:600;color:#374151;margin:0 0 14pt}
-      table{width:100%;border-collapse:collapse;font-size:10pt}
-      th{background:${brandColor};color:white;padding:6pt 7pt;text-align:left;font-size:9pt}
-      td{padding:5pt 7pt}
-      .meta{font-size:9pt;color:#6b7280;margin-bottom:14pt}
-      .footer{font-size:8pt;color:#9ca3af;border-top:1pt solid #e5e7eb;margin-top:16pt;padding-top:8pt}
-    </style></head>
-    <body>
-      <h1>FICHA TÉCNICA DE ESCANDALLO</h1>
-      <h2 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</h2>
-      <p class="meta">
-        ${new Date().toLocaleDateString('es-ES')} ·
-        Raciones: ${port} · Escala: ×${sc} ·
-        FC Objetivo: ${cfg.fcGoal}% · IGIC/IVA: ${cfg.taxRate}% · Divisa: ${cur}
-      </p>
-      ${imageDocHtml}
-      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:0 0 6pt">DESGLOSE DE INSUMOS</p>
-      <table>
-        <thead><tr>
-          <th>Ingrediente</th><th>Neto (g/ud)</th><th>Merma (%)</th>
-          <th>Bruto (g/ud)</th><th>Precio ${curSym}/kg o ud</th><th>Costo Lote</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-        <tfoot>
-          <tr style="background:${brandColorLight}">
-            <td colspan="5" style="border:1px solid #ccc;padding:6pt;text-align:right;font-weight:800;color:${brandColor}">TOTAL LOTE</td>
-            <td style="border:1px solid #ccc;padding:6pt;font-weight:900;color:${brandColor}">${EUR.format(lote)}</td>
-          </tr>
-        </tfoot>
-      </table>
-      ${allergensDocSection}
-      ${notesSection}
-      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:18pt 0 6pt">ANÁLISIS FINANCIERO</p>
-      <table style="width:55%">
-        ${[
-          ['Costo por Ración',                    EUR.format(unit)],
-          ['PVP Neto (sin impuesto)',              EUR.format(pvpN)],
-          [`PVP Carta (IGIC ${cfg.taxRate}%)`,     EUR.format(pvpT)],
-          ['Margen Bruto / Ración',               EUR.format(marg)],
-          ['Beneficio Total Lote',                EUR.format(marg * port)],
-          ['Food Cost Real',                      `${fcR}%`],
-          ['Food Cost Objetivo',                  `${cfg.fcGoal}%`],
-        ].map(([l,v]) => `
-          <tr>
-            <td style="border:1px solid #ccc;padding:5pt;font-weight:600">${l}</td>
-            <td style="border:1px solid #ccc;padding:5pt">${v}</td>
-          </tr>`).join('')}
-      </table>
-
-      <!-- Firmas y validación V14.1 -->
-      <table style="width:100%;margin-top:28pt;border:none">
-        <tr style="border:none">
-          <td style="width:45%;border:none;padding:0;vertical-align:top">
-            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Elaborado y Verificado por:</p>
-            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
-            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Chef Ejecutivo / Auditor de Calidad</p>
-          </td>
-          <td style="width:10%;border:none;padding:0"></td>
-          <td style="width:45%;border:none;padding:0;vertical-align:top;text-align:right">
-            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Aprobado y Autorizado por:</p>
-            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
-            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Dirección de Operaciones F&B</p>
-          </td>
-        </tr>
-      </table>
-
-      <p class="footer">GastroCost PRO V14.4 · Generado el ${new Date().toLocaleDateString('es-ES')}</p>
-    </body></html>`;
-
-    const blob = new Blob([doc], { type:'application/msword;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `Escandallo_${(cfg.dishName || 'ficha').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+    try {
+      await window.html2pdf().set({
+        margin: [8, 8, 8, 8],
+        filename: `Escandallo_${(cfg.dishName || 'ficha').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.pdf`,
+        image: { type:'jpeg', quality:.95 },
+        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
+        jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
+      }).from(wrap.firstElementChild).save();
+      toast('PDF generado ✓');
+    } catch (err) {
+      console.warn('html2pdf error, falling back to native print:', err);
+      toast('Fallo al generar con html2pdf. Abriendo visor de impresión...', 'w');
+      this._printFinancialFicha();
+    } finally {
+      wrap.innerHTML = '';
+      wrap.style.display = 'none';
+      wrap.style.position = '';
+      wrap.style.top = '';
+      wrap.style.left = '';
+      wrap.style.width = '';
+      wrap.style.zIndex = '';
+      wrap.style.background = '';
+      btn.innerHTML = orig;
+      btn.disabled = false;
+    }
   }
 
   _exportDOCKitchen() {
-    if (window.innerWidth <= 900 || ('ontouchstart' in window) || navigator.maxTouchPoints > 0) {
-      const proceed = confirm("⚠️ AVISO DE COMPATIBILIDAD\n\nLos teléfonos móviles (como Google Docs en Android/iOS) bloquean las exportaciones a Word generadas en la web.\n\n👉 Recomendamos encarecidamente utilizar la Exportación a PDF para visualizar y compartir correctamente tu receta por WhatsApp.\n\n¿Deseas descargar el archivo Word de todos modos bajo tu propia responsabilidad?");
-      if (!proceed) return;
-    }
-    const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
-    const port = Math.max(cfg.portions, 1);
+    const cfg = this.R.config || {}, ings = this.R.ingredients || [], sc = this._scale();
+    const port = Math.max(Number(cfg.portions) || 1, 1);
     
-    // V14.1 Brand Variables for Word Export (Kitchen)
     const theme = this.db.theme || 'theme-default';
     let brandColor = '#0f172a';
-    let brandColorLight = '#f8fafc';
     let brandBorder = '#e2e8f0';
     let brandFont = 'Calibri, Arial, sans-serif';
     let isSerif = false;
     
-    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
-      brandColor = '#800020'; // Borgoña
-      brandColorLight = '#fdfbf7'; // Crema
-      brandBorder = '#eae5da'; // Beige
+    if (theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze') {
+      brandColor = '#800020';
+      brandBorder = '#dfd9cb';
       brandFont = 'Georgia, serif';
       isSerif = true;
-    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
-      brandColor = '#059669'; // Verde
-      brandColorLight = '#f0fdf4'; // Menta claro
-      brandBorder = '#d1fae5'; // Verde claro
+    } else if (theme === 'theme-nordic-forest' || theme === 'theme-navy-silver') {
+      brandColor = '#059669';
+      brandBorder = '#d1fae5';
       brandFont = 'system-ui, -apple-system, sans-serif';
     }
 
@@ -11686,7 +11728,7 @@ class GC {
             ${ingAllergensStr ? `<span style="font-size:8pt;margin-left:6px;vertical-align:middle">${ingAllergensStr}</span>` : ''}
           </td>
           <td style="border:1px solid ${brandBorder};padding:8px;text-align:right;font-family:monospace;font-weight:bold;color:#0f172a">
-            ${F1(ing.net*sc)} ${ing.unit === 'ud' ? 'ud' : 'g/ml'}
+            ${F1(ing.net * sc)} ${ing.unit === 'ud' ? 'ud' : (ing.unit || 'g/ml')}
           </td>
         </tr>`;
     }).join('');
@@ -11704,35 +11746,21 @@ class GC {
 
     const notesSection = cfg.notes && cfg.notes.trim() ? `
       <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">MÉTODO DE ELABORACIÓN</p>
-      <div style="background:${brandColorLight};border:1px solid ${brandBorder};padding:10pt 12pt;border-radius:4pt;font-size:10pt;color:#334155;white-space:pre-wrap;font-family:Georgia,serif;line-height:1.5">${cfg.notes}</div>` : '';
+      <div style="background:#f8fafc;border:1px solid ${brandBorder};padding:10pt 12pt;border-radius:4pt;font-size:10pt;color:#334155;white-space:pre-wrap;font-family:Georgia,serif;line-height:1.5">${cfg.notes}</div>` : '';
 
-    const imageDocHtml = cfg.image ? `
+    const imageHtml = cfg.image ? `
       <p style="text-align:center;margin-bottom:12pt">
-        <img src="${cfg.image}" width="280" style="width:280px;height:auto;border-radius:6pt;border:1px solid #cbd5e1" alt="Foto">
+        <img src="__IMAGE_SRC__" width="280" style="width:280px;height:auto;border-radius:6pt;border:1px solid #cbd5e1" alt="Foto">
       </p>` : '';
 
-    const doc = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
-      xmlns:w="urn:schemas-microsoft-com:office:word"
-      xmlns="http://www.w3.org/TR/REC-html40">
-    <head><meta charset="utf-8">
-    <style>
-      body{font-family:${brandFont};font-size:11pt;color:#1e293b;margin:2cm}
-      h1{font-size:22pt;font-weight:900;color:${brandColor};margin:0 0 4pt}
-      h2{font-size:10pt;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:0 0 14pt}
-      table{width:100%;border-collapse:collapse;font-size:10pt}
-      th{background:${brandColorLight};color:#475569;padding:6pt 8pt;text-align:left;font-size:9pt;border:1px solid ${brandBorder}}
-      td{padding:6pt 8pt;border:1px solid ${brandBorder}}
-      .meta{font-size:9.5pt;color:#64748b;margin-bottom:14pt}
-      .footer{font-size:8.5pt;color:#94a3b8;border-top:1pt solid #e2e8f0;margin-top:20pt;padding-top:8pt}
-    </style></head>
-    <body>
+    const bodyHtml = `
       <h2>Ficha Técnica de Cocina · Chef Ejecutivo</h2>
-      <h1 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</h1>
+      <h1 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName || 'Sin Nombre'}</h1>
       <p class="meta">
         Fecha: ${new Date().toLocaleDateString('es-ES')} ·
         Raciones: ${port} · Escala: ×${sc}
       </p>
-      ${imageDocHtml}
+      ${imageHtml}
       
       <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:18pt 0 6pt">INGREDIENTES</p>
       <table>
@@ -11744,7 +11772,6 @@ class GC {
       ${allergensDocSection}
       ${notesSection}
 
-      <!-- Firmas y validación V14.1 -->
       <table style="width:100%;margin-top:28pt;border:none">
         <tr style="border:none">
           <td style="width:45%;border:none;padding:0;vertical-align:top">
@@ -11761,45 +11788,38 @@ class GC {
         </tr>
       </table>
 
-      <p class="footer">Documento técnico confidencial reservado para uso en cocina. GastroCost PRO V14.4</p>
-    </body></html>`;
+      <p class="footer">Documento técnico confidencial reservado para uso en cocina. GastroCost PRO</p>`;
 
-    const blob = new Blob([doc], { type:'application/msword;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `Ficha_Cocina_${(cfg.dishName || 'receta').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+    const doc = this._buildWordMHTML(bodyHtml, cfg.image, brandFont, brandColor, cfg.dishName || 'Ficha Cocina');
+    const filename = `Ficha_Cocina_${(cfg.dishName || 'receta').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
+    this._downloadBlob(doc, filename, 'application/msword;charset=utf-8');
     toast('Word de cocina exportado ✓');
   }
 
-  _exportGDocs() {
-    const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
-    const lote = ings.reduce((s,i) => s + i.cost * sc, 0);
-    const port = Math.max(cfg.portions, 1);
+  _exportDOC() {
+    const cfg = this.R.config || {}, ings = this.R.ingredients || [], sc = this._scale();
+    const lote = ings.reduce((s, i) => s + (i.cost || 0) * sc, 0);
+    const port = Math.max(Number(cfg.portions) || 1, 1);
     const unit = lote / port;
-    const pvpN = cfg.fcGoal > 0 ? unit / (cfg.fcGoal / 100) : 0;
-    const pvpT = pvpN * (1 + cfg.taxRate / 100);
+    const pvpN = cfg.fcGoal > 0 ? unit / (cfg.fcGoal / 100) : (cfg.customPVP || 0);
+    const pvpT = pvpN * (1 + (cfg.taxRate || 0) / 100);
     const marg = pvpN - unit;
     const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
 
     const theme = this.db.theme || 'theme-default';
-    let brandColor = '#1c4b6e'; 
-    let brandColorLight = '#e8f4f8';
+    let brandColor = '#1c4b6e';
     let brandBorder = '#cbd5e1';
     let brandFont = 'Calibri, Arial, sans-serif';
     let isSerif = false;
     
-    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
-      brandColor = '#800020'; 
-      brandColorLight = '#fdfbf7'; 
-      brandBorder = '#dfd9cb'; 
+    if (theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze') {
+      brandColor = '#800020';
+      brandBorder = '#dfd9cb';
       brandFont = 'Georgia, serif';
       isSerif = true;
-    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
-      brandColor = '#059669'; 
-      brandColorLight = '#f0fdf4'; 
-      brandBorder = '#d1fae5'; 
+    } else if (theme === 'theme-nordic-forest' || theme === 'theme-navy-silver') {
+      brandColor = '#059669';
+      brandBorder = '#d1fae5';
       brandFont = 'system-ui, -apple-system, sans-serif';
     }
 
@@ -11816,11 +11836,11 @@ class GC {
             ${ing.name}
             ${ingAllergensStr ? `<span style="font-size:8pt;color:#555;margin-left:5px">(${ingAllergensStr})</span>` : ''}
           </td>
-          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.net*sc)} ${ing.unit === 'ud' ? 'ud' : 'g'}</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.net * sc)} ${ing.unit === 'ud' ? 'ud' : (ing.unit || 'g')}</td>
           <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${ing.waste}%</td>
-          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.gross*sc)} ${ing.unit === 'ud' ? 'ud' : 'g'}</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.gross * sc)} ${ing.unit === 'ud' ? 'ud' : (ing.unit || 'g')}</td>
           <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F2(ing.originalPrice)} ${curSym}/${ing.unit === 'ud' ? 'ud' : 'kg'}</td>
-          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right;font-weight:bold;color:${brandColor}">${EUR.format(ing.cost*sc)}</td>
+          <td style="border:1px solid ${brandBorder};padding:5pt;text-align:right;font-weight:bold;color:${brandColor}">${EUR.format(ing.cost * sc)}</td>
         </tr>`;
     }).join('');
 
@@ -11837,29 +11857,16 @@ class GC {
 
     const notesSection = cfg.notes && cfg.notes.trim() ? `
       <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">NOTAS DE ELABORACIÓN</p>
-      <div style="background:${brandColorLight};border:1px solid ${brandBorder};padding:8pt 10pt;border-radius:4pt;font-size:9pt;color:#374151;white-space:pre-wrap">${cfg.notes}</div>` : '';
+      <div style="background:#f8fafc;border:1px solid ${brandBorder};padding:8pt 10pt;border-radius:4pt;font-size:9pt;color:#374151;white-space:pre-wrap">${cfg.notes}</div>` : '';
 
     const imageDocHtml = cfg.image ? `
       <p style="text-align:center;margin-bottom:12pt">
-        <img src="${cfg.image}" width="280" style="width:280px;height:auto;border-radius:4pt;border:1px solid #ccc" alt="Foto">
+        <img src="__IMAGE_SRC__" width="280" style="width:280px;height:auto;border-radius:4pt;border:1px solid #ccc" alt="Foto">
       </p>` : '';
 
-    const doc = `<!DOCTYPE html>
-    <html>
-    <head><meta charset="utf-8">
-    <style>
-      body{font-family:${brandFont};font-size:11pt;color:#111;margin:2cm}
-      h1{font-size:20pt;font-weight:900;color:${brandColor};margin:0 0 4pt}
-      h2{font-size:12pt;font-weight:600;color:#374151;margin:0 0 14pt}
-      table{width:100%;border-collapse:collapse;font-size:10pt}
-      th{background:${brandColor};color:white;padding:6pt 7pt;text-align:left;font-size:9pt}
-      td{padding:5pt 7pt}
-      .meta{font-size:9pt;color:#6b7280;margin-bottom:14pt}
-      .footer{font-size:8pt;color:#9ca3af;border-top:1pt solid #e5e7eb;margin-top:16pt;padding-top:8pt}
-    </style></head>
-    <body>
-      <h1>FICHA TÉCNICA DE ESCANDALLO (GOOGLE DOCS)</h1>
-      <h2 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</h2>
+    const bodyHtml = `
+      <h1>FICHA TÉCNICA DE ESCANDALLO</h1>
+      <h2 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName || 'Sin Nombre'}</h2>
       <p class="meta">
         ${new Date().toLocaleDateString('es-ES')} ·
         Raciones: ${port} · Escala: ×${sc} ·
@@ -11874,7 +11881,7 @@ class GC {
         </tr></thead>
         <tbody>${rows}</tbody>
         <tfoot>
-          <tr style="background:${brandColorLight}">
+          <tr style="background:#f8fafc">
             <td colspan="5" style="border:1px solid #ccc;padding:6pt;text-align:right;font-weight:800;color:${brandColor}">TOTAL LOTE</td>
             <td style="border:1px solid #ccc;padding:6pt;font-weight:900;color:${brandColor}">${EUR.format(lote)}</td>
           </tr>
@@ -11899,7 +11906,6 @@ class GC {
           </tr>`).join('')}
       </table>
 
-      <!-- Firmas y validación V14.1 -->
       <table style="width:100%;margin-top:28pt;border:none">
         <tr style="border:none">
           <td style="width:45%;border:none;padding:0;vertical-align:top">
@@ -11916,135 +11922,20 @@ class GC {
         </tr>
       </table>
 
-      <p class="footer">GastroCost PRO V14.4 · Generado el ${new Date().toLocaleDateString('es-ES')} para Google Docs</p>
-    </body></html>`;
+      <p class="footer">GastroCost PRO · Generado el ${new Date().toLocaleDateString('es-ES')}</p>`;
 
-    const blob = new Blob([doc], { type:'application/msword;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `Ficha_GDocs_${(cfg.dishName || 'ficha').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast('Word para Google Docs exportado ✓');
+    const doc = this._buildWordMHTML(bodyHtml, cfg.image, brandFont, brandColor, cfg.dishName || 'Escandallo');
+    const filename = `Escandallo_${(cfg.dishName || 'ficha').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
+    this._downloadBlob(doc, filename, 'application/msword;charset=utf-8');
+    toast('Word de escandallo exportado ✓');
+  }
+
+  _exportGDocs() {
+    this._exportDOC();
   }
 
   _exportGDocsKitchen() {
-    const cfg = this.R.config, ings = this.R.ingredients, sc = this._scale();
-    const port = Math.max(cfg.portions, 1);
-    
-    const theme = this.db.theme || 'theme-default';
-    let brandColor = '#0f172a';
-    let brandColorLight = '#f8fafc';
-    let brandBorder = '#e2e8f0';
-    let brandFont = 'Calibri, Arial, sans-serif';
-    let isSerif = false;
-    
-    if ((theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze')) {
-      brandColor = '#800020'; 
-      brandColorLight = '#fdfbf7'; 
-      brandBorder = '#eae5da'; 
-      brandFont = 'Georgia, serif';
-      isSerif = true;
-    } else if ((theme === 'theme-nordic-forest' || theme === 'theme-navy-silver')) {
-      brandColor = '#059669'; 
-      brandColorLight = '#f0fdf4'; 
-      brandBorder = '#d1fae5'; 
-      brandFont = 'system-ui, -apple-system, sans-serif';
-    }
-
-    const rows = ings.map(ing => {
-      const ingAllergensStr = ing.allergens && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
-      return `
-        <tr>
-          <td style="border:1px solid ${brandBorder};padding:8px;font-weight:bold;color:#334155">
-            ${ing.name}
-            ${ingAllergensStr ? `<span style="font-size:8pt;margin-left:6px;vertical-align:middle">${ingAllergensStr}</span>` : ''}
-          </td>
-          <td style="border:1px solid ${brandBorder};padding:8px;text-align:right;font-family:monospace;font-weight:bold;color:#0f172a">
-            ${F1(ing.net*sc)} ${ing.unit === 'ud' ? 'ud' : 'g/ml'}
-          </td>
-        </tr>`;
-    }).join('');
-
-    const allAllergens = new Set();
-    ings.forEach(ing => {
-      if (ing.allergens) ing.allergens.forEach(a => allAllergens.add(a));
-    });
-
-    const allergensDocSection = allAllergens.size > 0 ? `
-      <p style="font-size:10pt;font-weight:700;color:#6b21a8;margin:16pt 0 6pt">ALÉRGENOS DECLARADOS</p>
-      <div style="background:#faf5ff;border:1px solid #e9d5ff;padding:8pt 10pt;border-radius:4pt;font-size:9.5pt;color:#6b21a8">
-        ${Array.from(allAllergens).map(a => `${ALLERGENS[a] ? ALLERGENS[a].emoji + ' ' + ALLERGENS[a].name : a}`).join('  |  ')}
-      </div>` : '';
-
-    const notesSection = cfg.notes && cfg.notes.trim() ? `
-      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">MÉTODO DE ELABORACIÓN</p>
-      <div style="background:${brandColorLight};border:1px solid ${brandBorder};padding:10pt 12pt;border-radius:4pt;font-size:10pt;color:#334155;white-space:pre-wrap;font-family:Georgia,serif;line-height:1.5">${cfg.notes}</div>` : '';
-
-    const imageDocHtml = cfg.image ? `
-      <p style="text-align:center;margin-bottom:12pt">
-        <img src="${cfg.image}" width="280" style="width:280px;height:auto;border-radius:6pt;border:1px solid #cbd5e1" alt="Foto">
-      </p>` : '';
-
-    const doc = `<!DOCTYPE html>
-    <html>
-    <head><meta charset="utf-8">
-    <style>
-      body{font-family:${brandFont};font-size:11pt;color:#1e293b;margin:2cm}
-      h1{font-size:22pt;font-weight:900;color:${brandColor};margin:0 0 4pt}
-      h2{font-size:10pt;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:1px;margin:0 0 14pt}
-      table{width:100%;border-collapse:collapse;font-size:10pt}
-      th{background:${brandColorLight};color:#475569;padding:6pt 8pt;text-align:left;font-size:9pt;border:1px solid ${brandBorder}}
-      td{padding:6pt 8pt;border:1px solid ${brandBorder}}
-      .meta{font-size:9.5pt;color:#64748b;margin-bottom:14pt}
-      .footer{font-size:8.5pt;color:#94a3b8;border-top:1pt solid #e2e8f0;margin-top:20pt;padding-top:8pt}
-    </style></head>
-    <body>
-      <h2>Ficha Técnica de Cocina · Chef Ejecutivo (Google Docs)</h2>
-      <h1 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName}</h1>
-      <p class="meta">
-        Fecha: ${new Date().toLocaleDateString('es-ES')} ·
-        Raciones: ${port} · Escala: ×${sc}
-      </p>
-      ${imageDocHtml}
-      
-      <p style="font-size:10pt;font-weight:700;color:${brandColor};margin:18pt 0 6pt">INGREDIENTES</p>
-      <table>
-        <thead><tr>
-          <th>Insumo</th><th style="text-align:right">Cantidad (Neto)</th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      ${allergensDocSection}
-      ${notesSection}
-
-      <!-- Firmas y validación V14.1 -->
-      <table style="width:100%;margin-top:28pt;border:none">
-        <tr style="border:none">
-          <td style="width:45%;border:none;padding:0;vertical-align:top">
-            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Elaborado y Verificado por:</p>
-            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
-            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Chef Ejecutivo / Auditor de Calidad</p>
-          </td>
-          <td style="width:10%;border:none;padding:0"></td>
-          <td style="width:45%;border:none;padding:0;vertical-align:top;text-align:right">
-            <p style="font-size:9.5pt;font-weight:700;color:${brandColor};margin:0">Aprobado y Autorizado por:</p>
-            <div style="border-bottom:1pt solid ${brandBorder};height:35pt;margin-top:4pt"></div>
-            <p style="font-size:8pt;color:#555;margin:4pt 0 0">Dirección de Operaciones F&B</p>
-          </td>
-        </tr>
-      </table>
-
-      <p class="footer">Documento técnico confidencial reservado para uso en cocina. GastroCost PRO V14.4 para Google Docs</p>
-    </body></html>`;
-
-    const blob = new Blob([doc], { type:'application/msword;charset=utf-8' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `Ficha_Cocina_GDocs_${(cfg.dishName || 'receta').replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.doc`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast('Word de cocina para Google Docs exportado ✓');
+    this._exportDOCKitchen();
   }
 
   /* ═══════════════════════════════════════════════
