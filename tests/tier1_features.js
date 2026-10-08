@@ -850,6 +850,148 @@ function runTier1Tests(registerTest) {
     app._newRecipe('Ceviche Clásico', 2, false);
     assert.strictEqual(app.R.config.dishName, 'Ceviche Clásico');
   });
+
+  /* ═══════════════════════════════════════════════
+     REQUIREMENT R8: Multi-tier Persistence Engine (IndexedDB + LocalStorage Dual-Write)
+     ═══════════════════════════════════════════════ */
+
+  registerTest('T1.R8.1: Dual-Write Persistence Engine: Saves to LocalStorage and mirrors to IndexedDB', async () => {
+    const { GC, gc, window } = loadGastroCostApp();
+    const app = gc || new GC();
+
+    // Create a new recipe
+    app._newRecipe('Solomillo Wellington Gran Reserva', 6, false);
+    app.saveCurrentRecipe(false);
+
+    // Verify written to localStorage
+    const lsItem = window.localStorage.getItem('gc_v11');
+    assert(lsItem, 'localStorage must contain gc_v11 key');
+    const parsedLs = JSON.parse(lsItem);
+    assert(parsedLs.recipes[app.db.activeId], 'localStorage must contain newly created recipe');
+
+    // Verify mirrored to IndexedDB
+    const idbData = await window.idbGet('gc_v11');
+    assert(idbData, 'IndexedDB must contain mirrored gc_v11 state');
+    assert(idbData.recipes[app.db.activeId], 'IndexedDB must store newly created recipe');
+    assert.strictEqual(idbData.recipes[app.db.activeId].config.dishName, 'Solomillo Wellington Gran Reserva');
+  });
+
+  registerTest('T1.R8.2: Disaster Recovery & State Healing: Wiped LocalStorage automatically restores from IndexedDB', async () => {
+    const { GC, gc, window } = loadGastroCostApp();
+    const app = gc || new GC();
+
+    // 1. Populate and save a recipe in both tiers
+    app._newRecipe('Bogavante Termidor', 2, false);
+    app.saveCurrentRecipe(false);
+    const targetRecipeId = app.db.activeId;
+
+    // Verify stored in IDB
+    const idbSaved = await window.idbGet('gc_v11');
+    assert(idbSaved.recipes[targetRecipeId], 'Recipe must be in IndexedDB prior to simulated eviction');
+
+    // 2. Simulate complete browser eviction / storage clear of LocalStorage (e.g. Safari 7-day policy)
+    window.localStorage.removeItem('gc_v11');
+    window.localStorage.removeItem('gc_v10');
+    assert.strictEqual(window.localStorage.getItem('gc_v11'), null);
+
+    // 3. Trigger _initPersistence() (the startup restoration lifecycle method)
+    await app._initPersistence();
+
+    // Verify state was restored from IndexedDB into app.db and re-healed into LocalStorage!
+    assert(app.db.recipes[targetRecipeId], 'app.db must have recovered the recipe from IndexedDB');
+    assert.strictEqual(app.db.recipes[targetRecipeId].config.dishName, 'Bogavante Termidor');
+    assert(window.localStorage.getItem('gc_v11'), 'localStorage must be automatically healed from IndexedDB');
+  });
+
+  registerTest('T1.R8.3: Storage Quota Handling & Robust Fallback to IndexedDB when LocalStorage is full', async () => {
+    const { GC, gc, window } = loadGastroCostApp();
+    const app = gc || new GC();
+
+    // Mock localStorage.setItem to simulate QuotaExceededError
+    const origSetItem = window.localStorage.setItem;
+    window.localStorage.setItem = () => {
+      const err = new Error('QuotaExceededError: DOM Exception 22');
+      err.name = 'QuotaExceededError';
+      throw err;
+    };
+
+    try {
+      app._newRecipe('Lubina a la Sal Imperial', 4, false);
+      const saveResult = app.saveCurrentRecipe(false);
+      assert.strictEqual(saveResult, true, 'saveCurrentRecipe must remain successful via tier-2 persistence fallback');
+
+      // Verify IndexedDB still absorbed and saved the recipe despite LocalStorage failure
+      const idbData = await window.idbGet('gc_v11');
+      assert(idbData.recipes[app.db.activeId], 'IndexedDB must reliably persist data even when LocalStorage exceeds quota');
+      assert.strictEqual(idbData.recipes[app.db.activeId].config.dishName, 'Lubina a la Sal Imperial');
+    } finally {
+      window.localStorage.setItem = origSetItem;
+    }
+  });
+
+  registerTest('T1.R8.4: Browser Persistent Storage Permission API and UI Status Badges', async () => {
+    const { GC, gc, document } = loadGastroCostApp();
+    const app = gc || new GC();
+
+    const isPersisted = await app._requestPersistentStorage();
+    assert.strictEqual(isPersisted, true, '_requestPersistentStorage must request and return true with mocked API');
+    assert.strictEqual(app._isStoragePersisted, true, 'app._isStoragePersisted must be set to true');
+
+    // Verify UI Badges
+    const badge = document.getElementById('settings-storage-badge');
+    assert(badge, 'settings-storage-badge must exist in DOM');
+    assert(badge.textContent.includes('Blindado'), 'settings-storage-badge must reflect Blindado status');
+
+    const shield = document.getElementById('hdr-storage-shield');
+    assert(shield, 'hdr-storage-shield must exist in header');
+    assert(shield.innerHTML.includes('Dual-Save IDB'), 'hdr-storage-shield must display Dual-Save IDB badge');
+  });
+
+  registerTest('T1.R8.5: Bulletproof Lifecycle Auto-Save: beforeunload, pagehide & visibilitychange flush saves', () => {
+    const { GC, gc, window, document } = loadGastroCostApp();
+    const app = gc || new GC();
+
+    // Stage pending changes via _autoSave() without waiting for debounce timeout
+    app.R.config.dishName = 'Arroz Caldoso con Bogavante';
+    app._autoSave();
+    assert(app._saveTimer !== null, '_autoSave must have set a pending saveTimer');
+
+    // Dispatch visibilitychange with hidden state
+    document.visibilityState = 'hidden';
+    document.dispatchEvent('visibilitychange');
+
+    // Timer must be cleared and data immediately flushed
+    assert.strictEqual(app._saveTimer, null, '_flushSave must clear active debounce timer');
+    const stored = JSON.parse(window.localStorage.getItem('gc_v11'));
+    assert.strictEqual(stored.recipes[app.db.activeId].config.dishName, 'Arroz Caldoso con Bogavante');
+
+    // Test beforeunload flush
+    app.R.config.dishName = 'Chuletón de Rubia Gallega Madurada';
+    app._autoSave();
+    assert(app._saveTimer !== null);
+    window.dispatchEvent('beforeunload');
+    assert.strictEqual(app._saveTimer, null);
+    const stored2 = JSON.parse(window.localStorage.getItem('gc_v11'));
+    assert.strictEqual(stored2.recipes[app.db.activeId].config.dishName, 'Chuletón de Rubia Gallega Madurada');
+  });
+
+  registerTest('T1.R8.6: Settings Modal Persistence Management & Verification Buttons', async () => {
+    const { GC, gc, document, window } = loadGastroCostApp();
+    const app = gc || new GC();
+
+    const btnForceSync = document.getElementById('btn-force-persist-sync');
+    assert(btnForceSync, 'btn-force-persist-sync must exist in settings modal');
+
+    const btnExport = document.getElementById('btn-settings-export-backup');
+    assert(btnExport, 'btn-settings-export-backup must exist in settings modal');
+
+    // Click force sync and verify
+    btnForceSync.click();
+    // Allow microtask ticks
+    await new Promise(r => setTimeout(r, 10));
+    const idbData = await window.idbGet('gc_v11');
+    assert(idbData, 'IndexedDB must contain synchronized data after force sync click');
+  });
 }
 
 module.exports = { runTier1Tests };

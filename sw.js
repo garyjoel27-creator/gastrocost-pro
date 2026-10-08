@@ -1,4 +1,5 @@
-const CACHE_NAME = 'gastrocost-v16.9-cache';
+// Cache migration baseline: const CACHE_NAME = 'gastrocost-v16.8-cache'
+const CACHE_NAME = 'gastrocost-v17.0-cache';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',

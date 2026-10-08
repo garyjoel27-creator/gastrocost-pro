@@ -330,18 +330,84 @@ function createSandbox(initialStorage = {}) {
     Error: Error,
     Promise: Promise,
     JSON: JSON,
-    addEventListener: () => {},
-    removeEventListener: () => {},
+    listeners: {},
+    addEventListener(event, handler) {
+      if (!this.listeners[event]) this.listeners[event] = [];
+      this.listeners[event].push(handler);
+    },
+    removeEventListener(event, handler) {
+      if (!this.listeners[event]) return;
+      this.listeners[event] = this.listeners[event].filter(h => h !== handler);
+    },
+    dispatchEvent(event, detail) {
+      const type = typeof event === 'string' ? event : event.type;
+      const ev = Object.assign({ type, target: this, preventDefault: () => {} }, typeof event === 'object' ? event : detail);
+      if (this.listeners[type]) {
+        this.listeners[type].forEach(h => h.call(this, ev));
+      }
+    },
     Set: Set,
     Map: Map
   };
   windowMock.window = windowMock;
+
+  // Emulate persistent storage and IndexedDB
+  windowMock.navigator.storage = {
+    persist: () => Promise.resolve(true),
+    persisted: () => Promise.resolve(true)
+  };
+
+  const idbStores = {};
+  const indexedDBMock = {
+    _stores: idbStores,
+    open: (name, version) => {
+      const req = {
+        result: {
+          objectStoreNames: { contains: (s) => !!idbStores[s] },
+          createObjectStore: (s) => { idbStores[s] = idbStores[s] || {}; return idbStores[s]; },
+          transaction: (storeName, mode) => {
+            const currentStore = idbStores[storeName] || (idbStores[storeName] = {});
+            const tx = {
+              objectStore: () => ({
+                put: (val, key) => {
+                  currentStore[key] = JSON.parse(JSON.stringify(val));
+                  const r = { onsuccess: null, onerror: null };
+                  setTimeout(() => { if (r.onsuccess) r.onsuccess({ target: r }); }, 0);
+                  return r;
+                },
+                get: (key) => {
+                  const r = { result: currentStore[key] !== undefined ? JSON.parse(JSON.stringify(currentStore[key])) : undefined, onsuccess: null, onerror: null };
+                  setTimeout(() => { if (r.onsuccess) r.onsuccess({ target: r }); }, 0);
+                  return r;
+                }
+              }),
+              oncomplete: null,
+              onerror: null
+            };
+            setTimeout(() => { if (tx.oncomplete) tx.oncomplete(); }, 0);
+            return tx;
+          },
+          close: () => {}
+        },
+        onsuccess: null,
+        onerror: null,
+        onupgradeneeded: null
+      };
+      setTimeout(() => {
+        if (req.onupgradeneeded) req.onupgradeneeded({ target: req });
+        if (req.onsuccess) req.onsuccess({ target: req });
+      }, 0);
+      return req;
+    }
+  };
+  windowMock.indexedDB = indexedDBMock;
 
   const sandbox = {
     window: windowMock,
     document: documentMock,
     localStorage: localStorageMock,
     navigator: windowMock.navigator,
+    indexedDB: indexedDBMock,
     location: windowMock.location,
     Intl: global.Intl,
     setTimeout: setTimeout,

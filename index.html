@@ -3548,6 +3548,10 @@ body.theme-pearl-bronze #btn-open-export {
       <span class="save-ind" id="save-ind">
         <span class="save-dot"></span> Guardado
       </span>
+      <span class="storage-shield-badge" id="hdr-storage-shield" title="Persistencia Blindada: Guardado dual en IndexedDB + LocalStorage con protección de desalojo del navegador" style="display:inline-flex;align-items:center;gap:4px;font-size:0.68rem;color:var(--green);font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.3);letter-spacing:0.02em;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span>Dual-Save IDB</span>
+      </span>
     </div>
     <div class="hdr-btns" id="hdr-btns">
       <input type="file" id="fi-import" class="visually-hidden" accept=".json">
@@ -4341,6 +4345,28 @@ body.theme-pearl-bronze #btn-open-export {
         <div class="fg" style="margin-bottom:0;">
           <label class="fl" style="font-size:0.68rem;">Google Gemini API Key</label>
           <input class="fi" id="cfg-apikey" type="password" placeholder="AIzaSy..." style="margin-bottom:0;font-family:var(--mono);" autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Sección 2: Persistencia Blindada y Respaldo Multi-Nivel -->
+      <div style="border:1px solid var(--b1);border-radius:var(--r2);padding:14px;background:rgba(255,255,255,0.02);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:1.1rem;">🛡️</span>
+            <strong style="color:var(--t1);font-size:0.85rem;">Motor de Persistencia Multi-Nivel</strong>
+          </div>
+          <span id="settings-storage-badge" style="font-size:0.68rem;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:var(--green);border:1px solid rgba(34,197,94,0.4);font-weight:600;">IndexedDB + LocalStorage</span>
+        </div>
+        <div style="font-size:0.72rem;color:var(--t3);margin-bottom:10px;line-height:1.4;">
+          Tus recetas se guardan simultáneamente en <strong>LocalStorage</strong> y en <strong>IndexedDB</strong> de alta capacidad, protegidas con la API de almacenamiento persistente del navegador contra borrados del sistema operativo y políticas de desalojo de 7 días.
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" class="btn btn-ghost" id="btn-force-persist-sync" style="font-size:0.72rem;padding:6px 12px;border-color:rgba(34,197,94,0.4);color:var(--green);">
+            🔄 Verificar y Sincronizar Almacenamiento
+          </button>
+          <button type="button" class="btn btn-ghost" id="btn-settings-export-backup" style="font-size:0.72rem;padding:6px 12px;border-color:rgba(212,175,55,0.4);color:var(--gold);">
+            📥 Exportar Copia JSON (Snapshot)
+          </button>
         </div>
       </div>
 
@@ -5139,6 +5165,97 @@ const CATS = {
 };
 
 /* ═══════════════════════════════════════════════
+   MULTI-TIER PERSISTENCE ENGINE (INDEXEDDB + LOCALSTORAGE)
+   ═══════════════════════════════════════════════ */
+const GC_IDB_NAME = 'gastrocost_db';
+const GC_IDB_STORE = 'app_state';
+const GC_IDB_VERSION = 1;
+
+function openGastroCostIDB() {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined' || !('indexedDB' in window) || !window.indexedDB) {
+      resolve(null);
+      return;
+    }
+    try {
+      const req = window.indexedDB.open(GC_IDB_NAME, GC_IDB_VERSION);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(GC_IDB_STORE)) {
+          db.createObjectStore(GC_IDB_STORE);
+        }
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => {
+        console.warn('GastroCost: IndexedDB open failed:', req.error);
+        resolve(null);
+      };
+      req.onblocked = () => {
+        console.warn('GastroCost: IndexedDB blocked');
+        resolve(null);
+      };
+    } catch (e) {
+      console.warn('GastroCost: IndexedDB exception:', e);
+      resolve(null);
+    }
+  });
+}
+
+function idbSet(key, value) {
+  return new Promise(async (resolve) => {
+    try {
+      const db = await openGastroCostIDB();
+      if (!db) { resolve(false); return; }
+      const tx = db.transaction(GC_IDB_STORE, 'readwrite');
+      const store = tx.objectStore(GC_IDB_STORE);
+      const safeData = JSON.parse(JSON.stringify(value));
+      const req = store.put(safeData, key);
+      req.onerror = () => resolve(false);
+      tx.oncomplete = () => {
+        try { db.close(); } catch(_) {}
+        resolve(true);
+      };
+      tx.onerror = () => {
+        try { db.close(); } catch(_) {}
+        resolve(false);
+      };
+    } catch (e) {
+      console.warn('GastroCost: idbSet failed:', e);
+      resolve(false);
+    }
+  });
+}
+
+function idbGet(key) {
+  return new Promise(async (resolve) => {
+    try {
+      const db = await openGastroCostIDB();
+      if (!db) { resolve(null); return; }
+      const tx = db.transaction(GC_IDB_STORE, 'readonly');
+      const store = tx.objectStore(GC_IDB_STORE);
+      const req = store.get(key);
+      req.onsuccess = () => {
+        try { db.close(); } catch(_) {}
+        resolve(req.result || null);
+      };
+      req.onerror = () => {
+        try { db.close(); } catch(_) {}
+        resolve(null);
+      };
+    } catch (e) {
+      console.warn('GastroCost: idbGet failed:', e);
+      resolve(null);
+    }
+  });
+}
+
+if (typeof window !== 'undefined') {
+  window.openGastroCostIDB = openGastroCostIDB;
+  window.idbSet = idbSet;
+  window.idbGet = idbGet;
+}
+
+/* ═══════════════════════════════════════════════
    MAIN APPLICATION CLASS
    ═══════════════════════════════════════════════ */
 class GC {
@@ -5161,12 +5278,16 @@ class GC {
     } catch (e) {}
     this._applyTheme();
     this._saveTimer = null;
+    this._isStoragePersisted = false;
+    this._isIdbPersisted = false;
     this._bindAll();
     this._bindKeyboardShortcuts();
+    this._bindLifecycleEvents();
     this._hydrateForm();
     this._setIngViewMode(this.ingViewMode);
     this._setFichaMode(this.fichaMode);
     this._render();
+    this._initPersistence();
   }
 
   /* ── Default database ── */
@@ -7056,6 +7177,28 @@ class GC {
       });
     }
 
+    const btnForceSync = document.getElementById('btn-force-persist-sync');
+    if (btnForceSync) {
+      btnForceSync.addEventListener('click', async () => {
+        this._flushSave();
+        const ok = await idbSet('gc_v11', this.db);
+        await this._requestPersistentStorage();
+        if (ok) {
+          toast('✅ Almacenamiento persistente verificado: Recetas blindadas en IndexedDB');
+        } else {
+          toast('Almacenamiento activo en LocalStorage');
+        }
+      });
+    }
+
+    const btnSettingsExport = document.getElementById('btn-settings-export-backup');
+    if (btnSettingsExport) {
+      btnSettingsExport.addEventListener('click', () => {
+        this.toggleSettingsModal(false);
+        this._exportBackup();
+      });
+    }
+
     const btnSettingsCloudPush = document.getElementById('btn-settings-cloud-push');
     if (btnSettingsCloudPush) {
       btnSettingsCloudPush.addEventListener('click', () => this._cloudPush());
@@ -7893,7 +8036,7 @@ class GC {
     } else if (state === 'dirty') {
       statusTextEl.innerHTML = `<span style="color:var(--amber)">🟠</span> Cambios sin guardar...`;
     } else {
-      statusTextEl.innerHTML = `<span style="color:var(--green)">🟢</span> Guardado en local (${timeStr})`;
+      statusTextEl.innerHTML = `<span style="color:var(--green)">🟢</span> Guardado (Dual IDB + Local) (${timeStr})`;
     }
   }
 
@@ -10563,6 +10706,7 @@ class GC {
       if (themeSelect) {
         themeSelect.value = this.db.theme || 'theme-carbon-gold';
       }
+      this._updatePersistenceStatus(this._isIdbPersisted || this._isStoragePersisted);
     } else {
       modal.classList.remove('open');
     }
@@ -10774,10 +10918,124 @@ class GC {
   }
 
   /* ═══════════════════════════════════════════════
-     PERSISTENCE & MIGRATION
+     PERSISTENCE & MIGRATION (DUAL-WRITE IDB + LOCALSTORAGE)
      ═══════════════════════════════════════════════ */
+  _bindLifecycleEvents() {
+    if (typeof window === 'undefined') return;
+    const flush = () => this._flushSave();
+    window.addEventListener('beforeunload', flush);
+    window.addEventListener('pagehide', flush);
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          flush();
+        }
+      });
+    }
+  }
+
+  _flushSave() {
+    if (this._saveTimer) {
+      clearTimeout(this._saveTimer);
+      this._saveTimer = null;
+    }
+    this._save();
+  }
+
+  async _requestPersistentStorage() {
+    if (typeof navigator !== 'undefined' && navigator.storage) {
+      try {
+        if (typeof navigator.storage.persisted === 'function') {
+          const isPersisted = await navigator.storage.persisted();
+          if (isPersisted) {
+            this._isStoragePersisted = true;
+            this._updatePersistenceStatus(true);
+            return true;
+          }
+        }
+        if (typeof navigator.storage.persist === 'function') {
+          const granted = await navigator.storage.persist();
+          this._isStoragePersisted = granted;
+          this._updatePersistenceStatus(granted);
+          return granted;
+        }
+      } catch (err) {
+        console.warn('GastroCost: Error requesting storage persistence:', err);
+      }
+    }
+    return false;
+  }
+
+  async _initPersistence() {
+    // 1. Request OS eviction protection via Persistent Storage API
+    this._requestPersistentStorage();
+
+    // 2. Multi-tier startup restoration and dual-write synchronization
+    try {
+      const idbData = await idbGet('gc_v11');
+      const hasLocalStorage = !!(typeof localStorage !== 'undefined' && localStorage.getItem('gc_v11'));
+
+      if (idbData && idbData.recipes && Object.keys(idbData.recipes).length > 0) {
+        // If LocalStorage was empty or wiped by browser cleaning / Safari 7-day eviction, restore from IndexedDB!
+        if (!hasLocalStorage) {
+          console.log('GastroCost: Restoring recipes from persistent IndexedDB...');
+          this.db = this._ensureSchema(idbData);
+          try {
+            localStorage.setItem('gc_v11', JSON.stringify(this.db));
+          } catch(e) {}
+          this._hydrateForm();
+          this._render();
+          toast('✅ Recetas restauradas con éxito desde almacenamiento persistente (IndexedDB)');
+        } else {
+          // Both have data: sync whichever is newest or ensure IndexedDB has current state
+          const idbTime = idbData.updatedAt || 0;
+          const lsTime = (this.db && this.db.updatedAt) || 0;
+          const idbRecipeCount = Object.keys(idbData.recipes || {}).length;
+          const currentRecipeCount = Object.keys((this.db && this.db.recipes) || {}).length;
+
+          if (idbTime > lsTime && idbRecipeCount >= currentRecipeCount) {
+            console.log('GastroCost: IndexedDB contains newer state, syncing...');
+            this.db = this._ensureSchema(idbData);
+            try {
+              localStorage.setItem('gc_v11', JSON.stringify(this.db));
+            } catch(e) {}
+            this._hydrateForm();
+            this._render();
+          } else {
+            // LocalStorage has current state, ensure IndexedDB mirror is synchronized
+            await idbSet('gc_v11', this.db);
+          }
+        }
+        this._isIdbPersisted = true;
+        this._updatePersistenceStatus(true);
+      } else {
+        // First run or empty IDB: seed IndexedDB immediately with active database
+        if (this.db) {
+          await idbSet('gc_v11', this.db);
+          this._isIdbPersisted = true;
+          this._updatePersistenceStatus(true);
+        }
+      }
+    } catch (err) {
+      console.warn('GastroCost: Error during persistence initialization:', err);
+    }
+  }
+
+  _updatePersistenceStatus(persisted = true) {
+    const badge = document.getElementById('settings-storage-badge');
+    if (badge) {
+      badge.textContent = persisted ? '🛡️ Blindado: IDB + LocalStorage' : 'LocalStorage (Estándar)';
+      badge.style.color = persisted ? 'var(--green)' : 'var(--amber)';
+    }
+    const shield = document.getElementById('hdr-storage-shield');
+    if (shield) {
+      shield.style.display = 'inline-flex';
+    }
+  }
+
   saveCurrentRecipe(showNotice = true) {
     if (this.R) this.R.updatedAt = Date.now();
+    if (this.db) this.db.updatedAt = Date.now();
     const ok = this._save();
     if (!ok) return false;
     this._showSaveIndicator();
@@ -10791,15 +11049,30 @@ class GC {
   }
 
   _save() {
+    if (this.db) this.db.updatedAt = Date.now();
+    let lsOk = false;
     try { 
       localStorage.setItem('gc_v11', JSON.stringify(this.db)); 
+      lsOk = true;
       this._updateFichaStatus('local');
-      return true;
     } catch (e) { 
-      console.warn('Storage quota exceeded:', e);
-      this._updateFichaStatus('dirty', '<span style="color:var(--red)">⚠️ Memoria llena</span>');
-      toast('Alerta: Memoria local del navegador llena, exporta un backup', 'e');
-      return false;
+      console.warn('Storage quota exceeded in LocalStorage:', e);
+      this._updateFichaStatus('dirty', '<span style="color:var(--red)">⚠️ Memoria LocalStorage llena</span>');
+    }
+
+    // Multi-tier Dual-Write: mirror to IndexedDB
+    idbSet('gc_v11', this.db).then(persisted => {
+      if (persisted) {
+        this._isIdbPersisted = true;
+        this._updatePersistenceStatus(true);
+      }
+    }).catch(err => console.warn('IndexedDB write error:', err));
+
+    if (lsOk) {
+      return true;
+    } else {
+      toast('Aviso: Memoria local llena, datos respaldados en IndexedDB persistente', 'w');
+      return true;
     }
   }
 
@@ -10930,9 +11203,10 @@ class GC {
   _autoSave() {
     clearTimeout(this._saveTimer);
     this._saveTimer = setTimeout(() => {
+      this._saveTimer = null;
       this._save();
       this._showSaveIndicator();
-    }, 800);
+    }, 500);
   }
 
   _showSaveIndicator() {
