@@ -10622,8 +10622,14 @@ class GC {
      PERSISTENCE & MIGRATION
      ═══════════════════════════════════════════════ */
   _save() {
-    try { localStorage.setItem('gc_v11', JSON.stringify(this.db)); } catch (e) { /* quota exceeded */ }
-    this._updateFichaStatus('local');
+    try { 
+      localStorage.setItem('gc_v11', JSON.stringify(this.db)); 
+      this._updateFichaStatus('local');
+    } catch (e) { 
+      console.warn('Storage quota exceeded:', e);
+      this._updateFichaStatus('dirty', '<span style="color:var(--red)">⚠️ Memoria llena</span>');
+      toast('Alerta: Memoria local del navegador llena, exporta un backup', 'e');
+    }
   }
 
   _load() {
