@@ -3350,6 +3350,121 @@ body.theme-pearl-bronze #btn-open-export {
   }
 }
 
+/* V16.8 Dual Photo Picker & Action Sheet Styling */
+.photo-source-opt-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 60px;
+  padding: 12px 14px;
+  background: var(--s2);
+  border: 1.5px solid var(--b2);
+  border-radius: var(--r2);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s var(--ease);
+  color: var(--t1);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+.photo-source-opt-btn:hover,
+.photo-source-opt-btn:focus-visible {
+  border-color: var(--cyan);
+  background: var(--cyanL);
+  transform: translateY(-1px);
+}
+.photo-source-opt-btn .pso-icon {
+  font-size: 1.7rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.photo-source-opt-btn .pso-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.photo-source-opt-btn .pso-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--t1);
+}
+.photo-source-opt-btn .pso-desc {
+  font-size: 0.72rem;
+  color: var(--t3);
+  line-height: 1.3;
+}
+.photo-source-opt-btn .pso-arrow {
+  color: var(--cyan);
+  font-size: 1rem;
+  font-weight: bold;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+.photo-source-opt-btn.pso-danger {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.05);
+}
+.photo-source-opt-btn.pso-danger:hover {
+  border-color: var(--red);
+  background: rgba(239, 68, 68, 0.12);
+}
+.photo-source-opt-btn.pso-danger .pso-title {
+  color: var(--red);
+}
+.photo-source-opt-btn.pso-danger .pso-arrow {
+  color: var(--red);
+}
+.photo-quick-btn {
+  border: 1px solid var(--b2);
+  transition: all 0.15s ease;
+}
+.photo-quick-btn:hover {
+  border-color: var(--cyan);
+  background: var(--cyanL);
+  color: var(--cyan);
+}
+
+/* V16.8 Guided Recipe Modal Ergonomics & Pills */
+.pax-pill, .yield-pill, .fc-pill {
+  background: var(--s2);
+  border: 1px solid var(--b2);
+  color: var(--t2);
+  border-radius: var(--r1);
+  padding: 6px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.pax-pill:hover, .yield-pill:hover, .fc-pill:hover {
+  border-color: var(--cyan);
+  color: var(--t1);
+  background: var(--cyanL);
+}
+.pax-pill.active, .yield-pill.active, .fc-pill.active {
+  border-color: var(--cyan);
+  background: var(--cyan);
+  color: #0c1019;
+  font-weight: 700;
+}
+.btn-stepper {
+  border: 1px solid var(--b2);
+  background: var(--s2);
+  color: var(--t1);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+.btn-stepper:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: var(--cyanL);
+}
+
 </style>
 </head>
 
@@ -3414,14 +3529,25 @@ body.theme-pearl-bronze #btn-open-export {
       </div>
       <div class="fg">
         <label class="fl">Foto de Elaboración</label>
-        <div class="image-upload-wrapper" id="img-upload-box" title="Haz clic para subir foto del plato">
+        <div class="image-upload-wrapper" id="img-upload-box" title="Haz clic para tomar o seleccionar foto del plato">
           <input type="file" id="recipe-photo-input" accept="image/*" style="display:none">
+          <input type="file" id="recipe-photo-camera-input" accept="image/*" capture="environment" style="display:none">
+          <input type="file" id="recipe-photo-gallery-input" accept="image/*" style="display:none">
           <div class="image-upload-placeholder" id="img-placeholder">
             <span class="upload-icon">📸</span>
-            <span class="upload-text">Subir Imagen</span>
+            <span class="upload-text" style="font-weight:600;font-size:0.75rem;">Añadir Foto del Plato</span>
+            <span style="font-size:0.64rem;color:var(--t4);">Toca para elegir Cámara o Galería</span>
           </div>
           <img id="recipe-photo-preview" src="" alt="Vista previa" class="recipe-photo-preview" style="display:none" loading="lazy">
           <button type="button" class="btn-remove-photo" id="btn-remove-photo" style="display:none" title="Eliminar foto">✕</button>
+        </div>
+        <div class="photo-quick-actions" style="display:flex;gap:6px;margin-top:6px;">
+          <button type="button" class="btn btn-ghost photo-quick-btn" id="btn-quick-camera" style="flex:1;font-size:0.72rem;padding:6px 4px;display:flex;align-items:center;justify-content:center;gap:4px;" title="Tomar foto con la cámara del teléfono">
+            <span>📸 Cámara</span>
+          </button>
+          <button type="button" class="btn btn-ghost photo-quick-btn" id="btn-quick-gallery" style="flex:1;font-size:0.72rem;padding:6px 4px;display:flex;align-items:center;justify-content:center;gap:4px;" title="Seleccionar foto de la galería">
+            <span>🖼️ Galería</span>
+          </button>
         </div>
       </div>
       <div class="fg">
@@ -4059,7 +4185,7 @@ body.theme-pearl-bronze #btn-open-export {
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span class="tag" id="cat-recipes-badge" style="background:var(--gold-subtle);color:var(--gold);border:1px solid var(--gold);font-weight:700;padding:3px 8px;font-size:0.7rem;">0 FICHAS</span>
-            <button type="button" class="btn btn-primary" onclick="gc._newRecipe()" style="font-size:0.72rem;padding:5px 10px;display:inline-flex;align-items:center;gap:4px;">
+            <button type="button" class="btn btn-primary" onclick="gc.openNewRecipeModal()" style="font-size:0.72rem;padding:5px 10px;display:inline-flex;align-items:center;gap:4px;" title="Crear nueva ficha técnica guiada">
               <span>➕ Nueva Ficha</span>
             </button>
           </div>
@@ -4172,58 +4298,82 @@ body.theme-pearl-bronze #btn-open-export {
   </div>
 </div>
 
-<!-- V16.3 Modal Guiado: Nueva Ficha Técnica -->
+<!-- V16.8 Modal Guiado: Nueva Ficha Técnica de Elaboración -->
 <div class="modal-overlay" id="new-recipe-modal">
-  <div class="export-modal-card" style="max-width:520px;width:95%;padding:24px;">
+  <div class="export-modal-card" style="max-width:540px;width:95%;max-height:min(92vh,860px);overflow-y:auto;padding:24px;">
     <button class="modal-close" id="btn-close-new-recipe-modal" type="button" title="Cerrar modal">✕</button>
     <div class="modal-title" style="display:flex;align-items:center;gap:10px;">
       <span style="font-size:1.3rem;">✨</span>
-      <span>Nueva Ficha Técnica</span>
+      <span>Nueva Ficha Técnica de Elaboración</span>
     </div>
     <div class="modal-subtitle" style="margin-bottom:18px;">
-      Configura los parámetros iniciales para tu nuevo plato o elaboración base.
+      Configura los parámetros culinarios y operativos para tu nuevo plato o elaboración base de cocina.
     </div>
 
     <form id="form-new-recipe" style="display:flex;flex-direction:column;gap:14px;">
       <div class="fg">
-        <label class="fl">Nombre de la Ficha / Plato</label>
+        <label class="fl">Nombre de la Elaboración / Plato</label>
         <input class="fi" id="new-recipe-name" type="text" required placeholder="Ej. Solomillo Rossini con Trufa" autocomplete="off">
+        <div style="font-size:0.68rem;color:var(--t3);margin-top:2px;">Asigna un nombre culinario claro para identificarlo fácilmente en cocina y sala.</div>
       </div>
 
       <div class="fg">
         <label class="fl">Tipo de Ficha</label>
         <div class="new-recipe-type-grid">
           <label class="new-recipe-type-card active" id="card-type-dish" style="cursor:pointer;border:1.5px solid var(--cyan);background:var(--cyanL);border-radius:var(--r2);padding:12px;display:flex;flex-direction:column;gap:4px;transition:all 0.2s;">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <input type="radio" name="new-recipe-type" value="dish" checked style="accent-color:var(--cyan);">
-              <strong style="color:var(--t1);font-size:0.85rem;">🍽️ Plato de Carta</strong>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="radio" name="new-recipe-type" value="dish" checked style="accent-color:var(--cyan);">
+                <strong style="color:var(--t1);font-size:0.85rem;">🍽️ Plato de Carta</strong>
+              </div>
+              <span class="tag" style="font-size:0.6rem;background:rgba(212,175,55,0.15);color:var(--gold);border:1px solid var(--gold);padding:1px 5px;">Venta Directa</span>
             </div>
-            <span style="font-size:0.68rem;color:var(--t3);">Receta individual de venta final</span>
+            <span style="font-size:0.68rem;color:var(--t3);line-height:1.3;">Receta de venta final o emplatado para servicio en sala.</span>
           </label>
           <label class="new-recipe-type-card" id="card-type-subrecipe" style="cursor:pointer;border:1.5px solid var(--b2);background:var(--s2);border-radius:var(--r2);padding:12px;display:flex;flex-direction:column;gap:4px;transition:all 0.2s;">
-            <div style="display:flex;align-items:center;gap:6px;">
-              <input type="radio" name="new-recipe-type" value="subrecipe" style="accent-color:var(--cyan);">
-              <strong style="color:var(--t1);font-size:0.85rem;">🥘 Sub-receta / Base</strong>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="radio" name="new-recipe-type" value="subrecipe" style="accent-color:var(--cyan);">
+                <strong style="color:var(--t1);font-size:0.85rem;">🥘 Sub-receta / Base</strong>
+              </div>
+              <span class="tag" style="font-size:0.6rem;background:rgba(6,182,212,0.15);color:var(--cyan);border:1px solid var(--cyan);padding:1px 5px;">Mise en Place</span>
             </div>
-            <span style="font-size:0.68rem;color:var(--t3);">Salsa, fondo o masa para otras fichas</span>
+            <span style="font-size:0.68rem;color:var(--t3);line-height:1.3;">Salsa, fondo, masa o farsa para usar en otras fichas.</span>
           </label>
         </div>
       </div>
 
       <div class="fg" id="box-new-portions">
-        <label class="fl">Raciones Base (PAX)</label>
-        <input class="fi" id="new-recipe-portions" type="number" min="1" step="1" value="4" inputmode="decimal">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <label class="fl" style="margin-bottom:0;">Raciones Base (PAX)</label>
+          <span style="font-size:0.68rem;color:var(--t3);">Raciones estándar para el escandallo</span>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <button type="button" class="btn btn-ghost btn-stepper" id="btn-portions-dec" style="width:38px;height:38px;font-size:1.1rem;font-weight:bold;padding:0;display:flex;align-items:center;justify-content:center;">−</button>
+          <input class="fi" id="new-recipe-portions" type="number" min="1" step="1" value="4" inputmode="decimal" style="text-align:center;font-weight:700;font-size:1rem;margin-bottom:0;flex:1;">
+          <button type="button" class="btn btn-ghost btn-stepper" id="btn-portions-inc" style="width:38px;height:38px;font-size:1.1rem;font-weight:bold;padding:0;display:flex;align-items:center;justify-content:center;">+</button>
+        </div>
+        <div class="pax-quick-pills" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+          <button type="button" class="pax-pill" data-pax="1">1 PAX</button>
+          <button type="button" class="pax-pill" data-pax="2">2 PAX</button>
+          <button type="button" class="pax-pill active" data-pax="4">4 PAX (Estándar)</button>
+          <button type="button" class="pax-pill" data-pax="6">6 PAX</button>
+          <button type="button" class="pax-pill" data-pax="10">10 PAX</button>
+          <button type="button" class="pax-pill" data-pax="20">20 PAX (Banquete)</button>
+        </div>
       </div>
 
       <div id="box-new-subrecipe-fields" style="display:none;border-top:1px dashed var(--b2);padding-top:12px;margin-top:2px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <label class="fl" style="color:var(--cyan);margin-bottom:0;">Rendimiento Medido del Lote</label>
+          <span style="font-size:0.68rem;color:var(--cyan);">Peso o volumen neto resultante</span>
+        </div>
         <div style="display:flex;gap:10px;">
           <div style="flex:1;">
-            <label class="fl" style="color:var(--cyan);">Rendimiento Medido</label>
-            <input class="fi" id="new-subrecipe-yield" type="number" min="0.001" step="any" value="1000" inputmode="decimal">
+            <input class="fi" id="new-subrecipe-yield" type="number" min="0.001" step="any" value="1000" inputmode="decimal" style="margin-bottom:0;">
           </div>
-          <div style="width:120px;">
-            <label class="fl" style="color:var(--cyan);">Unidad</label>
-            <select class="fi" id="new-subrecipe-unit">
+          <div style="width:130px;">
+            <select class="fi" id="new-subrecipe-unit" style="margin-bottom:0;">
               <option value="g">Gramos (g)</option>
               <option value="kg">Kilos (kg)</option>
               <option value="ml">Mililitros (ml)</option>
@@ -4232,13 +4382,84 @@ body.theme-pearl-bronze #btn-open-export {
             </select>
           </div>
         </div>
+        <div class="yield-quick-pills" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+          <button type="button" class="yield-pill" data-yield="500" data-unit="g">500 g</button>
+          <button type="button" class="yield-pill active" data-yield="1000" data-unit="g">1.000 g (1 kg)</button>
+          <button type="button" class="yield-pill" data-yield="2000" data-unit="g">2.000 g (2 kg)</button>
+          <button type="button" class="yield-pill" data-yield="5000" data-unit="g">5.000 g (5 kg)</button>
+          <button type="button" class="yield-pill" data-yield="1" data-unit="L">1 Litro (1 L)</button>
+          <button type="button" class="yield-pill" data-yield="5" data-unit="L">5 Litros (5 L)</button>
+        </div>
+      </div>
+
+      <div class="fg" style="border-top:1px dashed var(--b2);padding-top:12px;margin-top:2px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <label class="fl" style="margin-bottom:0;">Food Cost Objetivo (%)</label>
+          <span style="font-size:0.68rem;color:var(--t3);">Margen de materia prima deseado</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input class="fi" id="new-recipe-fcgoal" type="number" min="1" max="100" step="0.5" value="28" inputmode="decimal" style="width:100px;text-align:center;font-weight:700;margin-bottom:0;">
+          <div class="fc-quick-pills" style="display:flex;gap:5px;flex:1;overflow-x:auto;">
+            <button type="button" class="fc-pill" data-fc="25">25% (Alta Gama)</button>
+            <button type="button" class="fc-pill active" data-fc="28">28% (Estándar)</button>
+            <button type="button" class="fc-pill" data-fc="30">30% (Casual)</button>
+            <button type="button" class="fc-pill" data-fc="33">33% (Menú)</button>
+          </div>
+        </div>
       </div>
 
       <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
         <button type="button" class="btn btn-ghost" id="btn-cancel-new-recipe">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="btn-confirm-new-recipe">✨ Crear Ficha</button>
+        <button type="submit" class="btn btn-primary" id="btn-confirm-new-recipe" style="min-height:44px;font-size:0.86rem;font-weight:700;">✨ Crear Ficha de Elaboración</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- V16.8 Modal Selector de Foto: Cámara vs Galería -->
+<div class="modal-overlay" id="photo-source-modal">
+  <div class="export-modal-card photo-action-sheet" style="max-width:440px;width:95%;max-height:min(90vh,600px);overflow-y:auto;padding:22px;">
+    <button class="modal-close" id="btn-close-photo-modal" type="button" title="Cerrar modal">✕</button>
+    <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+      <span style="font-size:1.3rem;">📸</span>
+      <span>Foto de Elaboración</span>
+    </div>
+    <div class="modal-subtitle" style="margin-bottom:16px;">
+      ¿Cómo deseas adjuntar la fotografía del plato o elaboración?
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button type="button" class="photo-source-opt-btn" id="btn-modal-camera">
+        <div class="pso-icon">📸</div>
+        <div class="pso-text">
+          <div class="pso-title">Tomar Foto con Cámara</div>
+          <div class="pso-desc">Abre el visor de la cámara para capturar el emplatado al instante</div>
+        </div>
+        <div class="pso-arrow">➔</div>
+      </button>
+
+      <button type="button" class="photo-source-opt-btn" id="btn-modal-gallery">
+        <div class="pso-icon">🖼️</div>
+        <div class="pso-text">
+          <div class="pso-title">Seleccionar de la Galería</div>
+          <div class="pso-desc">Elige una imagen existente desde tu carrete, fotos o archivos</div>
+        </div>
+        <div class="pso-arrow">➔</div>
+      </button>
+
+      <button type="button" class="photo-source-opt-btn pso-danger" id="btn-modal-delete-photo" style="display:none;">
+        <div class="pso-icon">🗑️</div>
+        <div class="pso-text">
+          <div class="pso-title">Eliminar Fotografía Actual</div>
+          <div class="pso-desc">Quitar la foto de esta ficha técnica y restablecer el espacio</div>
+        </div>
+        <div class="pso-arrow">✕</div>
+      </button>
+    </div>
+
+    <div style="margin-top:14px;">
+      <button type="button" class="btn btn-ghost" id="btn-cancel-photo-modal" style="width:100%;padding:10px;">Cancelar</button>
+    </div>
   </div>
 </div>
 
@@ -4748,8 +4969,14 @@ function debounce(fn, ms) {
 // Client-side canvas image compression to fit localStorage limits safely
 function compressImage(file, callback) {
   const reader = new FileReader();
+  reader.onerror = () => {
+    toast('Error al leer el archivo de imagen', 'e');
+  };
   reader.onload = e => {
     const img = new Image();
+    img.onerror = () => {
+      toast('Formato de imagen no compatible', 'e');
+    };
     img.onload = () => {
       const canvas = document.createElement('canvas');
       let width = img.width;
@@ -5866,7 +6093,7 @@ class GC {
       });
     }
 
-    /* V16.3 Guided New Recipe Modal Event Listeners */
+    /* V16.8 Guided New Recipe Modal Event Listeners */
     const newRecipeModal = document.getElementById('new-recipe-modal');
     const btnCloseNewRecipe = document.getElementById('btn-close-new-recipe-modal');
     const btnCancelNewRecipe = document.getElementById('btn-cancel-new-recipe');
@@ -5882,6 +6109,8 @@ class GC {
     const cardTypeSub = document.getElementById('card-type-subrecipe');
     const boxNewPortions = document.getElementById('box-new-portions');
     const boxNewSubFields = document.getElementById('box-new-subrecipe-fields');
+    const nameInput = document.getElementById('new-recipe-name');
+    const submitBtn = document.getElementById('btn-confirm-new-recipe');
 
     const updateNewRecipeTypeUI = (type) => {
       const isDish = type === 'dish';
@@ -5897,6 +6126,14 @@ class GC {
       }
       if (boxNewPortions) boxNewPortions.style.display = isDish ? 'block' : 'none';
       if (boxNewSubFields) boxNewSubFields.style.display = !isDish ? 'block' : 'none';
+      if (nameInput) {
+        nameInput.placeholder = isDish 
+          ? 'Ej. Corvina al mojo verde, Solomillo Rossini con trufa...'
+          : 'Ej. Fondo oscuro de ternera, Salsa holandesa, Masa brioche...';
+      }
+      if (submitBtn) {
+        submitBtn.innerHTML = isDish ? '✨ Crear Ficha de Plato' : '✨ Crear Elaboración Base';
+      }
     };
 
     document.querySelectorAll('input[name="new-recipe-type"]').forEach(radio => {
@@ -5916,6 +6153,98 @@ class GC {
       });
     }
 
+    // Portions stepper and quick pills
+    const portionsInp = document.getElementById('new-recipe-portions');
+    const btnPortionsDec = document.getElementById('btn-portions-dec');
+    const btnPortionsInc = document.getElementById('btn-portions-inc');
+    const paxPills = document.querySelectorAll('.pax-pill');
+
+    const syncPaxPills = (val) => {
+      paxPills.forEach(p => {
+        p.classList.toggle('active', parseInt(p.dataset.pax, 10) === val);
+      });
+    };
+
+    if (btnPortionsDec && portionsInp) {
+      btnPortionsDec.addEventListener('click', () => {
+        const cur = Math.max(1, (parseInt(portionsInp.value, 10) || 1) - 1);
+        portionsInp.value = cur;
+        syncPaxPills(cur);
+      });
+    }
+    if (btnPortionsInc && portionsInp) {
+      btnPortionsInc.addEventListener('click', () => {
+        const cur = (parseInt(portionsInp.value, 10) || 1) + 1;
+        portionsInp.value = cur;
+        syncPaxPills(cur);
+      });
+    }
+    if (portionsInp) {
+      portionsInp.addEventListener('input', () => {
+        syncPaxPills(parseInt(portionsInp.value, 10));
+      });
+    }
+    paxPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const p = parseInt(pill.dataset.pax, 10) || 1;
+        if (portionsInp) portionsInp.value = p;
+        syncPaxPills(p);
+      });
+    });
+
+    // Yield pills for sub-recipes
+    const yieldInp = document.getElementById('new-subrecipe-yield');
+    const unitSelect = document.getElementById('new-subrecipe-unit');
+    const yieldPills = document.querySelectorAll('.yield-pill');
+
+    const syncYieldPills = (yVal, uVal) => {
+      yieldPills.forEach(p => {
+        const match = parseFloat(p.dataset.yield) === parseFloat(yVal) && p.dataset.unit === uVal;
+        p.classList.toggle('active', match);
+      });
+    };
+
+    yieldPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const y = parseFloat(pill.dataset.yield) || 1000;
+        const u = pill.dataset.unit || 'g';
+        if (yieldInp) yieldInp.value = y;
+        if (unitSelect) unitSelect.value = u;
+        syncYieldPills(y, u);
+      });
+    });
+    if (yieldInp) {
+      yieldInp.addEventListener('input', () => {
+        syncYieldPills(yieldInp.value, unitSelect ? unitSelect.value : 'g');
+      });
+    }
+    if (unitSelect) {
+      unitSelect.addEventListener('change', () => {
+        syncYieldPills(yieldInp ? yieldInp.value : 1000, unitSelect.value);
+      });
+    }
+
+    // Food Cost Goal pills
+    const fcGoalInp = document.getElementById('new-recipe-fcgoal');
+    const fcPills = document.querySelectorAll('.fc-pill');
+    const syncFcPills = (val) => {
+      fcPills.forEach(p => {
+        p.classList.toggle('active', parseFloat(p.dataset.fc) === parseFloat(val));
+      });
+    };
+    fcPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        const f = parseFloat(pill.dataset.fc) || 28;
+        if (fcGoalInp) fcGoalInp.value = f;
+        syncFcPills(f);
+      });
+    });
+    if (fcGoalInp) {
+      fcGoalInp.addEventListener('input', () => {
+        syncFcPills(fcGoalInp.value);
+      });
+    }
+
     const formNewRecipe = document.getElementById('form-new-recipe');
     if (formNewRecipe) {
       formNewRecipe.addEventListener('submit', e => {
@@ -5927,8 +6256,9 @@ class GC {
         const portions = parseInt(document.getElementById('new-recipe-portions')?.value, 10) || 1;
         const yieldQty = parseFloat(document.getElementById('new-subrecipe-yield')?.value) || 1000;
         const yieldUnit = document.getElementById('new-subrecipe-unit')?.value || 'g';
+        const fcGoal = parseFloat(document.getElementById('new-recipe-fcgoal')?.value) || 28;
         this.closeNewRecipeModal();
-        this._newRecipe(name, portions, isSub, yieldQty, yieldUnit);
+        this._newRecipe(name, portions, isSub, yieldQty, yieldUnit, fcGoal);
       });
     }
 
@@ -6220,42 +6550,101 @@ class GC {
     const btnCloseSidebar = document.getElementById('btn-close-sidebar');
     if (btnCloseSidebar) btnCloseSidebar.addEventListener('click', () => this._toggleSidebar(false));
 
-    /* V12 Photo Upload trigger */
+    /* V16.8 Dual Photo Upload (Camera vs Gallery) & Action Sheet Listeners */
     const uploadBox = document.getElementById('img-upload-box');
     const photoInput = document.getElementById('recipe-photo-input');
-    uploadBox.addEventListener('click', e => {
-      if (e.target.closest('#btn-remove-photo')) return;
-      photoInput.click();
-    });
+    const cameraInput = document.getElementById('recipe-photo-camera-input');
+    const galleryInput = document.getElementById('recipe-photo-gallery-input');
+    const photoModal = document.getElementById('photo-source-modal');
+    const btnClosePhoto = document.getElementById('btn-close-photo-modal');
+    const btnCancelPhoto = document.getElementById('btn-cancel-photo-modal');
+    const btnModalCamera = document.getElementById('btn-modal-camera');
+    const btnModalGallery = document.getElementById('btn-modal-gallery');
+    const btnModalDelete = document.getElementById('btn-modal-delete-photo');
+    const btnQuickCamera = document.getElementById('btn-quick-camera');
+    const btnQuickGallery = document.getElementById('btn-quick-gallery');
 
-    photoInput.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
-      if (!file.type.startsWith('image/')) {
-        toast('Solo se permiten imágenes', 'e');
-        return;
-      }
-      
-      compressImage(file, base64 => {
-        this.R.config.image = base64;
-        this.R.updatedAt = Date.now();
-        this._hydrateForm();
-        this._autoSave();
-        this._renderLib();
-        toast('Imagen optimizada ✓');
+    const openPhotoModal = () => this.openPhotoModal();
+    const closePhotoModal = () => this.closePhotoModal();
+
+    if (uploadBox) {
+      uploadBox.addEventListener('click', e => {
+        if (e.target.closest('#btn-remove-photo')) return;
+        openPhotoModal();
       });
-      e.target.value = '';
-    });
+    }
 
-    /* V12 Remove image button */
-    document.getElementById('btn-remove-photo').addEventListener('click', () => {
-      this.R.config.image = '';
-      this.R.updatedAt = Date.now();
-      this._hydrateForm();
-      this._autoSave();
-      this._renderLib();
-      toast('Imagen eliminada');
-    });
+    // Also make Kitchen View photo container interactive
+    const kviewPhotoBox = document.getElementById('kview-photo-box');
+    if (kviewPhotoBox) {
+      kviewPhotoBox.style.cursor = 'pointer';
+      kviewPhotoBox.setAttribute('title', 'Toca para tomar foto o cambiar imagen del plato');
+      kviewPhotoBox.addEventListener('click', () => openPhotoModal());
+    }
+
+    if (btnClosePhoto) btnClosePhoto.addEventListener('click', closePhotoModal);
+    if (btnCancelPhoto) btnCancelPhoto.addEventListener('click', closePhotoModal);
+    if (photoModal) {
+      photoModal.addEventListener('click', e => {
+        if (e.target === photoModal) closePhotoModal();
+      });
+    }
+
+    if (btnQuickCamera) {
+      btnQuickCamera.addEventListener('click', e => {
+        e.stopPropagation();
+        if (cameraInput) cameraInput.click();
+        else if (photoInput) photoInput.click();
+      });
+    }
+    if (btnQuickGallery) {
+      btnQuickGallery.addEventListener('click', e => {
+        e.stopPropagation();
+        if (galleryInput) galleryInput.click();
+        else if (photoInput) photoInput.click();
+      });
+    }
+
+    if (btnModalCamera) {
+      btnModalCamera.addEventListener('click', () => {
+        closePhotoModal();
+        if (cameraInput) cameraInput.click();
+        else if (photoInput) photoInput.click();
+      });
+    }
+    if (btnModalGallery) {
+      btnModalGallery.addEventListener('click', () => {
+        closePhotoModal();
+        if (galleryInput) galleryInput.click();
+        else if (photoInput) photoInput.click();
+      });
+    }
+    if (btnModalDelete) {
+      btnModalDelete.addEventListener('click', () => {
+        closePhotoModal();
+        this._deleteRecipePhoto();
+      });
+    }
+
+    const onPhotoSelected = e => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      this._handlePhotoFile(file);
+      e.target.value = '';
+    };
+
+    if (cameraInput) cameraInput.addEventListener('change', onPhotoSelected);
+    if (galleryInput) galleryInput.addEventListener('change', onPhotoSelected);
+    if (photoInput) photoInput.addEventListener('change', onPhotoSelected);
+
+    /* V12 / V16.8 Remove image button */
+    const btnRemovePhoto = document.getElementById('btn-remove-photo');
+    if (btnRemovePhoto) {
+      btnRemovePhoto.addEventListener('click', e => {
+        e.stopPropagation();
+        this._deleteRecipePhoto();
+      });
+    }
 
     /* V12 Tab switching click listeners */
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -7370,13 +7759,16 @@ class GC {
     }
   }
 
-  /* ── V16.3 Guided New Recipe Modal Controls ── */
+  /* ── V16.8 Guided New Recipe Modal Controls ── */
   openNewRecipeModal() {
     const modal = document.getElementById('new-recipe-modal');
     if (!modal) return;
 
     const nameInp = document.getElementById('new-recipe-name');
-    if (nameInp) nameInp.value = '';
+    if (nameInp) {
+      nameInp.value = '';
+      nameInp.placeholder = 'Ej. Corvina al mojo verde, Solomillo Rossini con trufa...';
+    }
 
     const dishRadio = document.querySelector('input[name="new-recipe-type"][value="dish"]');
     if (dishRadio) dishRadio.checked = true;
@@ -7398,6 +7790,9 @@ class GC {
     if (boxPortions) boxPortions.style.display = 'block';
     const portionsInp = document.getElementById('new-recipe-portions');
     if (portionsInp) portionsInp.value = '4';
+    document.querySelectorAll('.pax-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.pax === '4');
+    });
 
     const boxSubFields = document.getElementById('box-new-subrecipe-fields');
     if (boxSubFields) boxSubFields.style.display = 'none';
@@ -7405,8 +7800,21 @@ class GC {
     if (yieldInp) yieldInp.value = '1000';
     const unitSelect = document.getElementById('new-subrecipe-unit');
     if (unitSelect) unitSelect.value = 'g';
+    document.querySelectorAll('.yield-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.yield === '1000' && p.dataset.unit === 'g');
+    });
+
+    const fcGoalInp = document.getElementById('new-recipe-fcgoal');
+    if (fcGoalInp) fcGoalInp.value = '28';
+    document.querySelectorAll('.fc-pill').forEach(p => {
+      p.classList.toggle('active', p.dataset.fc === '28');
+    });
+
+    const submitBtn = document.getElementById('btn-confirm-new-recipe');
+    if (submitBtn) submitBtn.innerHTML = '✨ Crear Ficha de Plato';
 
     modal.classList.add('open');
+    document.body.classList.add('modal-open');
     setTimeout(() => {
       if (nameInp) nameInp.focus();
     }, 80);
@@ -7415,6 +7823,66 @@ class GC {
   closeNewRecipeModal() {
     const modal = document.getElementById('new-recipe-modal');
     if (modal) modal.classList.remove('open');
+    document.body.classList.remove('modal-open');
+  }
+
+  /* ── V16.8 Unified Photo Management ── */
+  openPhotoModal() {
+    const photoModal = document.getElementById('photo-source-modal');
+    if (!photoModal) return;
+    const btnModalDelete = document.getElementById('btn-modal-delete-photo');
+    if (btnModalDelete) {
+      btnModalDelete.style.display = (this.R && this.R.config && this.R.config.image) ? 'flex' : 'none';
+    }
+    photoModal.classList.add('open');
+    document.body.classList.add('modal-open');
+  }
+
+  closePhotoModal() {
+    const photoModal = document.getElementById('photo-source-modal');
+    if (!photoModal) return;
+    photoModal.classList.remove('open');
+    document.body.classList.remove('modal-open');
+  }
+
+  _deleteRecipePhoto() {
+    if (!this.R || !this.R.config) return;
+    this.R.config.image = '';
+    this.R.updatedAt = Date.now();
+    this._hydrateForm();
+    this._autoSave();
+    this._renderLib();
+    if (this.currentTab === 'tab-cocina' || this.currentTab === 'tab-kitchen') {
+      this._renderKitchenTab();
+    }
+    toast('Imagen eliminada');
+  }
+
+  _renderKitchen() {
+    this._renderKitchenTab();
+  }
+
+  _handlePhotoFile(file) {
+    if (!file) return;
+    const isImage = !file.type || file.type.startsWith('image/') ||
+                    /\.(jpe?g|png|webp|gif|heic|bmp|tiff)$/i.test(file.name || '');
+    if (!isImage) {
+      toast('Solo se permiten archivos de imagen', 'e');
+      return;
+    }
+    toast('Optimizando fotografía...');
+    compressImage(file, base64 => {
+      if (!this.R || !this.R.config) return;
+      this.R.config.image = base64;
+      this.R.updatedAt = Date.now();
+      this._hydrateForm();
+      this._autoSave();
+      this._renderLib();
+      if (this.currentTab === 'tab-cocina' || this.currentTab === 'tab-kitchen') {
+        this._renderKitchenTab();
+      }
+      toast('Foto de elaboración guardada ✓');
+    });
   }
 
   /* ── V16.1 Tactile Cards View (Ergonomic Touch Mode) ── */
@@ -9312,12 +9780,19 @@ class GC {
     const photoBoxEl = document.getElementById('kview-photo-box');
     if (photoBoxEl) {
       if (cfg.image) {
-        photoBoxEl.innerHTML = `<img src="${cfg.image}" alt="${cfg.dishName || 'Plato'}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
+        photoBoxEl.innerHTML = `
+          <div style="position: relative; width: 100%; height: 100%;">
+            <img src="${cfg.image}" alt="${cfg.dishName || 'Plato'}" loading="lazy" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+            <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(15, 23, 42, 0.78); backdrop-filter: blur(4px); color: #fff; font-size: 0.68rem; font-weight: 600; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px; border: 1px solid rgba(255,255,255,0.18); box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
+              <span>📷 Cambiar foto</span>
+            </div>
+          </div>`;
       } else {
         photoBoxEl.innerHTML = `
-          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 32px 0; color: var(--t4); height: 100%;">
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 28px 12px; color: var(--t4); height: 100%; text-align: center;">
             <span style="font-size: 2.2rem">📸</span>
-            <span style="font-size: 0.85rem; font-weight: 500;">Sin fotografía de emplatado subida</span>
+            <span style="font-size: 0.85rem; font-weight: 600; color: var(--t2);">Toca para tomar foto o añadir imagen</span>
+            <span style="font-size: 0.68rem; color: var(--t3);">Cámara en directo o Galería</span>
           </div>`;
       }
     }
@@ -9978,13 +10453,14 @@ class GC {
     }
   }
 
-  _newRecipe(name, portions, isSubRecipe, yieldQty, yieldUnit) {
+  _newRecipe(name, portions, isSubRecipe, yieldQty, yieldUnit, fcGoal) {
     const id = uid();
-    const dishName = (name && typeof name === 'string' && name.trim()) ? name.trim() : 'Nueva Ficha';
+    const dishName = (name && typeof name === 'string' && name.trim()) ? name.trim() : (isSubRecipe ? 'Nueva Elaboración Base' : 'Nueva Ficha');
     const p = (portions !== undefined && portions !== null && !isNaN(portions)) ? Math.max(1, parseInt(portions, 10)) : 1;
     const isSub = !!isSubRecipe;
     const yQty = (yieldQty !== undefined && yieldQty !== null && !isNaN(yieldQty)) ? Math.max(0.001, parseFloat(yieldQty)) : 1000;
     const yUnit = yieldUnit || 'g';
+    const goal = (fcGoal !== undefined && fcGoal !== null && !isNaN(fcGoal)) ? Math.max(1, Math.min(100, parseFloat(fcGoal))) : 28;
 
     this.db.recipes[id] = {
       id,
@@ -9992,10 +10468,11 @@ class GC {
         dishName,
         portions: p,
         taxRate: 7,
-        fcGoal: 28,
+        fcGoal: goal,
         customPVP: 0,
         notes: '',
         currency: 'EUR',
+        image: '',
         isSubRecipe: isSub,
         yieldQty: yQty,
         yieldUnit: yUnit
@@ -10011,11 +10488,18 @@ class GC {
     this._autoSave();
     this._updateFichaStatus('local');
 
-    const dishNameInp = document.querySelector('[data-k="dishName"]');
-    if (dishNameInp) {
-      try { dishNameInp.select(); } catch (e) {}
+    if (!name || !name.trim()) {
+      const dishNameInp = document.querySelector('[data-k="dishName"]');
+      if (dishNameInp) {
+        try { dishNameInp.select(); } catch (e) {}
+      }
+    } else {
+      const ingNameInp = document.getElementById('ing-name');
+      if (ingNameInp) {
+        try { ingNameInp.focus(); } catch (e) {}
+      }
     }
-    toast(isSub ? 'Nueva elaboración base creada ✓' : 'Nueva ficha técnica creada ✓');
+    toast(isSub ? 'Nueva elaboración base creada ✓' : 'Nueva ficha técnica de elaboración creada ✓');
   }
 
   _duplicateRecipe() {

@@ -196,7 +196,16 @@ function createSandbox(initialStorage = {}) {
     'form-cat-add', 'cat-name', 'cat-price', 'cat-waste', 'cat-cat', 'cat-unit',
     'cat-search', 'cat-tbl-body', 'export-modal', 'tab-escandallo', 'tab-cocina',
     'tab-finanzas', 'tab-catalogo', 'bottom-nav', 'vendor-dropzone', 'vendor-file-input',
-    'vendor-preview-modal', 'recipe-book-modal'
+    'vendor-preview-modal', 'recipe-book-modal',
+    'recipe-photo-input', 'recipe-photo-camera-input', 'recipe-photo-gallery-input',
+    'photo-source-modal', 'btn-close-photo-modal', 'btn-cancel-photo-modal',
+    'btn-modal-camera', 'btn-modal-gallery', 'btn-modal-delete-photo',
+    'btn-quick-camera', 'btn-quick-gallery', 'btn-remove-photo',
+    'new-recipe-modal', 'form-new-recipe', 'new-recipe-name', 'new-recipe-portions',
+    'new-subrecipe-yield', 'new-subrecipe-unit', 'new-recipe-fcgoal',
+    'btn-portions-dec', 'btn-portions-inc', 'card-type-dish', 'card-type-subrecipe',
+    'box-new-portions', 'box-new-subrecipe-fields', 'btn-confirm-new-recipe',
+    'btn-close-new-recipe-modal', 'btn-cancel-new-recipe'
   ];
   standardIds.forEach(id => getOrCreateElement(id));
 
@@ -300,6 +309,8 @@ function createSandbox(initialStorage = {}) {
     localStorage: localStorageMock,
     document: documentMock,
     getSelection: () => ({ removeAllRanges: () => {}, addRange: () => {} }),
+    scrollTo: () => {},
+    scroll: () => {},
     requestAnimationFrame: (cb) => setTimeout(cb, 0),
     cancelAnimationFrame: (id) => clearTimeout(id),
     Intl: global.Intl,

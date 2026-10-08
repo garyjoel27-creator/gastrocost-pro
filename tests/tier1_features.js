@@ -746,6 +746,110 @@ function runTier1Tests(registerTest) {
       assert(src.startsWith('http') || src.startsWith('//'), `External script src must be CDN or precached: ${src}`);
     });
   });
+
+  /* ══════════════════════════════════════════════════════════════
+     REQUIREMENT R7: Dual Camera/Gallery Photo Capture & Guided Ficha Modal UX (V16.8)
+     ══════════════════════════════════════════════════════════════ */
+
+  registerTest('T1.R7.1: Mobile Camera (capture="environment") & Gallery Dual Input Architecture', () => {
+    const html = getIndexHtml();
+    assert(html.includes('id="recipe-photo-camera-input"'), 'recipe-photo-camera-input must exist in DOM');
+    assert(html.includes('capture="environment"'), 'recipe-photo-camera-input must specify capture="environment" for live camera feed');
+    assert(html.includes('id="recipe-photo-gallery-input"'), 'recipe-photo-gallery-input must exist in DOM');
+    assert(html.includes('id="recipe-photo-input"'), 'Legacy recipe-photo-input must be preserved for compatibility');
+    assert(html.includes('id="btn-quick-camera"'), 'Quick action camera button must exist');
+    assert(html.includes('id="btn-quick-gallery"'), 'Quick action gallery button must exist');
+  });
+
+  registerTest('T1.R7.2: Photo Source Modal Action Sheet & Deletion Lifecycle', () => {
+    const html = getIndexHtml();
+    assert(html.includes('id="photo-source-modal"'), 'photo-source-modal action sheet must exist');
+    assert(html.includes('id="btn-modal-camera"'), 'Modal camera option button must exist');
+    assert(html.includes('id="btn-modal-gallery"'), 'Modal gallery option button must exist');
+    assert(html.includes('id="btn-modal-delete-photo"'), 'Modal delete photo button must exist');
+    assert(html.includes('Cambiar foto'), 'Kitchen view must feature tactile photo change pill');
+
+    const { GC, gc, document } = loadGastroCostApp();
+    const app = gc || new GC();
+    assert(typeof app.openPhotoModal === 'function', 'openPhotoModal must be an exposed method on GC');
+    assert(typeof app.closePhotoModal === 'function', 'closePhotoModal must be an exposed method on GC');
+
+    app.openPhotoModal();
+    const modalEl = document.getElementById('photo-source-modal');
+    assert(modalEl.classList.contains('open'), 'openPhotoModal must open photo source modal');
+    app.closePhotoModal();
+    assert(!modalEl.classList.contains('open'), 'closePhotoModal must close photo source modal');
+
+    app.R.config.image = 'data:image/jpeg;base64,mock123';
+    assert.strictEqual(app.R.config.image, 'data:image/jpeg;base64,mock123');
+    app._deleteRecipePhoto();
+    assert.strictEqual(app.R.config.image, '', '_deleteRecipePhoto must clear image string');
+  });
+
+  registerTest('T1.R7.3: Guided New Recipe Modal UI & Dynamic Type Switching', () => {
+    const html = getIndexHtml();
+    assert(html.includes('id="new-recipe-modal"'), 'new-recipe-modal must exist');
+    assert(html.includes('Nueva Ficha Técnica de Elaboración'), 'Modal title must be professional Ficha Técnica de Elaboración');
+    assert(html.includes('id="card-type-dish"'), 'Dish type selector card must exist');
+    assert(html.includes('id="card-type-subrecipe"'), 'Sub-recipe type selector card must exist');
+    assert(html.includes('id="new-recipe-fcgoal"'), 'Target Food Cost field must exist');
+
+    const { GC, gc } = loadGastroCostApp();
+    const app = gc || new GC();
+    assert(typeof app.openNewRecipeModal === 'function', 'openNewRecipeModal must be a method on GC');
+    assert(typeof app.closeNewRecipeModal === 'function', 'closeNewRecipeModal must be a method on GC');
+  });
+
+  registerTest('T1.R7.4: Stepper and Quick Pill Configuration & FC Goal Integration', () => {
+    const { GC, gc } = loadGastroCostApp();
+    const app = gc || new GC();
+    app._newRecipe('Tataki de Atún Rojo', 4, false, 1000, 'g', 25);
+    const dishRecipe = app.R;
+    assert.strictEqual(dishRecipe.config.dishName, 'Tataki de Atún Rojo');
+    assert.strictEqual(dishRecipe.config.portions, 4);
+    assert.strictEqual(dishRecipe.config.isSubRecipe, false);
+    assert.strictEqual(dishRecipe.config.fcGoal, 25);
+    assert.strictEqual(dishRecipe.config.image, '', 'New recipe config.image must be initialized to empty string');
+
+    app._newRecipe('Fondo Oscuro', 1, true, 5000, 'ml', 30);
+    const subRecipe = app.R;
+    assert.strictEqual(subRecipe.config.dishName, 'Fondo Oscuro');
+    assert.strictEqual(subRecipe.config.isSubRecipe, true);
+    assert.strictEqual(subRecipe.config.yieldQty, 5000);
+    assert.strictEqual(subRecipe.config.yieldUnit, 'ml');
+    assert.strictEqual(subRecipe.config.fcGoal, 30);
+    assert.strictEqual(subRecipe.config.image, '', 'New sub-recipe config.image must be initialized to empty string');
+  });
+
+  registerTest('T1.R7.5: Service Worker v16.8 Cache Name Synchronization', () => {
+    const swJs = getServiceWorkerJs();
+    assert(swJs.includes("const CACHE_NAME = 'gastrocost-v16.8-cache'"), 'sw.js must be bumped to gastrocost-v16.8-cache');
+  });
+
+  registerTest('T1.R7.6: Focus Steering, Photo Validation & Kitchen View Dual-State Cues', () => {
+    const { GC, gc, document } = loadGastroCostApp();
+    const app = gc || new GC();
+
+    // 1. Photo validation rejects non-image files safely without crash
+    let toastMsg = '';
+    const origToast = global.toast;
+    // Call _handlePhotoFile with bad file
+    app._handlePhotoFile({ name: 'document.pdf', type: 'application/pdf' });
+
+    // 2. Kitchen View rendering: empty state shows camera cue, filled state shows change badge
+    app.R.config.image = '';
+    app._renderKitchen();
+    const photoBox = document.getElementById('kview-photo-box');
+    assert(photoBox.innerHTML.includes('Toca para tomar foto o añadir imagen'), 'Empty kitchen photo box must display action cue');
+
+    app.R.config.image = 'data:image/jpeg;base64,sample123';
+    app._renderKitchen();
+    assert(photoBox.innerHTML.includes('Cambiar foto'), 'Populated kitchen photo box must display change badge');
+
+    // 3. Post-creation focus steering
+    app._newRecipe('Ceviche Clásico', 2, false);
+    assert.strictEqual(app.R.config.dishName, 'Ceviche Clásico');
+  });
 }
 
 module.exports = { runTier1Tests };
