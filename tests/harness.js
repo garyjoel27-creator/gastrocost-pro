@@ -174,7 +174,7 @@ class VirtualElement {
 /**
  * Creates a sandbox environment with mocked DOM and browser APIs
  */
-function createSandbox(initialStorage = {}) {
+function createSandbox(initialStorage = {}, initialIdb = null) {
   const elementsById = new Map();
   const allElements = [];
 
@@ -357,7 +357,7 @@ function createSandbox(initialStorage = {}) {
     persisted: () => Promise.resolve(true)
   };
 
-  const idbStores = {};
+  const idbStores = initialIdb ? JSON.parse(JSON.stringify(initialIdb)) : {};
   const indexedDBMock = {
     _stores: idbStores,
     open: (name, version) => {
@@ -382,12 +382,15 @@ function createSandbox(initialStorage = {}) {
                 }
               }),
               oncomplete: null,
-              onerror: null
+              onerror: null,
+              onabort: null
             };
             setTimeout(() => { if (tx.oncomplete) tx.oncomplete(); }, 0);
             return tx;
           },
-          close: () => {}
+          close: () => {},
+          onversionchange: null,
+          onclose: null
         },
         onsuccess: null,
         onerror: null,
@@ -455,7 +458,7 @@ function createSandbox(initialStorage = {}) {
 function loadGastroCostApp(options = {}) {
   const html = getIndexHtml();
   const jsCode = extractScriptFromHtml(html);
-  const sandbox = createSandbox(options.initialStorage);
+  const sandbox = createSandbox(options.initialStorage, options.initialIdb);
   const context = vm.createContext(sandbox);
 
   // Parse and run script in VM
@@ -468,6 +471,8 @@ function loadGastroCostApp(options = {}) {
     window: sandbox.window,
     document: sandbox.document,
     localStorage: sandbox.localStorage,
+    indexedDB: sandbox.window.indexedDB,
+    idbStores: sandbox.window.indexedDB._stores,
     GC: sandbox.window.GC || sandbox.GC,
     gc: sandbox.window.gc || sandbox.gc,
     ALLERGENS: sandbox.ALLERGENS,

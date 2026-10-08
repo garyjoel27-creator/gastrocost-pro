@@ -992,6 +992,125 @@ function runTier1Tests(registerTest) {
     const idbData = await window.idbGet('gc_v11');
     assert(idbData, 'IndexedDB must contain synchronized data after force sync click');
   });
+
+  registerTest('T1.R8.7: Startup Protection against premature flush/save when LocalStorage was wiped', async () => {
+    // 1. Setup IDB with user recipe and empty localStorage
+    const userRecipeState = {
+      version: 13,
+      activeId: 'chef-special-caviar',
+      updatedAt: Date.now(),
+      recipes: {
+        'chef-special-caviar': {
+          id: 'chef-special-caviar',
+          config: { dishName: 'Caviar Imperial Oscietra', portions: 2 },
+          ingredients: []
+        }
+      }
+    };
+    const { GC, window } = loadGastroCostApp({
+      initialStorage: {},
+      initialIdb: { 'app_state': { 'gc_v11': userRecipeState } }
+    });
+
+    // 2. Instantiate app with empty localStorage
+    const app = new GC();
+    assert.strictEqual(app._isPersistenceReady, false, '_isPersistenceReady must start false when localStorage was empty');
+
+    // 3. Trigger premature flush before _initPersistence completes
+    const saved = app._flushSave();
+    assert.strictEqual(saved, false, '_flushSave must be deferred and return false while persistence is initializing');
+
+    // 4. Verify user recipe in IDB was NOT overwritten by default template
+    const idbData = await window.idbGet('gc_v11');
+    assert(idbData.recipes['chef-special-caviar'], 'User recipe in IndexedDB must be protected against premature flush');
+
+    // 5. Complete initPersistence and verify proper restoration
+    await app._initPersistence();
+    assert(app.db.recipes['chef-special-caviar'], 'app.db must have recovered the user recipe after initPersistence');
+    assert.strictEqual(app._isPersistenceReady, true, '_isPersistenceReady must be true after completion');
+  });
+
+  registerTest('T1.R8.8: State Sync Honors Deletion and Updates via Timestamps (no resurrected recipes)', async () => {
+    // Newer state in IDB with rec-2 deleted
+    const newerTime = Date.now() + 5000;
+    const idbState = {
+      version: 13,
+      activeId: 'rec-keep',
+      updatedAt: newerTime,
+      recipes: {
+        'rec-keep': { id: 'rec-keep', config: { dishName: 'Lubina Salvaje a la Brasa' }, ingredients: [] }
+      }
+    };
+
+    // Stale older state in localStorage that still has the deleted rec-deleted
+    const olderTime = Date.now();
+    const lsState = {
+      version: 13,
+      activeId: 'rec-keep',
+      updatedAt: olderTime,
+      recipes: {
+        'rec-keep': { id: 'rec-keep', config: { dishName: 'Lubina Salvaje a la Brasa' }, ingredients: [] },
+        'rec-deleted': { id: 'rec-deleted', config: { dishName: 'Plato Eliminado' }, ingredients: [] }
+      }
+    };
+
+    const { GC, window } = loadGastroCostApp({
+      initialStorage: { 'gc_v11': JSON.stringify(lsState) },
+      initialIdb: { 'app_state': { 'gc_v11': idbState } }
+    });
+
+    const app = new GC();
+    await app._initPersistence();
+
+    // Deleted recipe must NOT be resurrected because IDB is newer despite having fewer recipes
+    assert(app.db.recipes['rec-keep'], 'Active recipe must remain present');
+    assert.strictEqual(app.db.recipes['rec-deleted'], undefined, 'Deleted recipe must NOT be resurrected when IDB is newer');
+  });
+
+  registerTest('T1.R8.9: Multi-tab real-time synchronization via storage event and checkExternalSync', async () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    await app._initPersistence();
+
+    // Simulate Tab 2 updating recipe in localStorage
+    const updatedState = JSON.parse(JSON.stringify(app.db));
+    updatedState.updatedAt = Date.now() + 10000;
+    updatedState.recipes[app.db.activeId].config.dishName = 'Tartar de Wagyu A5 Trufado';
+
+    // Dispatch storage event to window
+    window.dispatchEvent({
+      type: 'storage',
+      key: 'gc_v11',
+      newValue: JSON.stringify(updatedState)
+    });
+
+    assert.strictEqual(
+      app.db.recipes[app.db.activeId].config.dishName,
+      'Tartar de Wagyu A5 Trufado',
+      'App state must immediately synchronize when storage event fires from another tab'
+    );
+  });
+
+  registerTest('T1.R8.10: First-time user dual-seeding to both LocalStorage and IndexedDB', async () => {
+    const { GC, window } = loadGastroCostApp({
+      initialStorage: {},
+      initialIdb: { 'app_state': {} }
+    });
+
+    const app = new GC();
+    await app._initPersistence();
+
+    // Verify localStorage has been seeded
+    const lsRaw = window.localStorage.getItem('gc_v11');
+    assert(lsRaw, 'localStorage must be initialized on first run');
+    const parsedLs = JSON.parse(lsRaw);
+    assert(parsedLs.recipes && Object.keys(parsedLs.recipes).length > 0, 'localStorage must contain seeded recipes');
+
+    // Verify IndexedDB has also been seeded
+    const idbData = await window.idbGet('gc_v11');
+    assert(idbData, 'IndexedDB must be initialized on first run');
+    assert(idbData.recipes && Object.keys(idbData.recipes).length > 0, 'IndexedDB must contain seeded recipes');
+  });
 }
 
 module.exports = { runTier1Tests };

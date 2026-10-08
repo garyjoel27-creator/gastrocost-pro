@@ -5171,11 +5171,25 @@ const GC_IDB_NAME = 'gastrocost_db';
 const GC_IDB_STORE = 'app_state';
 const GC_IDB_VERSION = 1;
 
+let _gcIdbInstance = null;
+
 function openGastroCostIDB() {
   return new Promise((resolve) => {
     if (typeof window === 'undefined' || !('indexedDB' in window) || !window.indexedDB) {
       resolve(null);
       return;
+    }
+    if (_gcIdbInstance) {
+      try {
+        if (!_gcIdbInstance.objectStoreNames.contains(GC_IDB_STORE)) {
+          _gcIdbInstance = null;
+        } else {
+          resolve(_gcIdbInstance);
+          return;
+        }
+      } catch (_) {
+        _gcIdbInstance = null;
+      }
     }
     try {
       const req = window.indexedDB.open(GC_IDB_NAME, GC_IDB_VERSION);
@@ -5185,9 +5199,22 @@ function openGastroCostIDB() {
           db.createObjectStore(GC_IDB_STORE);
         }
       };
-      req.onsuccess = () => resolve(req.result);
+      req.onsuccess = () => {
+        _gcIdbInstance = req.result;
+        if (_gcIdbInstance) {
+          _gcIdbInstance.onversionchange = () => {
+            try { _gcIdbInstance.close(); } catch (_) {}
+            _gcIdbInstance = null;
+          };
+          _gcIdbInstance.onclose = () => {
+            _gcIdbInstance = null;
+          };
+        }
+        resolve(_gcIdbInstance);
+      };
       req.onerror = () => {
         console.warn('GastroCost: IndexedDB open failed:', req.error);
+        _gcIdbInstance = null;
         resolve(null);
       };
       req.onblocked = () => {
@@ -5196,6 +5223,7 @@ function openGastroCostIDB() {
       };
     } catch (e) {
       console.warn('GastroCost: IndexedDB exception:', e);
+      _gcIdbInstance = null;
       resolve(null);
     }
   });
@@ -5210,15 +5238,17 @@ function idbSet(key, value) {
       const store = tx.objectStore(GC_IDB_STORE);
       const safeData = JSON.parse(JSON.stringify(value));
       const req = store.put(safeData, key);
-      req.onerror = () => resolve(false);
-      tx.oncomplete = () => {
-        try { db.close(); } catch(_) {}
-        resolve(true);
+      let settled = false;
+      const done = (ok) => {
+        if (!settled) {
+          settled = true;
+          resolve(ok);
+        }
       };
-      tx.onerror = () => {
-        try { db.close(); } catch(_) {}
-        resolve(false);
-      };
+      req.onerror = () => done(false);
+      tx.oncomplete = () => done(true);
+      tx.onerror = () => done(false);
+      tx.onabort = () => done(false);
     } catch (e) {
       console.warn('GastroCost: idbSet failed:', e);
       resolve(false);
@@ -5234,14 +5264,17 @@ function idbGet(key) {
       const tx = db.transaction(GC_IDB_STORE, 'readonly');
       const store = tx.objectStore(GC_IDB_STORE);
       const req = store.get(key);
-      req.onsuccess = () => {
-        try { db.close(); } catch(_) {}
-        resolve(req.result || null);
+      let settled = false;
+      const done = (val) => {
+        if (!settled) {
+          settled = true;
+          resolve(val);
+        }
       };
-      req.onerror = () => {
-        try { db.close(); } catch(_) {}
-        resolve(null);
-      };
+      req.onsuccess = () => done(req.result || null);
+      req.onerror = () => done(null);
+      tx.onerror = () => done(null);
+      tx.onabort = () => done(null);
     } catch (e) {
       console.warn('GastroCost: idbGet failed:', e);
       resolve(null);
@@ -5280,6 +5313,11 @@ class GC {
     this._saveTimer = null;
     this._isStoragePersisted = false;
     this._isIdbPersisted = false;
+    this._isPersistenceReady = false;
+    this._lsQuotaExceeded = false;
+    this._hasWarnedQuota = false;
+    const initialRawLs = (typeof localStorage !== 'undefined') ? localStorage.getItem('gc_v11') : null;
+    this._startedWithoutLocalStorage = !initialRawLs;
     this._bindAll();
     this._bindKeyboardShortcuts();
     this._bindLifecycleEvents();
@@ -7182,11 +7220,20 @@ class GC {
       btnForceSync.addEventListener('click', async () => {
         this._flushSave();
         const ok = await idbSet('gc_v11', this.db);
-        await this._requestPersistentStorage();
-        if (ok) {
-          toast('✅ Almacenamiento persistente verificado: Recetas blindadas en IndexedDB');
+        const persisted = await this._requestPersistentStorage();
+        const recipeCount = Object.keys((this.db && this.db.recipes) || {}).length;
+        let lsOk = false;
+        try {
+          localStorage.setItem('gc_v11', JSON.stringify(this.db));
+          lsOk = true;
+        } catch (_) {}
+
+        if (ok && lsOk) {
+          toast(`✅ Almacenamiento dual verificado: ${recipeCount} recetas sincronizadas en IDB + LocalStorage`);
+        } else if (ok) {
+          toast(`✅ Persistencia blindada: ${recipeCount} recetas seguras en IndexedDB (LocalStorage al límite)`);
         } else {
-          toast('Almacenamiento activo en LocalStorage');
+          toast(`Almacenamiento activo en LocalStorage (${recipeCount} recetas)`);
         }
       });
     }
@@ -8036,7 +8083,11 @@ class GC {
     } else if (state === 'dirty') {
       statusTextEl.innerHTML = `<span style="color:var(--amber)">🟠</span> Cambios sin guardar...`;
     } else {
-      statusTextEl.innerHTML = `<span style="color:var(--green)">🟢</span> Guardado (Dual IDB + Local) (${timeStr})`;
+      if (this._lsQuotaExceeded) {
+        statusTextEl.innerHTML = `<span style="color:var(--green)">🟢</span> Guardado en IndexedDB (LocalStorage lleno) (${timeStr})`;
+      } else {
+        statusTextEl.innerHTML = `<span style="color:var(--green)">🟢</span> Guardado (Dual IDB + Local) (${timeStr})`;
+      }
     }
   }
 
@@ -10929,17 +10980,58 @@ class GC {
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'hidden') {
           flush();
+        } else if (document.visibilityState === 'visible') {
+          this._checkExternalSync();
         }
       });
     }
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'gc_v11' && e.newValue) {
+        try {
+          const incoming = JSON.parse(e.newValue);
+          if (incoming && (incoming.updatedAt || 0) > ((this.db && this.db.updatedAt) || 0)) {
+            console.log('GastroCost: Sincronizando cambios desde otra pestaña...');
+            this.db = this._ensureSchema(incoming);
+            this._hydrateForm();
+            this._render();
+            toast('🔄 Recetas sincronizadas desde otra pestaña');
+          }
+        } catch (_) {}
+      }
+    });
+  }
+
+  async _checkExternalSync() {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const raw = localStorage.getItem('gc_v11');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && (parsed.updatedAt || 0) > ((this.db && this.db.updatedAt) || 0)) {
+            this.db = this._ensureSchema(parsed);
+            this._hydrateForm();
+            this._render();
+            return;
+          }
+        }
+      }
+      const idbData = await idbGet('gc_v11');
+      if (idbData && (idbData.updatedAt || 0) > ((this.db && this.db.updatedAt) || 0)) {
+        this.db = this._ensureSchema(idbData);
+        try { localStorage.setItem('gc_v11', JSON.stringify(this.db)); } catch(_) {}
+        this._hydrateForm();
+        this._render();
+      }
+    } catch (_) {}
   }
 
   _flushSave() {
     if (this._saveTimer) {
       clearTimeout(this._saveTimer);
       this._saveTimer = null;
+      return this._save();
     }
-    this._save();
+    return false;
   }
 
   async _requestPersistentStorage() {
@@ -10993,7 +11085,7 @@ class GC {
           const idbRecipeCount = Object.keys(idbData.recipes || {}).length;
           const currentRecipeCount = Object.keys((this.db && this.db.recipes) || {}).length;
 
-          if (idbTime > lsTime && idbRecipeCount >= currentRecipeCount) {
+          if (idbTime > lsTime) {
             console.log('GastroCost: IndexedDB contains newer state, syncing...');
             this.db = this._ensureSchema(idbData);
             try {
@@ -11001,16 +11093,42 @@ class GC {
             } catch(e) {}
             this._hydrateForm();
             this._render();
-          } else {
+          } else if (lsTime > idbTime) {
             // LocalStorage has current state, ensure IndexedDB mirror is synchronized
             await idbSet('gc_v11', this.db);
+          } else {
+            // Equal timestamps or neither had timestamp:
+            const idbKeys = Object.keys(idbData.recipes || {});
+            const hasCustomIdb = idbKeys.some(k => !k.startsWith('template-'));
+            const currentKeys = Object.keys((this.db && this.db.recipes) || {});
+            const hasCustomCurrent = currentKeys.some(k => !k.startsWith('template-'));
+
+            if (hasCustomIdb && !hasCustomCurrent) {
+              console.log('GastroCost: IndexedDB contains custom user recipes, restoring...');
+              this.db = this._ensureSchema(idbData);
+              try { localStorage.setItem('gc_v11', JSON.stringify(this.db)); } catch(e) {}
+              this._hydrateForm();
+              this._render();
+            } else if (idbRecipeCount > currentRecipeCount) {
+              this.db = this._ensureSchema(idbData);
+              try { localStorage.setItem('gc_v11', JSON.stringify(this.db)); } catch(e) {}
+              this._hydrateForm();
+              this._render();
+            } else {
+              await idbSet('gc_v11', this.db);
+            }
           }
         }
         this._isIdbPersisted = true;
         this._updatePersistenceStatus(true);
       } else {
-        // First run or empty IDB: seed IndexedDB immediately with active database
+        // First run or empty IDB: seed BOTH tiers immediately with active database
         if (this.db) {
+          try {
+            if (typeof localStorage !== 'undefined' && !localStorage.getItem('gc_v11')) {
+              localStorage.setItem('gc_v11', JSON.stringify(this.db));
+            }
+          } catch(e) {}
           await idbSet('gc_v11', this.db);
           this._isIdbPersisted = true;
           this._updatePersistenceStatus(true);
@@ -11018,6 +11136,9 @@ class GC {
       }
     } catch (err) {
       console.warn('GastroCost: Error during persistence initialization:', err);
+    } finally {
+      this._isPersistenceReady = true;
+      this._startedWithoutLocalStorage = false;
     }
   }
 
@@ -11043,7 +11164,11 @@ class GC {
     if (showNotice) {
       const isSub = !!(this.R && this.R.config && this.R.config.isSubRecipe);
       const name = (this.R && this.R.config && this.R.config.dishName) || (isSub ? 'Elaboración base' : 'Plato');
-      toast(isSub ? `✅ Elaboración base '${name}' guardada correctamente` : `✅ Plato '${name}' guardado correctamente en tu recetario`);
+      if (this._lsQuotaExceeded) {
+        toast(isSub ? `✅ Base '${name}' guardada en IndexedDB persistente (LocalStorage lleno)` : `✅ Plato '${name}' guardado en IndexedDB persistente (LocalStorage lleno)`);
+      } else {
+        toast(isSub ? `✅ Elaboración base '${name}' guardada correctamente` : `✅ Plato '${name}' guardado correctamente en tu recetario`);
+      }
     }
     return true;
   }
@@ -11054,26 +11179,30 @@ class GC {
     try { 
       localStorage.setItem('gc_v11', JSON.stringify(this.db)); 
       lsOk = true;
+      this._lsQuotaExceeded = false;
       this._updateFichaStatus('local');
     } catch (e) { 
       console.warn('Storage quota exceeded in LocalStorage:', e);
-      this._updateFichaStatus('dirty', '<span style="color:var(--red)">⚠️ Memoria LocalStorage llena</span>');
+      this._lsQuotaExceeded = true;
+      this._updateFichaStatus('dirty', '<span style="color:var(--amber)">⚠️ Guardado en IndexedDB (LocalStorage lleno)</span>');
+      if (!this._hasWarnedQuota) {
+        this._hasWarnedQuota = true;
+        toast('Aviso: Memoria LocalStorage llena, datos respaldados en IndexedDB persistente', 'w');
+      }
     }
 
     // Multi-tier Dual-Write: mirror to IndexedDB
-    idbSet('gc_v11', this.db).then(persisted => {
-      if (persisted) {
-        this._isIdbPersisted = true;
-        this._updatePersistenceStatus(true);
-      }
-    }).catch(err => console.warn('IndexedDB write error:', err));
-
-    if (lsOk) {
-      return true;
-    } else {
-      toast('Aviso: Memoria local llena, datos respaldados en IndexedDB persistente', 'w');
-      return true;
+    // Protect IndexedDB from being overwritten with default template prior to IDB hydration
+    if (this._isPersistenceReady || !this._startedWithoutLocalStorage) {
+      idbSet('gc_v11', this.db).then(persisted => {
+        if (persisted) {
+          this._isIdbPersisted = true;
+          this._updatePersistenceStatus(true);
+        }
+      }).catch(err => console.warn('IndexedDB write error:', err));
     }
+
+    return true;
   }
 
   _load() {
