@@ -3164,23 +3164,85 @@ body.theme-pearl-bronze #btn-open-export {
   border: 1px solid var(--b1);
 }
 .cmd-save-btn {
-  padding: 8px 18px !important;
-  font-size: 0.8rem !important;
+  padding: 8px 20px !important;
+  font-size: 0.84rem !important;
+  font-weight: 700 !important;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   cursor: pointer;
   border-radius: var(--r-pill) !important;
+  background: linear-gradient(135deg, #06b6d4, #0284c7) !important;
+  border: 1px solid rgba(6,182,212,0.6) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(6,182,212,0.35) !important;
+  transition: all 0.2s var(--ease) !important;
 }
-
-
-
+.cmd-save-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(6,182,212,0.5) !important;
+}
+.save-pulse,
+.cmd-save-btn.save-pulse {
+  animation: savePulseGlow 0.8s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+@keyframes savePulseGlow {
+  0% { transform: scale(0.97); box-shadow: 0 0 0 0 rgba(34,197,94,0.8); }
+  40% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(34,197,94,0); }
+  100% { transform: scale(1); }
+}
+.new-recipe-modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  padding: 14px 22px calc(14px + env(safe-area-inset-bottom, 0px)) 22px !important;
+}
+#new-recipe-modal .export-modal-card {
+  padding: 0 !important;
+}
+#new-recipe-modal .modal-body-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  padding: 18px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+@media (max-width: 480px) {
+  .new-recipe-modal-footer {
+    flex-direction: column-reverse;
+    gap: 8px;
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px)) 16px !important;
+  }
+  .new-recipe-modal-footer > div:last-child {
+    width: 100%;
+    display: flex;
+    gap: 8px;
+  }
+  .new-recipe-modal-footer #btn-cancel-new-recipe {
+    flex: 1;
+  }
+  .new-recipe-modal-footer #btn-confirm-new-recipe {
+    flex: 2;
+    justify-content: center;
+  }
+  #new-recipe-modal .modal-body-scroll {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+}
 
 @media (max-width: 768px) {
   #cmd-bar-ficha,
   .ficha-cmd-bar {
-    position: static;
+    position: sticky;
+    top: 6px;
+    z-index: 80;
     padding: 10px 14px;
+    margin-bottom: 12px;
   }
   .cmd-bar-left {
     width: 100%;
@@ -3188,6 +3250,11 @@ body.theme-pearl-bronze #btn-open-export {
   .cmd-bar-right {
     width: 100%;
     justify-content: space-between;
+    gap: 8px;
+  }
+  .cmd-save-btn {
+    flex: 1;
+    justify-content: center;
   }
 }
 
@@ -3487,6 +3554,8 @@ body.theme-pearl-bronze #btn-open-export {
       <button class="btn btn-ghost" id="btn-quick-catalog" title="Buscar en Catálogo Maestro (Ctrl+K)" style="display:inline-flex;align-items:center;gap:6px;border-color:rgba(6,182,212,0.3);color:var(--cyan);font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><span>🔍 Catálogo <kbd style="font-size:0.6rem;opacity:0.7;background:rgba(255,255,255,0.1);padding:1px 4px;border-radius:3px;">Ctrl+K</kbd></span></button>
       <button class="btn btn-ghost" id="btn-open-recipe-import" title="Importar Escandallo desde Excel (.xlsx / .csv)" style="display:inline-flex;align-items:center;gap:6px;border-color:rgba(34,197,94,0.3);color:var(--green);font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg><span>📥 Importar Excel</span></button>
       <button class="btn btn-ghost" id="btn-open-settings" title="Ajustes del Sistema, IA y Conectividad" style="display:inline-flex;align-items:center;gap:6px;border-color:rgba(212,175,55,0.3);color:var(--gold);font-weight:600;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg><span>⚙️ Ajustes</span></button>
+      <button class="btn btn-ghost" id="btn-hdr-new" onclick="window.gc && window.gc.openNewRecipeModal()" title="Crear Nuevo Plato o Elaboración (Ctrl+N)" style="display:inline-flex;align-items:center;gap:6px;border-color:rgba(6,182,212,0.4);color:var(--cyan);font-weight:700;"><span style="font-size:0.95rem;">➕</span><span>Nuevo Plato</span></button>
+      <button class="btn btn-primary" id="btn-hdr-save" onclick="window.gc && window.gc.saveCurrentRecipe()" title="Guardar Plato en Base de Datos (Ctrl+S)" style="display:inline-flex;align-items:center;gap:6px;font-weight:700;background:linear-gradient(135deg, #06b6d4, #0284c7);border:1px solid rgba(6,182,212,0.5);box-shadow:0 3px 12px rgba(6,182,212,0.3);"><span style="font-size:0.95rem;">💾</span><span>Guardar Plato</span></button>
       <button class="btn btn-primary" id="btn-open-export" title="Exportar o Compartir Receta">📤 Exportar / Compartir</button>
     </div>
   </header>
@@ -3514,8 +3583,8 @@ body.theme-pearl-bronze #btn-open-export {
       <input class="lib-search" id="lib-search" type="text" placeholder="Buscar fichas…" style="display:none">
       <div class="lib-list" id="lib-list"></div>
       <div class="lib-row">
-        <button class="btn btn-primary" id="btn-save" style="flex:1" title="Guardar · Ctrl+S">💾 Guardar</button>
-        <button class="btn btn-ghost" id="btn-new" style="flex:1" title="Nueva ficha · Ctrl+N">+ Nueva</button>
+        <button class="btn btn-primary" id="btn-save" style="flex:1" title="Guardar Plato · Ctrl+S">💾 Guardar Plato</button>
+        <button class="btn btn-ghost" id="btn-new" style="flex:1" title="Nuevo plato · Ctrl+N">➕ Nuevo Plato</button>
         <button class="btn btn-ghost btn-icon" id="btn-dup" title="Duplicar ficha">📋</button>
         <button class="btn btn-ghost btn-icon" id="btn-del-recipe" title="Eliminar ficha">🗑</button>
       </div>
@@ -3677,8 +3746,8 @@ body.theme-pearl-bronze #btn-open-export {
           <button type="button" class="btn btn-ghost cmd-export-btn" id="btn-cmd-export" onclick="gc.toggleExportModal(true)" title="Exportar Documentos (PDF, Excel, Word)" style="display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;padding:7px 12px;border-color:var(--cyan);color:var(--cyan);">
             <span>📤 Exportar</span>
           </button>
-          <button type="button" class="btn btn-primary cmd-save-btn" id="btn-cmd-save" title="Guardar Cambios">
-            <span id="cmd-save-btn-text">💾 Guardar Cambios</span>
+          <button type="button" class="btn btn-primary cmd-save-btn" id="btn-cmd-save" title="Guardar Plato en Base de Datos (Ctrl+S)">
+            <span id="cmd-save-btn-text">💾 Guardar Plato / Receta</span>
           </button>
         </div>
       </div>
@@ -4229,13 +4298,13 @@ body.theme-pearl-bronze #btn-open-export {
 
 <!-- Mobile bottom nav -->
 <nav class="bottom-nav" id="bottom-nav">
-  <button onclick="gc._save();gc._showSaveIndicator()">
-    <span class="bn-icon">💾</span><span>Guardar</span>
+  <button id="btn-bottom-save" onclick="window.gc && window.gc.saveCurrentRecipe()" title="Guardar plato actual" style="color:var(--cyan);font-weight:700;">
+    <span class="bn-icon" style="filter:drop-shadow(0 0 6px rgba(6,182,212,0.45));">💾</span><span>Guardar</span>
   </button>
-  <button onclick="gc.openNewRecipeModal()">
-    <span class="bn-icon">➕</span><span>Nueva</span>
+  <button id="btn-bottom-new" onclick="window.gc && window.gc.openNewRecipeModal()" title="Crear nuevo plato" style="font-weight:600;">
+    <span class="bn-icon">➕</span><span>Nuevo</span>
   </button>
-  <button onclick="gc.toggleExportModal(true)">
+  <button onclick="window.gc && window.gc.toggleExportModal(true)">
     <span class="bn-icon">📤</span><span>Exportar</span>
   </button>
   <button id="bn-menu">
@@ -4300,117 +4369,136 @@ body.theme-pearl-bronze #btn-open-export {
 
 <!-- V16.8 Modal Guiado: Nueva Ficha Técnica de Elaboración -->
 <div class="modal-overlay" id="new-recipe-modal">
-  <div class="export-modal-card" style="max-width:540px;width:95%;max-height:min(92vh,860px);overflow-y:auto;padding:24px;">
-    <button class="modal-close" id="btn-close-new-recipe-modal" type="button" title="Cerrar modal">✕</button>
-    <div class="modal-title" style="display:flex;align-items:center;gap:10px;">
-      <span style="font-size:1.3rem;">✨</span>
-      <span>Nueva Ficha Técnica de Elaboración</span>
+  <div class="export-modal-card" style="max-width:550px;width:95%;max-height:min(90vh,840px);display:flex;flex-direction:column;overflow:hidden;padding:0;border:1px solid var(--b2);border-radius:var(--r2);background:var(--s1);box-shadow:var(--sh3);">
+    <div style="padding:18px 22px 14px;border-bottom:1px solid var(--b2);background:var(--s2);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;">
+      <div>
+        <div class="modal-title" style="display:flex;align-items:center;gap:10px;margin-bottom:3px;">
+          <span style="font-size:1.3rem;">✨</span>
+          <span>Nueva Ficha Técnica de Elaboración</span>
+        </div>
+        <div class="modal-subtitle" style="margin-bottom:0;font-size:0.75rem;color:var(--t3);">
+          Configura y guarda los parámetros culinarios para tu nuevo plato o elaboración base.
+        </div>
+      </div>
+      <button class="modal-close" id="btn-close-new-recipe-modal" type="button" title="Cerrar modal" style="position:static;font-size:1.2rem;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid var(--b2);cursor:pointer;color:var(--t2);">✕</button>
     </div>
-    <div class="modal-subtitle" style="margin-bottom:18px;">
-      Configura los parámetros culinarios y operativos para tu nuevo plato o elaboración base de cocina.
-    </div>
 
-    <form id="form-new-recipe" style="display:flex;flex-direction:column;gap:14px;">
-      <div class="fg">
-        <label class="fl">Nombre de la Elaboración / Plato</label>
-        <input class="fi" id="new-recipe-name" type="text" required placeholder="Ej. Solomillo Rossini con Trufa" autocomplete="off">
-        <div style="font-size:0.68rem;color:var(--t3);margin-top:2px;">Asigna un nombre culinario claro para identificarlo fácilmente en cocina y sala.</div>
-      </div>
-
-      <div class="fg">
-        <label class="fl">Tipo de Ficha</label>
-        <div class="new-recipe-type-grid">
-          <label class="new-recipe-type-card active" id="card-type-dish" style="cursor:pointer;border:1.5px solid var(--cyan);background:var(--cyanL);border-radius:var(--r2);padding:12px;display:flex;flex-direction:column;gap:4px;transition:all 0.2s;">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <div style="display:flex;align-items:center;gap:6px;">
-                <input type="radio" name="new-recipe-type" value="dish" checked style="accent-color:var(--cyan);">
-                <strong style="color:var(--t1);font-size:0.85rem;">🍽️ Plato de Carta</strong>
-              </div>
-              <span class="tag" style="font-size:0.6rem;background:rgba(212,175,55,0.15);color:var(--gold);border:1px solid var(--gold);padding:1px 5px;">Venta Directa</span>
-            </div>
-            <span style="font-size:0.68rem;color:var(--t3);line-height:1.3;">Receta de venta final o emplatado para servicio en sala.</span>
-          </label>
-          <label class="new-recipe-type-card" id="card-type-subrecipe" style="cursor:pointer;border:1.5px solid var(--b2);background:var(--s2);border-radius:var(--r2);padding:12px;display:flex;flex-direction:column;gap:4px;transition:all 0.2s;">
-            <div style="display:flex;align-items:center;justify-content:space-between;">
-              <div style="display:flex;align-items:center;gap:6px;">
-                <input type="radio" name="new-recipe-type" value="subrecipe" style="accent-color:var(--cyan);">
-                <strong style="color:var(--t1);font-size:0.85rem;">🥘 Sub-receta / Base</strong>
-              </div>
-              <span class="tag" style="font-size:0.6rem;background:rgba(6,182,212,0.15);color:var(--cyan);border:1px solid var(--cyan);padding:1px 5px;">Mise en Place</span>
-            </div>
-            <span style="font-size:0.68rem;color:var(--t3);line-height:1.3;">Salsa, fondo, masa o farsa para usar en otras fichas.</span>
-          </label>
-        </div>
-      </div>
-
-      <div class="fg" id="box-new-portions">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <label class="fl" style="margin-bottom:0;">Raciones Base (PAX)</label>
-          <span style="font-size:0.68rem;color:var(--t3);">Raciones estándar para el escandallo</span>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <button type="button" class="btn btn-ghost btn-stepper" id="btn-portions-dec" style="width:38px;height:38px;font-size:1.1rem;font-weight:bold;padding:0;display:flex;align-items:center;justify-content:center;">−</button>
-          <input class="fi" id="new-recipe-portions" type="number" min="1" step="1" value="4" inputmode="decimal" style="text-align:center;font-weight:700;font-size:1rem;margin-bottom:0;flex:1;">
-          <button type="button" class="btn btn-ghost btn-stepper" id="btn-portions-inc" style="width:38px;height:38px;font-size:1.1rem;font-weight:bold;padding:0;display:flex;align-items:center;justify-content:center;">+</button>
-        </div>
-        <div class="pax-quick-pills" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
-          <button type="button" class="pax-pill" data-pax="1">1 PAX</button>
-          <button type="button" class="pax-pill" data-pax="2">2 PAX</button>
-          <button type="button" class="pax-pill active" data-pax="4">4 PAX (Estándar)</button>
-          <button type="button" class="pax-pill" data-pax="6">6 PAX</button>
-          <button type="button" class="pax-pill" data-pax="10">10 PAX</button>
-          <button type="button" class="pax-pill" data-pax="20">20 PAX (Banquete)</button>
-        </div>
-      </div>
-
-      <div id="box-new-subrecipe-fields" style="display:none;border-top:1px dashed var(--b2);padding-top:12px;margin-top:2px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <label class="fl" style="color:var(--cyan);margin-bottom:0;">Rendimiento Medido del Lote</label>
-          <span style="font-size:0.68rem;color:var(--cyan);">Peso o volumen neto resultante</span>
-        </div>
-        <div style="display:flex;gap:10px;">
-          <div style="flex:1;">
-            <input class="fi" id="new-subrecipe-yield" type="number" min="0.001" step="any" value="1000" inputmode="decimal" style="margin-bottom:0;">
+    <form id="form-new-recipe" style="display:flex;flex-direction:column;flex:1;overflow:hidden;margin:0;">
+      <div class="modal-body-scroll">
+        <div class="fg">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <label class="fl" style="margin-bottom:0;font-weight:700;">Nombre del Plato / Elaboración</label>
+            <span style="font-size:0.68rem;color:var(--cyan);font-weight:600;">↵ Pulsa Enter para Guardar</span>
           </div>
-          <div style="width:130px;">
-            <select class="fi" id="new-subrecipe-unit" style="margin-bottom:0;">
-              <option value="g">Gramos (g)</option>
-              <option value="kg">Kilos (kg)</option>
-              <option value="ml">Mililitros (ml)</option>
-              <option value="L">Litros (L)</option>
-              <option value="ud">Unidades (ud)</option>
-            </select>
+          <input class="fi" id="new-recipe-name" type="text" placeholder="Ej. Solomillo Rossini con Trufa" autocomplete="off" style="font-size:0.95rem;padding:11px 12px;font-weight:600;">
+          <div style="font-size:0.68rem;color:var(--t3);margin-top:2px;">Asigna un nombre culinario claro para identificarlo fácilmente en cocina y sala.</div>
+        </div>
+
+        <div class="fg">
+          <label class="fl">Tipo de Ficha</label>
+          <div class="new-recipe-type-grid">
+            <label class="new-recipe-type-card active" id="card-type-dish" style="cursor:pointer;border:1.5px solid var(--cyan);background:var(--cyanL);border-radius:var(--r2);padding:12px;display:flex;flex-direction:column;gap:4px;transition:all 0.2s;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <input type="radio" name="new-recipe-type" value="dish" checked style="accent-color:var(--cyan);">
+                  <strong style="color:var(--t1);font-size:0.85rem;">🍽️ Plato de Carta</strong>
+                </div>
+                <span class="tag" style="font-size:0.6rem;background:rgba(212,175,55,0.15);color:var(--gold);border:1px solid var(--gold);padding:1px 5px;">Venta Directa</span>
+              </div>
+              <span style="font-size:0.68rem;color:var(--t3);line-height:1.3;">Receta de venta final o emplatado para servicio en sala.</span>
+            </label>
+            <label class="new-recipe-type-card" id="card-type-subrecipe" style="cursor:pointer;border:1.5px solid var(--b2);background:var(--s2);border-radius:var(--r2);padding:12px;display:flex;flex-direction:column;gap:4px;transition:all 0.2s;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <input type="radio" name="new-recipe-type" value="subrecipe" style="accent-color:var(--cyan);">
+                  <strong style="color:var(--t1);font-size:0.85rem;">🥘 Sub-receta / Base</strong>
+                </div>
+                <span class="tag" style="font-size:0.6rem;background:rgba(6,182,212,0.15);color:var(--cyan);border:1px solid var(--cyan);padding:1px 5px;">Mise en Place</span>
+              </div>
+              <span style="font-size:0.68rem;color:var(--t3);line-height:1.3;">Salsa, fondo, masa o farsa para usar en otras fichas.</span>
+            </label>
           </div>
         </div>
-        <div class="yield-quick-pills" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
-          <button type="button" class="yield-pill" data-yield="500" data-unit="g">500 g</button>
-          <button type="button" class="yield-pill active" data-yield="1000" data-unit="g">1.000 g (1 kg)</button>
-          <button type="button" class="yield-pill" data-yield="2000" data-unit="g">2.000 g (2 kg)</button>
-          <button type="button" class="yield-pill" data-yield="5000" data-unit="g">5.000 g (5 kg)</button>
-          <button type="button" class="yield-pill" data-yield="1" data-unit="L">1 Litro (1 L)</button>
-          <button type="button" class="yield-pill" data-yield="5" data-unit="L">5 Litros (5 L)</button>
+
+        <div class="fg" id="box-new-portions">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <label class="fl" style="margin-bottom:0;">Raciones Base (PAX)</label>
+            <span style="font-size:0.68rem;color:var(--t3);">Raciones estándar para el escandallo</span>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button type="button" class="btn btn-ghost btn-stepper" id="btn-portions-dec" style="width:38px;height:38px;font-size:1.1rem;font-weight:bold;padding:0;display:flex;align-items:center;justify-content:center;">−</button>
+            <input class="fi" id="new-recipe-portions" type="number" min="1" step="1" value="4" inputmode="decimal" style="text-align:center;font-weight:700;font-size:1rem;margin-bottom:0;flex:1;">
+            <button type="button" class="btn btn-ghost btn-stepper" id="btn-portions-inc" style="width:38px;height:38px;font-size:1.1rem;font-weight:bold;padding:0;display:flex;align-items:center;justify-content:center;">+</button>
+          </div>
+          <div class="pax-quick-pills" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+            <button type="button" class="pax-pill" data-pax="1">1 PAX</button>
+            <button type="button" class="pax-pill" data-pax="2">2 PAX</button>
+            <button type="button" class="pax-pill active" data-pax="4">4 PAX (Estándar)</button>
+            <button type="button" class="pax-pill" data-pax="6">6 PAX</button>
+            <button type="button" class="pax-pill" data-pax="10">10 PAX</button>
+            <button type="button" class="pax-pill" data-pax="20">20 PAX (Banquete)</button>
+          </div>
+        </div>
+
+        <div id="box-new-subrecipe-fields" style="display:none;border-top:1px dashed var(--b2);padding-top:12px;margin-top:2px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <label class="fl" style="color:var(--cyan);margin-bottom:0;">Rendimiento Medido del Lote</label>
+            <span style="font-size:0.68rem;color:var(--cyan);">Peso o volumen neto resultante</span>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;">
+              <input class="fi" id="new-subrecipe-yield" type="number" min="0.001" step="any" value="1000" inputmode="decimal" style="margin-bottom:0;">
+            </div>
+            <div style="width:130px;">
+              <select class="fi" id="new-subrecipe-unit" style="margin-bottom:0;">
+                <option value="g">Gramos (g)</option>
+                <option value="kg">Kilos (kg)</option>
+                <option value="ml">Mililitros (ml)</option>
+                <option value="L">Litros (L)</option>
+                <option value="ud">Unidades (ud)</option>
+              </select>
+            </div>
+          </div>
+          <div class="yield-quick-pills" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+            <button type="button" class="yield-pill" data-yield="500" data-unit="g">500 g</button>
+            <button type="button" class="yield-pill active" data-yield="1000" data-unit="g">1.000 g (1 kg)</button>
+            <button type="button" class="yield-pill" data-yield="2000" data-unit="g">2.000 g (2 kg)</button>
+            <button type="button" class="yield-pill" data-yield="5000" data-unit="g">5.000 g (5 kg)</button>
+            <button type="button" class="yield-pill" data-yield="1" data-unit="L">1 Litro (1 L)</button>
+            <button type="button" class="yield-pill" data-yield="5" data-unit="L">5 Litros (5 L)</button>
+          </div>
+        </div>
+
+        <div class="fg" style="border-top:1px dashed var(--b2);padding-top:12px;margin-top:2px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <label class="fl" style="margin-bottom:0;">Food Cost Objetivo (%)</label>
+            <span style="font-size:0.68rem;color:var(--t3);">Margen de materia prima deseado</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input class="fi" id="new-recipe-fcgoal" type="number" min="1" max="100" step="0.5" value="28" inputmode="decimal" style="width:100px;text-align:center;font-weight:700;margin-bottom:0;">
+            <div class="fc-quick-pills" style="display:flex;gap:5px;flex:1;overflow-x:auto;">
+              <button type="button" class="fc-pill" data-fc="25">25% (Alta Gama)</button>
+              <button type="button" class="fc-pill active" data-fc="28">28% (Estándar)</button>
+              <button type="button" class="fc-pill" data-fc="30">30% (Casual)</button>
+              <button type="button" class="fc-pill" data-fc="33">33% (Menú)</button>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="fg" style="border-top:1px dashed var(--b2);padding-top:12px;margin-top:2px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
-          <label class="fl" style="margin-bottom:0;">Food Cost Objetivo (%)</label>
-          <span style="font-size:0.68rem;color:var(--t3);">Margen de materia prima deseado</span>
+      <!-- Sticky / Fixed Footer with High-Contrast Save Button -->
+      <div class="new-recipe-modal-footer" style="padding:14px 22px;background:var(--s2);border-top:1px solid var(--b2);display:flex;justify-content:space-between;align-items:center;gap:10px;box-shadow:0 -4px 16px rgba(0,0,0,0.25);">
+        <div style="font-size:0.73rem;color:var(--t3);display:flex;align-items:center;gap:5px;">
+          <span style="color:var(--green);font-size:0.95rem;">💾</span>
+          <span>Se guardará en recetario</span>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
-          <input class="fi" id="new-recipe-fcgoal" type="number" min="1" max="100" step="0.5" value="28" inputmode="decimal" style="width:100px;text-align:center;font-weight:700;margin-bottom:0;">
-          <div class="fc-quick-pills" style="display:flex;gap:5px;flex:1;overflow-x:auto;">
-            <button type="button" class="fc-pill" data-fc="25">25% (Alta Gama)</button>
-            <button type="button" class="fc-pill active" data-fc="28">28% (Estándar)</button>
-            <button type="button" class="fc-pill" data-fc="30">30% (Casual)</button>
-            <button type="button" class="fc-pill" data-fc="33">33% (Menú)</button>
-          </div>
+          <button type="button" class="btn btn-ghost" id="btn-cancel-new-recipe" style="min-height:42px;padding:0 14px;font-size:0.82rem;">Cancelar</button>
+          <button type="submit" class="btn btn-primary" id="btn-confirm-new-recipe" style="min-height:44px;padding:0 20px;font-size:0.88rem;font-weight:800;letter-spacing:0.01em;background:linear-gradient(135deg, #06b6d4, #0284c7);border:1px solid rgba(6,182,212,0.5);box-shadow:0 3px 12px rgba(6,182,212,0.35);display:inline-flex;align-items:center;gap:6px;">
+            <span>💾</span>
+            <span id="btn-confirm-new-recipe-text">Guardar y Crear Plato</span>
+          </button>
         </div>
-      </div>
-
-      <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:8px;">
-        <button type="button" class="btn btn-ghost" id="btn-cancel-new-recipe">Cancelar</button>
-        <button type="submit" class="btn btn-primary" id="btn-confirm-new-recipe" style="min-height:44px;font-size:0.86rem;font-weight:700;">✨ Crear Ficha de Elaboración</button>
       </div>
     </form>
   </div>
@@ -6065,14 +6153,21 @@ class GC {
 
     /* Library buttons */
     document.getElementById('btn-save').addEventListener('click', () => {
-      this._save();
-      this._showSaveIndicator();
-      this._updateFichaStatus('local');
-      toast('Guardado ✓');
+      this.saveCurrentRecipe();
     });
     document.getElementById('btn-new').addEventListener('click', () => this.openNewRecipeModal());
     document.getElementById('btn-dup').addEventListener('click', () => this._duplicateRecipe());
     document.getElementById('btn-del-recipe').addEventListener('click', () => this._delRecipe());
+
+    /* Header & Mobile Bottom Nav Buttons */
+    const btnHdrNew = document.getElementById('btn-hdr-new');
+    if (btnHdrNew) btnHdrNew.addEventListener('click', () => this.openNewRecipeModal());
+    const btnHdrSave = document.getElementById('btn-hdr-save');
+    if (btnHdrSave) btnHdrSave.addEventListener('click', () => this.saveCurrentRecipe());
+    const btnBottomSave = document.getElementById('btn-bottom-save');
+    if (btnBottomSave) btnBottomSave.addEventListener('click', () => this.saveCurrentRecipe());
+    const btnBottomNew = document.getElementById('btn-bottom-new');
+    if (btnBottomNew) btnBottomNew.addEventListener('click', () => this.openNewRecipeModal());
 
     /* V16.3 Ergonomic Ficha Command Bar */
     const btnModeConsult = document.getElementById('btn-mode-consult');
@@ -6086,10 +6181,7 @@ class GC {
     const btnCmdSave = document.getElementById('btn-cmd-save');
     if (btnCmdSave) {
       btnCmdSave.addEventListener('click', () => {
-        this._save();
-        this._showSaveIndicator();
-        this._updateFichaStatus('local');
-        toast('Guardado ✓');
+        this.saveCurrentRecipe();
       });
     }
 
@@ -6132,7 +6224,12 @@ class GC {
           : 'Ej. Fondo oscuro de ternera, Salsa holandesa, Masa brioche...';
       }
       if (submitBtn) {
-        submitBtn.innerHTML = isDish ? '✨ Crear Ficha de Plato' : '✨ Crear Elaboración Base';
+        const textSpan = document.getElementById('btn-confirm-new-recipe-text');
+        if (textSpan) {
+          textSpan.textContent = isDish ? 'Guardar y Crear Plato' : 'Guardar Sub-receta Base';
+        } else {
+          submitBtn.innerHTML = `<span>💾</span> <span id="btn-confirm-new-recipe-text">${isDish ? 'Guardar y Crear Plato' : 'Guardar Sub-receta Base'}</span>`;
+        }
       }
     };
 
@@ -6249,16 +6346,30 @@ class GC {
     if (formNewRecipe) {
       formNewRecipe.addEventListener('submit', e => {
         e.preventDefault();
-        const name = document.getElementById('new-recipe-name')?.value?.trim();
-        if (!name) return;
         const type = document.querySelector('input[name="new-recipe-type"]:checked')?.value || 'dish';
         const isSub = type === 'subrecipe';
+        const rawName = document.getElementById('new-recipe-name')?.value?.trim();
+        const name = rawName || (isSub ? 'Nueva Elaboración Base' : 'Nuevo Plato');
         const portions = parseInt(document.getElementById('new-recipe-portions')?.value, 10) || 1;
         const yieldQty = parseFloat(document.getElementById('new-subrecipe-yield')?.value) || 1000;
         const yieldUnit = document.getElementById('new-subrecipe-unit')?.value || 'g';
         const fcGoal = parseFloat(document.getElementById('new-recipe-fcgoal')?.value) || 28;
         this.closeNewRecipeModal();
         this._newRecipe(name, portions, isSub, yieldQty, yieldUnit, fcGoal);
+      });
+
+      // Pressing Enter in any input or select submits and saves immediately
+      formNewRecipe.querySelectorAll('input, select').forEach(inp => {
+        inp.addEventListener('keydown', e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            if (formNewRecipe.requestSubmit) {
+              formNewRecipe.requestSubmit();
+            } else {
+              formNewRecipe.dispatchEvent(new Event('submit', { cancelable: true }));
+            }
+          }
+        });
       });
     }
 
@@ -7038,10 +7149,16 @@ class GC {
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 's' || e.key === 'S') {
           e.preventDefault();
-          this._save();
-          this._showSaveIndicator();
-          this._updateFichaStatus('local');
-          toast('Guardado ✓');
+          const newRecipeModalEl = document.getElementById('new-recipe-modal');
+          if (newRecipeModalEl && newRecipeModalEl.classList.contains('open')) {
+            const formNew = document.getElementById('form-new-recipe');
+            if (formNew) {
+              if (formNew.requestSubmit) formNew.requestSubmit();
+              else formNew.dispatchEvent(new Event('submit', { cancelable: true }));
+              return;
+            }
+          }
+          this.saveCurrentRecipe();
         } else if (e.key === 'n' || e.key === 'N') {
           if (!isEditable) {
             e.preventDefault();
@@ -7489,12 +7606,33 @@ class GC {
     this._renderTable();
     this._renderCards();
     this._renderPricingAssistant();
-        this._renderKPIs();
+    this._renderKPIs();
     this._renderActiveTab();
     this._updateSubRecipeCostInfo();
+    const isSub = !!(this.R && this.R.config && this.R.config.isSubRecipe);
     const cmdDishTitle = document.getElementById('cmd-dish-title');
     if (cmdDishTitle) {
       cmdDishTitle.textContent = (this.R && this.R.config && this.R.config.dishName) || 'Nueva Ficha';
+    }
+    const cmdSaveBtnText = document.getElementById('cmd-save-btn-text');
+    if (cmdSaveBtnText) {
+      cmdSaveBtnText.textContent = isSub ? '💾 Guardar Elaboración Base' : '💾 Guardar Plato';
+    }
+    const btnHdrSave = document.getElementById('btn-hdr-save');
+    if (btnHdrSave) {
+      btnHdrSave.innerHTML = `<span style="font-size:0.95rem;">💾</span><span>${isSub ? 'Guardar Elaboración' : 'Guardar Plato'}</span>`;
+      btnHdrSave.title = isSub ? 'Guardar Elaboración Base en Base de Datos (Ctrl+S)' : 'Guardar Plato en Base de Datos (Ctrl+S)';
+    }
+    const btnSave = document.getElementById('btn-save');
+    if (btnSave) {
+      btnSave.textContent = isSub ? '💾 Guardar Elaboración' : '💾 Guardar Plato';
+    }
+    const badgeEl = document.querySelector('.cmd-title-badge');
+    if (badgeEl) {
+      badgeEl.textContent = isSub ? 'ELABORACIÓN BASE' : 'PLATO ACTIVO';
+      badgeEl.style.color = isSub ? 'var(--gold)' : 'var(--cyan)';
+      badgeEl.style.background = isSub ? 'rgba(212,175,55,0.15)' : 'var(--cyanL)';
+      badgeEl.style.borderColor = isSub ? 'var(--gold)' : 'var(--b2)';
     }
   }
 
@@ -7811,7 +7949,12 @@ class GC {
     });
 
     const submitBtn = document.getElementById('btn-confirm-new-recipe');
-    if (submitBtn) submitBtn.innerHTML = '✨ Crear Ficha de Plato';
+    const submitText = document.getElementById('btn-confirm-new-recipe-text');
+    if (submitText) {
+      submitText.textContent = 'Guardar y Crear Plato';
+    } else if (submitBtn) {
+      submitBtn.innerHTML = '<span>💾</span> <span id="btn-confirm-new-recipe-text">Guardar y Crear Plato</span>';
+    }
 
     modal.classList.add('open');
     document.body.classList.add('modal-open');
@@ -10455,7 +10598,7 @@ class GC {
 
   _newRecipe(name, portions, isSubRecipe, yieldQty, yieldUnit, fcGoal) {
     const id = uid();
-    const dishName = (name && typeof name === 'string' && name.trim()) ? name.trim() : (isSubRecipe ? 'Nueva Elaboración Base' : 'Nueva Ficha');
+    const dishName = (name && typeof name === 'string' && name.trim()) ? name.trim() : (isSubRecipe ? 'Nueva Elaboración Base' : 'Nuevo Plato');
     const p = (portions !== undefined && portions !== null && !isNaN(portions)) ? Math.max(1, parseInt(portions, 10)) : 1;
     const isSub = !!isSubRecipe;
     const yQty = (yieldQty !== undefined && yieldQty !== null && !isNaN(yieldQty)) ? Math.max(0.001, parseFloat(yieldQty)) : 1000;
@@ -10485,8 +10628,20 @@ class GC {
     this.setTab('tab-escandallo');
     this._hydrateForm();
     this._render();
-    this._autoSave();
+    this._save();
+    this._showSaveIndicator();
     this._updateFichaStatus('local');
+
+    // Trigger visual pulse glow on all save buttons
+    ['btn-cmd-save', 'btn-hdr-save', 'btn-save', 'btn-bottom-save'].forEach(bid => {
+      const el = document.getElementById(bid);
+      if (el) {
+        el.classList.remove('save-pulse');
+        void el.offsetWidth;
+        el.classList.add('save-pulse');
+        setTimeout(() => el.classList.remove('save-pulse'), 850);
+      }
+    });
 
     if (!name || !name.trim()) {
       const dishNameInp = document.querySelector('[data-k="dishName"]');
@@ -10499,7 +10654,7 @@ class GC {
         try { ingNameInp.focus(); } catch (e) {}
       }
     }
-    toast(isSub ? 'Nueva elaboración base creada ✓' : 'Nueva ficha técnica de elaboración creada ✓');
+    toast(isSub ? `✅ Elaboración base '${dishName}' guardada y creada con éxito ✓` : `✅ Plato '${dishName}' guardado y creado con éxito ✓`);
   }
 
   _duplicateRecipe() {
@@ -10621,14 +10776,30 @@ class GC {
   /* ═══════════════════════════════════════════════
      PERSISTENCE & MIGRATION
      ═══════════════════════════════════════════════ */
+  saveCurrentRecipe(showNotice = true) {
+    if (this.R) this.R.updatedAt = Date.now();
+    const ok = this._save();
+    if (!ok) return false;
+    this._showSaveIndicator();
+    this._updateFichaStatus('local');
+    if (showNotice) {
+      const isSub = !!(this.R && this.R.config && this.R.config.isSubRecipe);
+      const name = (this.R && this.R.config && this.R.config.dishName) || (isSub ? 'Elaboración base' : 'Plato');
+      toast(isSub ? `✅ Elaboración base '${name}' guardada correctamente` : `✅ Plato '${name}' guardado correctamente en tu recetario`);
+    }
+    return true;
+  }
+
   _save() {
     try { 
       localStorage.setItem('gc_v11', JSON.stringify(this.db)); 
       this._updateFichaStatus('local');
+      return true;
     } catch (e) { 
       console.warn('Storage quota exceeded:', e);
       this._updateFichaStatus('dirty', '<span style="color:var(--red)">⚠️ Memoria llena</span>');
       toast('Alerta: Memoria local del navegador llena, exporta un backup', 'e');
+      return false;
     }
   }
 
@@ -10766,6 +10937,7 @@ class GC {
 
   _showSaveIndicator() {
     const ind = document.getElementById('save-ind');
+    if (!ind) return;
     ind.classList.add('show');
     clearTimeout(this._saveIndTimer);
     this._saveIndTimer = setTimeout(() => ind.classList.remove('show'), 2200);
