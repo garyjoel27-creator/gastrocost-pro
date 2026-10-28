@@ -54,6 +54,9 @@ class VirtualElement {
     this.disabled = false;
   }
 
+  get className() { return Array.from(this._classList).join(' '); }
+  set className(val) { this._classList = new Set(String(val || '').split(/\s+/).filter(Boolean)); }
+
   get classList() {
     return {
       add: (...classes) => classes.forEach(c => this._classList.add(c)),
@@ -304,7 +307,9 @@ function createSandbox(initialStorage = {}, initialIdb = null) {
       serviceWorker: {
         register: () => Promise.resolve({ scope: '/' }),
         addEventListener: () => {}
-      }
+      },
+      canShare: (data) => true,
+      share: (data) => Promise.resolve()
     },
     localStorage: localStorageMock,
     document: documentMock,
@@ -350,6 +355,15 @@ function createSandbox(initialStorage = {}, initialIdb = null) {
     Map: Map
   };
   windowMock.window = windowMock;
+  windowMock.File = function(parts, name, opts) {
+    this.parts = parts;
+    this.name = name;
+    this.type = opts ? opts.type : '';
+  };
+  windowMock.Blob = function(parts, opts) {
+    this.parts = parts;
+    this.type = opts ? opts.type : '';
+  };
 
   // Emulate persistent storage and IndexedDB
   windowMock.navigator.storage = {
@@ -438,6 +452,15 @@ function createSandbox(initialStorage = {}, initialIdb = null) {
     Map: Map,
     Event: function(type) { this.type = type; },
     CustomEvent: function(type, opts) { this.type = type; this.detail = opts ? opts.detail : null; },
+    File: function(parts, name, opts) {
+      this.parts = parts;
+      this.name = name;
+      this.type = opts ? opts.type : '';
+    },
+    Blob: function(parts, opts) {
+      this.parts = parts;
+      this.type = opts ? opts.type : '';
+    },
     FileReader: function() {
       this.readAsText = function(file) {
         setTimeout(() => {

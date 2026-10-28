@@ -1111,6 +1111,245 @@ function runTier1Tests(registerTest) {
     assert(idbData, 'IndexedDB must be initialized on first run');
     assert(idbData.recipes && Object.keys(idbData.recipes).length > 0, 'IndexedDB must contain seeded recipes');
   });
+
+  /* ══════════════════════════════════════════════════════════════
+     REQUIREMENT R9: Fast Data Entry & Drive Sharing (Fases 1–3)
+     ══════════════════════════════════════════════════════════════ */
+
+  registerTest('T1.R9.1: Web Share API integration in Document Export Center with graceful fallback', async () => {
+    const html = getIndexHtml();
+
+    // Verify UI components in export modal
+    assert(html.includes('id="btn-share-drive"'), 'Document Export Center must contain btn-share-drive action button');
+    assert(html.includes('id="btn-share-kitchen"'), 'Kitchen export card must contain btn-share-kitchen button');
+    assert(html.includes('id="btn-share-financial"'), 'Financial export card must contain btn-share-financial button');
+    assert(html.includes('id="share-drive-modal"'), 'share-drive-modal overlay must be present');
+
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+
+    let shareCalls = [];
+    window.navigator.canShare = (data) => true;
+    window.navigator.share = (data) => {
+      shareCalls.push(data);
+      return Promise.resolve();
+    };
+
+    // Test sharing PDF Cocina
+    const shared = await app.shareDocument('pdf-kitchen');
+    assert.strictEqual(shared, true, 'shareDocument must succeed when navigator.share is available');
+    assert(shareCalls.length > 0, 'navigator.share must have been called');
+    assert(shareCalls[0].files && shareCalls[0].files.length === 1, 'File object must be passed to navigator.share');
+
+    // Test graceful fallback when canShare returns false
+    window.navigator.canShare = () => false;
+    let downloadedBlob = null;
+    app._downloadBlob = (blob, filename, mime) => {
+      downloadedBlob = { blob, filename, mime };
+    };
+
+    const fallbackResult = await app.shareDocument('excel');
+    assert.strictEqual(fallbackResult, true, 'Fallback download must return true');
+    assert(downloadedBlob !== null, '_downloadBlob must be invoked as fallback when canShare is false');
+    assert(downloadedBlob.filename.endsWith('.xlsx'), 'Downloaded file must be an Excel sheet');
+  });
+
+  registerTest('T1.R9.2: Spanish Culinary Parser extracting quantities, spoken numbers & culinary idiom conversions', () => {
+    const { GC } = loadGastroCostApp();
+    const app = new GC();
+
+    // Case 1: medio kilo -> 500g
+    const res1 = app.parseSpanishCulinary('Medio kilo de atún rojo');
+    assert.strictEqual(res1.length, 1, 'Must parse exactly 1 item');
+    assert.strictEqual(res1[0].net, 500, 'Medio kilo must resolve to 500');
+    assert.strictEqual(res1[0].unit, 'g', 'Unit must be g');
+    assert(res1[0].name.toLowerCase().includes('atún'), 'Ingredient name must be extracted');
+
+    // Case 2: doscientos cincuenta gramos -> 250g
+    const res2 = app.parseSpanishCulinary('Doscientos cincuenta gramos de harina');
+    assert.strictEqual(res2.length, 1);
+    assert.strictEqual(res2[0].net, 250, 'doscientos cincuenta gramos must resolve to 250');
+    assert.strictEqual(res2[0].unit, 'g');
+
+    // Case 3: 1 litro -> 1000g (ml)
+    const res3 = app.parseSpanishCulinary('1 litro de leche');
+    assert.strictEqual(res3.length, 1);
+    assert.strictEqual(res3[0].net, 1000, '1 litro must resolve to 1000');
+
+    // Case 4: 3 unidades de huevos -> 3 ud
+    const res4 = app.parseSpanishCulinary('3 unidades de huevos');
+    assert.strictEqual(res4.length, 1);
+    assert.strictEqual(res4[0].net, 3, '3 unidades must resolve to 3');
+    assert.strictEqual(res4[0].unit, 'ud', 'Unit must be ud');
+
+    // Case 5: un chorrito -> 10g (ml)
+    const res5 = app.parseSpanishCulinary('un chorrito de aceite de oliva');
+    assert.strictEqual(res5.length, 1);
+    assert.strictEqual(res5[0].net, 10, 'un chorrito must resolve to 10');
+
+    // Case 6: una pizca -> 2g
+    const res6 = app.parseSpanishCulinary('una pizca de sal marina');
+    assert.strictEqual(res6.length, 1);
+    assert.strictEqual(res6[0].net, 2, 'una pizca must resolve to 2');
+
+    // Case 7: 2 cucharadas -> 30g
+    const res7 = app.parseSpanishCulinary('2 cucharadas de azúcar');
+    assert.strictEqual(res7.length, 1);
+    assert.strictEqual(res7[0].net, 30, '2 cucharadas must resolve to 30');
+
+    // Case 8: 1 cucharadita -> 5g
+    const res8 = app.parseSpanishCulinary('1 cucharadita de pimienta');
+    assert.strictEqual(res8.length, 1);
+    assert.strictEqual(res8[0].net, 5, '1 cucharadita must resolve to 5');
+
+    // Case 9: un kilo y medio -> 1500g
+    const res9 = app.parseSpanishCulinary('un kilo y medio de tomates maduros');
+    assert.strictEqual(res9.length, 1);
+    assert.strictEqual(res9[0].net, 1500, 'un kilo y medio must resolve to 1500');
+
+    // Case 10: Multi-item compound sentence with commas and conjunction 'y'
+    const compound = 'Medio kilo de atún rojo, 250 gramos de cebolla, 3 unidades de huevos y un chorrito de aceite de oliva';
+    const compoundRes = app.parseSpanishCulinary(compound);
+    assert.strictEqual(compoundRes.length, 4, 'Must parse exactly 4 distinct ingredients');
+    assert.strictEqual(compoundRes[0].net, 500);
+    assert.strictEqual(compoundRes[1].net, 250);
+    assert.strictEqual(compoundRes[2].net, 3);
+    assert.strictEqual(compoundRes[2].unit, 'ud');
+    assert.strictEqual(compoundRes[3].net, 10);
+  });
+
+  registerTest('T1.R9.3: Voice Dictation parsing with Master Catalog automatic matching and enrichment', () => {
+    const { GC } = loadGastroCostApp();
+    const app = new GC();
+
+    // Populate catalog with a custom item
+    app.db.catalog = [
+      {
+        id: 'cat-truffle',
+        name: 'Trufa Negra Melanosporum',
+        price: 950.00,
+        waste: 5,
+        category: 'spice',
+        unit: 'g',
+        allergens: []
+      },
+      {
+        id: 'cat-tuna',
+        name: 'Atún Rojo Balfegó',
+        price: 32.00,
+        waste: 12,
+        category: 'protein',
+        unit: 'g',
+        allergens: ['fish']
+      }
+    ];
+
+    const parsed = app.parseSpanishCulinary('Doscientos gramos de atún rojo y 50 gramos de trufa negra');
+    assert.strictEqual(parsed.length, 2, 'Must parse 2 items');
+
+    // Check catalog matching on item 1 (atún rojo -> Atún Rojo Balfegó)
+    const item1 = parsed[0];
+    assert.strictEqual(item1.isMatched, true, 'Atún rojo must match catalog');
+    assert.strictEqual(item1.name, 'Atún Rojo Balfegó', 'Name must be enriched from catalog');
+    assert.strictEqual(item1.price, 32.00, 'Price must be enriched from catalog');
+    assert.strictEqual(item1.waste, 12, 'Waste must be enriched from catalog');
+    assert.deepStrictEqual(Array.from(item1.allergens), ['fish'], 'Allergens must be enriched from catalog');
+
+    // Check catalog matching on item 2 (trufa negra -> Trufa Negra Melanosporum)
+    const item2 = parsed[1];
+    assert.strictEqual(item2.isMatched, true, 'Trufa negra must match catalog');
+    assert.strictEqual(item2.price, 950.00, 'Price must be 950.00');
+
+    // Check non-catalog item
+    const unknownParsed = app.parseSpanishCulinary('100 gramos de fruta del dragón desconocida');
+    assert.strictEqual(unknownParsed.length, 1);
+    assert.strictEqual(unknownParsed[0].isMatched, false, 'Unknown item must not match catalog');
+    assert.strictEqual(unknownParsed[0].price, 0, 'Unknown item price must default to 0');
+  });
+
+  registerTest('T1.R9.4: Batch ingredient insertion into recipe from voice dictation preview with cascade recalculation', () => {
+    const { GC, document } = loadGastroCostApp();
+    const app = new GC();
+
+    // Make active recipe a sub-recipe to verify cascade recalculation
+    app.R.config.isSubRecipe = true;
+    app.R.config.yieldQty = 1000;
+    app.R.config.yieldUnit = 'g';
+    app.R.ingredients = [];
+
+    // Set voice parsed items directly to simulate preview modal confirmation
+    app._voiceParsedItems = [
+      { name: 'Solomillo de Ternera Madurada', net: 800, unit: 'g', waste: 10, price: 26.00, category: 'protein', allergens: [] },
+      { name: 'Huevos Camperos', net: 2, unit: 'ud', waste: 0, price: 0.40, category: 'dairy', allergens: ['egg'] }
+    ];
+
+    // Mock DOM elements for modal insertion
+    const listEl = document.getElementById('voice-parsed-list');
+    const cb1 = document.createElement('input');
+    cb1.type = 'checkbox';
+    cb1.className = 'voice-item-check';
+    cb1.dataset.idx = '0';
+    cb1.checked = true;
+
+    const cb2 = document.createElement('input');
+    cb2.type = 'checkbox';
+    cb2.className = 'voice-item-check';
+    cb2.dataset.idx = '1';
+    cb2.checked = true;
+
+    listEl.appendChild(cb1);
+    listEl.appendChild(cb2);
+
+    let saved = false;
+    app._autoSave = () => { saved = true; };
+
+    // Execute insertion
+    app.insertVoiceIngredients();
+
+    // Verify ingredients were injected into recipe
+    assert.strictEqual(app.R.ingredients.length, 2, 'Both ingredients must be injected into recipe');
+    assert.strictEqual(app.R.ingredients[0].name, 'Solomillo de Ternera Madurada');
+    assert.strictEqual(app.R.ingredients[0].net, 800);
+    assert.strictEqual(app.R.ingredients[0].waste, 10);
+    assert.strictEqual(app.R.ingredients[1].unit, 'ud');
+    assert.strictEqual(app.R.ingredients[1].cost, 2 * 0.40);
+
+    // Verify autoSave was triggered
+    assert.strictEqual(saved, true, 'AutoSave must be called after voice ingredient insertion');
+  });
+
+  registerTest('T1.R9.5: AI Recipe Notes Assistant with structured Michelin-grade method generation and auto-save', async () => {
+    const html = getIndexHtml();
+    assert(html.includes('id="btn-ai-recipe-notes"'), 'Notes area must contain btn-ai-recipe-notes button');
+    assert(html.includes('id="recipe-notes"'), 'Notes textarea must have id="recipe-notes"');
+
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+
+    app.R.config.dishName = 'Tataki de Atún Rojo Balfegó';
+    app.R.config.portions = 4;
+    app.R.ingredients = [
+      { name: 'Atún Rojo', net: 600, unit: 'g', waste: 0, price: 30, cost: 18 },
+      { name: 'Sésamo', net: 50, unit: 'g', waste: 0, price: 10, cost: 0.5 }
+    ];
+    app.R.config.notes = '';
+
+    let saved = false;
+    app._autoSave = () => { saved = true; };
+
+    // Call without API key (fallback template generation)
+    await app.generateRecipeNotesWithAI();
+
+    assert(app.R.config.notes.length > 50, 'Recipe notes must be populated');
+    assert(app.R.config.notes.includes('1. MISE EN PLACE Y PREPARACIÓN PREVIA'), 'Notes must include structured Mise en place section');
+    assert(app.R.config.notes.includes('2. ELABORACIÓN Y TÉCNICAS DE COCCIÓN'), 'Notes must include structured Elaboración section');
+    assert(app.R.config.notes.includes('3. PASE, MONTAJE Y EMPLATADO'), 'Notes must include structured Pase y Emplatado section');
+    assert.strictEqual(saved, true, 'AutoSave must be invoked when AI elaborations are generated');
+
+    const ta = app.document.getElementById('recipe-notes');
+    assert.strictEqual(ta.value, app.R.config.notes, 'Textarea #recipe-notes value must match updated recipe notes');
+  });
 }
 
 module.exports = { runTier1Tests };
+

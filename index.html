@@ -3532,6 +3532,42 @@ body.theme-pearl-bronze #btn-open-export {
   background: var(--cyanL);
 }
 
+/* V17.2 Voice Dictation & Pulse Animation */
+@keyframes voicePulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    transform: scale(1.08);
+    box-shadow: 0 0 0 16px rgba(239, 68, 68, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+.voice-mic-btn.is-recording {
+  animation: voicePulse 1.4s infinite !important;
+  background: #ef4444 !important;
+  border-color: #fca5a5 !important;
+}
+.voice-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--bg3);
+  border: 1px solid var(--b1);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.82rem;
+}
+.voice-item-card.is-matched {
+  border-color: rgba(34, 197, 94, 0.35);
+  background: rgba(34, 197, 94, 0.04);
+}
+
 </style>
 </head>
 
@@ -3694,11 +3730,16 @@ body.theme-pearl-bronze #btn-open-export {
       </div>
       <!-- Notes collapsible -->
       <div class="notes-section" id="notes-section">
-        <button class="notes-toggle" type="button" id="notes-toggle">
-          📝 Notas de elaboración <span class="toggle-icon">▸</span>
-        </button>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <button class="notes-toggle" type="button" id="notes-toggle" style="flex:1;">
+            📝 Notas de elaboración <span class="toggle-icon">▸</span>
+          </button>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-ai-recipe-notes" style="font-size:0.72rem;padding:3px 8px;border-color:var(--cyan);color:var(--cyan);margin-right:6px;display:flex;align-items:center;gap:4px;" title="Redactar método de elaboración con Inteligencia Artificial">
+            <span>🪄</span> <span>Redactar Elaboración con IA</span>
+          </button>
+        </div>
         <div class="notes-body">
-          <textarea class="fi notes-ta cfg" data-k="notes" placeholder="Instrucciones de montaje, alérgenos, observaciones…"></textarea>
+          <textarea class="fi notes-ta cfg" id="recipe-notes" data-k="notes" placeholder="Instrucciones de montaje, alérgenos, observaciones…"></textarea>
         </div>
       </div>
     </div>
@@ -3860,9 +3901,14 @@ body.theme-pearl-bronze #btn-open-export {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
             <span>Desglose de Insumos</span>
           </div>
-          <div class="view-mode-toggle" id="ing-view-mode-toggle" role="group" aria-label="Modo de visualización de insumos">
-            <button type="button" class="view-mode-btn active" id="btn-view-table" data-mode="table" title="Vista en Tabla detallada">📋 Tabla Detallada</button>
-            <button type="button" class="view-mode-btn" id="btn-view-cards" data-mode="cards" title="Vista en Tarjetas táctiles ergonómicas">📇 Tarjetas Táctiles</button>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-ghost btn-sm" id="btn-voice-dictation-top" style="border-color:var(--cyan);color:var(--cyan);display:flex;align-items:center;gap:6px;font-size:0.75rem;padding:4px 10px;" title="Dictáfono Culinario por Voz">
+              <span>🎙️</span> <span>Dictar Insumos</span>
+            </button>
+            <div class="view-mode-toggle" id="ing-view-mode-toggle" role="group" aria-label="Modo de visualización de insumos">
+              <button type="button" class="view-mode-btn active" id="btn-view-table" data-mode="table" title="Vista en Tabla detallada">📋 Tabla Detallada</button>
+              <button type="button" class="view-mode-btn" id="btn-view-cards" data-mode="cards" title="Vista en Tarjetas táctiles ergonómicas">📇 Tarjetas Táctiles</button>
+            </div>
           </div>
         </div>
         <div class="form-table-split">
@@ -3919,7 +3965,12 @@ body.theme-pearl-bronze #btn-open-export {
                 <label class="allergen-option" data-a="sulfite"><input type="checkbox" value="sulfite">🍷 Sulf</label>
               </div>
             </div>
-            <button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px">+ Añadir Insumo</button>
+            <div style="display:flex;gap:8px;margin-top:6px;">
+              <button type="submit" class="btn btn-primary" style="flex:1;">+ Añadir Insumo</button>
+              <button type="button" class="btn btn-ghost" id="btn-voice-dictation" style="border-color:var(--cyan);color:var(--cyan);display:flex;align-items:center;justify-content:center;gap:6px;padding:0 14px;" title="Dictáfono Culinario por Voz">
+                <span>🎙️</span> <span>Dictar Insumos</span>
+              </button>
+            </div>
           </form>
 
           <!-- Ingredients display container (Dual Mode) -->
@@ -4589,6 +4640,19 @@ body.theme-pearl-bronze #btn-open-export {
     <div class="modal-scroll-body">
     
     <div class="export-options-grid">
+      <!-- V17.2 Guardado en Google Drive / Compartir Nativo (Web Share API) -->
+      <div class="export-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(6, 182, 212, 0.06)); border: 1px solid rgba(59, 130, 246, 0.35);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+          <div style="flex:1;min-width:240px;">
+            <div class="export-card-header" style="color:var(--cyan); margin-bottom:4px;font-size:0.95rem;display:flex;align-items:center;gap:6px;">
+              <span>📲</span> <span>Guardado en Drive / Compartir Nativo</span>
+            </div>
+            <div class="export-card-desc" style="margin-bottom:0;">Envía directamente tus fichas técnicas y escandallos a Google Drive, WhatsApp, Correo o Archivos de tu dispositivo con un solo toque sin requerir configuración previa (Web Share API nativa).</div>
+          </div>
+          <button type="button" class="btn btn-primary" id="btn-share-drive" style="background:#2563eb;border-color:#3b82f6;font-weight:700;min-width:210px;">📲 Compartir / Guardar en Drive</button>
+        </div>
+      </div>
+
       <!-- Ficha de Cocina -->
       <div class="export-card">
         <div>
@@ -4597,6 +4661,7 @@ body.theme-pearl-bronze #btn-open-export {
         </div>
         <div class="export-card-actions">
           <button class="btn btn-primary" id="btn-export-pdf-kitchen" style="width:100%;font-weight:700;">📄 Exportar PDF Cocina</button>
+          <button type="button" class="btn btn-ghost" id="btn-share-kitchen" style="width:100%;border-color:var(--cyan);color:var(--cyan);">📲 Compartir / Guardar en Drive (Cocina)</button>
           <button class="btn btn-ghost" id="btn-export-doc-kitchen" style="width:100%;">📝 Exportar Word (.doc)</button>
           <button class="btn btn-ghost" id="btn-print-kitchen" style="width:100%;font-size:0.8rem;">🖨️ Imprimir / Guardar PDF (Nativo)</button>
         </div>
@@ -4611,6 +4676,7 @@ body.theme-pearl-bronze #btn-open-export {
         <div class="export-card-actions">
           <button class="btn btn-green" id="btn-export-pdf-financial" style="width:100%;font-weight:700;">📄 Exportar PDF Financiero</button>
           <button class="btn btn-primary" id="btn-export-xls" style="width:100%;font-weight:700;background:rgba(34,197,94,0.15);border-color:var(--green);color:var(--green);">📊 Exportar Excel (.xlsx)</button>
+          <button type="button" class="btn btn-ghost" id="btn-share-financial" style="width:100%;border-color:var(--green);color:var(--green);">📲 Compartir / Guardar en Drive (Financiero)</button>
           <button class="btn btn-ghost" id="btn-export-doc-financial" style="width:100%;">📝 Exportar Word (.doc)</button>
           <button class="btn btn-ghost" id="btn-print-financial" style="width:100%;font-size:0.8rem;">🖨️ Imprimir / Guardar PDF (Nativo)</button>
         </div>
@@ -4642,6 +4708,132 @@ body.theme-pearl-bronze #btn-open-export {
     </div>
     <div class="modal-footer-fixed" style="display:flex;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid var(--b1);flex-shrink:0;">
       <button type="button" class="btn btn-ghost" id="btn-close-export-footer" style="font-size:0.78rem;padding:7px 18px;">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- V17.2 Modal de Compartir Nativo & Guardar en Drive -->
+<div class="modal-overlay" id="share-drive-modal">
+  <div class="export-modal-card" style="max-width:540px;padding:24px;">
+    <button class="modal-close" id="btn-close-share-modal" title="Cerrar modal">✕</button>
+    <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+      <span>📲</span> <span>Compartir / Guardar en Drive</span>
+    </div>
+    <div class="modal-subtitle" style="margin-bottom:16px;">
+      Envía la ficha técnica seleccionada directamente a Google Drive, WhatsApp, Correo o Archivos de tu dispositivo.
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <button type="button" class="btn btn-ghost" id="btn-share-modal-pdf-kitchen" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;border-color:var(--cyan);">
+        <div>
+          <div style="font-weight:700;color:var(--cyan);font-size:0.9rem;">🍳 Ficha Técnica de Cocina (PDF)</div>
+          <div style="font-size:0.72rem;color:var(--t3);">Gramajes netos, foto, alérgenos y elaboración paso a paso</div>
+        </div>
+        <span style="font-size:1.1rem;">📲</span>
+      </button>
+
+      <button type="button" class="btn btn-ghost" id="btn-share-modal-pdf-financial" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;border-color:var(--green);">
+        <div>
+          <div style="font-weight:700;color:var(--green);font-size:0.9rem;">📊 Escandallo Financiero (PDF)</div>
+          <div style="font-size:0.72rem;color:var(--t3);">Márgenes, mermas calculadas, precios unitarios y rentabilidad</div>
+        </div>
+        <span style="font-size:1.1rem;">📲</span>
+      </button>
+
+      <button type="button" class="btn btn-ghost" id="btn-share-modal-excel" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;border-color:rgba(34,197,94,0.4);">
+        <div>
+          <div style="font-weight:700;color:var(--green);font-size:0.9rem;">📗 Hoja de Cálculo Excel (.xlsx)</div>
+          <div style="font-size:0.72rem;color:var(--t3);">Libro de costes editable con fórmulas completas</div>
+        </div>
+        <span style="font-size:1.1rem;">📲</span>
+      </button>
+
+      <button type="button" class="btn btn-ghost" id="btn-share-modal-doc-kitchen" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;">
+        <div>
+          <div style="font-weight:700;color:var(--t1);font-size:0.9rem;">📝 Documento Word Cocina (.doc)</div>
+          <div style="font-size:0.72rem;color:var(--t3);">Documento editable con formato oficial de chef ejecutivo</div>
+        </div>
+        <span style="font-size:1.1rem;">📲</span>
+      </button>
+
+      <button type="button" class="btn btn-ghost" id="btn-share-modal-doc-financial" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;">
+        <div>
+          <div style="font-weight:700;color:var(--t1);font-size:0.9rem;">📝 Documento Word Financiero (.doc)</div>
+          <div style="font-size:0.72rem;color:var(--t3);">Informe ejecutivo de escandallo para gerencia</div>
+        </div>
+        <span style="font-size:1.1rem;">📲</span>
+      </button>
+    </div>
+
+    <div style="display:flex;justify-content:flex-end;margin-top:16px;">
+      <button type="button" class="btn btn-ghost" id="btn-close-share-footer" style="font-size:0.8rem;padding:7px 18px;">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- V17.2 Dictáfono Culinario por Voz -->
+<div class="modal-overlay" id="voice-dictation-modal">
+  <div class="export-modal-card has-scroll-body" style="max-width:680px;width:95%;">
+    <button class="modal-close" id="btn-close-voice-modal" title="Cerrar modal">✕</button>
+    <div class="modal-header-fixed" style="flex-shrink:0;padding-right:36px;margin-bottom:12px;">
+      <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
+        <span>🎙️</span> <span>Dictáfono Culinario por Voz</span>
+      </div>
+      <div class="modal-subtitle" style="margin-bottom:0;">
+        Dicta ingredientes y cantidades en lenguaje natural (ej. <i>"Medio kilo de atún rojo, 250 gramos de cebolla, 3 unidades de huevos y un chorrito de aceite de oliva"</i>).
+      </div>
+    </div>
+    <div class="modal-scroll-body">
+      <!-- Recording Controller Area -->
+      <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px 12px;background:var(--bg3);border:1px solid var(--b1);border-radius:12px;margin-bottom:14px;text-align:center;">
+        <button type="button" class="voice-mic-btn" id="btn-voice-record-toggle" title="Iniciar / Detener Grabación" style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg, #0284c7, #06b6d4);color:#ffffff;border:3px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:10px;transition:all 0.2s ease;">
+          <svg id="voice-mic-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="22"></line>
+            <line x1="8" y1="22" x2="16" y2="22"></line>
+          </svg>
+        </button>
+        <div id="voice-record-status" style="font-weight:700;font-size:0.9rem;color:var(--t1);margin-bottom:4px;">
+          Toca el micrófono para comenzar a dictar
+        </div>
+        <div style="font-size:0.75rem;color:var(--t3);">
+          Reconocimiento en tiempo real en español · También puedes editar o pegar texto abajo
+        </div>
+      </div>
+
+      <!-- Transcript Area -->
+      <div class="fg" style="margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <label class="fl" style="margin-bottom:0;font-size:0.75rem;">Texto Reconocido / Dictado Culinario</label>
+          <button type="button" class="btn btn-ghost btn-sm" id="btn-voice-clear" style="font-size:0.7rem;padding:2px 8px;">Limpiar</button>
+        </div>
+        <textarea class="fi" id="voice-transcript-input" rows="3" placeholder="Ej. Medio kilo de atún rojo, 250 gramos de cebolla, 3 unidades de huevos y un chorrito de aceite de oliva..." style="font-size:0.85rem;line-height:1.4;resize:vertical;"></textarea>
+      </div>
+
+      <!-- Action Button to Parse -->
+      <div style="margin-bottom:16px;">
+        <button type="button" class="btn btn-primary" id="btn-voice-parse" style="width:100%;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;">
+          <span>⚙️</span> <span>Analizar y Extraer Insumos</span>
+        </button>
+      </div>
+
+      <!-- Parsed Insumos Container -->
+      <div id="voice-parsed-container" style="display:none;background:var(--bg2);border:1px solid var(--b1);border-radius:10px;padding:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--b1);">
+          <div style="font-weight:700;font-size:0.85rem;color:var(--cyan);display:flex;align-items:center;gap:6px;">
+            <span>📋</span> <span id="voice-parsed-count">Insumos Detectados (0)</span>
+          </div>
+          <span style="font-size:0.7rem;color:var(--t3);">Verifica cantidades y precios antes de insertar</span>
+        </div>
+        <div id="voice-parsed-list" style="display:flex;flex-direction:column;gap:8px;max-height:280px;overflow-y:auto;padding-right:4px;"></div>
+      </div>
+    </div>
+    <div class="modal-footer-fixed" style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--b1);flex-shrink:0;">
+      <button type="button" class="btn btn-ghost" id="btn-voice-close" style="font-size:0.8rem;padding:7px 18px;">Cancelar</button>
+      <button type="button" class="btn btn-green" id="btn-voice-insert" style="font-size:0.82rem;padding:8px 20px;font-weight:700;display:none;">
+        📥 Insertar en Escandallo
+      </button>
     </div>
   </div>
 </div><!-- V16.4 Modal de Importación de Escandallos Excel -->
@@ -6599,6 +6791,125 @@ class GC {
       this.toggleExportModal(false);
       this._exportExcel();
     });
+
+    /* V17.2 Fast Data Entry & Drive Sharing Event Listeners */
+    // Web Share & Google Drive triggers
+    const btnShareDrive = document.getElementById('btn-share-drive');
+    if (btnShareDrive) btnShareDrive.addEventListener('click', () => this.openShareModal());
+
+    const btnShareKitchen = document.getElementById('btn-share-kitchen');
+    if (btnShareKitchen) btnShareKitchen.addEventListener('click', () => {
+      this.toggleExportModal(false);
+      this.shareDocument('pdf-kitchen');
+    });
+
+    const btnShareFinancial = document.getElementById('btn-share-financial');
+    if (btnShareFinancial) btnShareFinancial.addEventListener('click', () => {
+      this.toggleExportModal(false);
+      this.shareDocument('pdf-financial');
+    });
+
+    const btnCloseShareModal = document.getElementById('btn-close-share-modal');
+    if (btnCloseShareModal) btnCloseShareModal.addEventListener('click', () => this.closeShareModal());
+
+    const btnCloseShareFooter = document.getElementById('btn-close-share-footer');
+    if (btnCloseShareFooter) btnCloseShareFooter.addEventListener('click', () => this.closeShareModal());
+
+    const shareModal = document.getElementById('share-drive-modal');
+    if (shareModal) {
+      shareModal.addEventListener('click', e => {
+        if (e.target === shareModal) this.closeShareModal();
+      });
+    }
+
+    const btnShareModalPdfKitchen = document.getElementById('btn-share-modal-pdf-kitchen');
+    if (btnShareModalPdfKitchen) btnShareModalPdfKitchen.addEventListener('click', () => {
+      this.closeShareModal();
+      this.shareDocument('pdf-kitchen');
+    });
+
+    const btnShareModalPdfFinancial = document.getElementById('btn-share-modal-pdf-financial');
+    if (btnShareModalPdfFinancial) btnShareModalPdfFinancial.addEventListener('click', () => {
+      this.closeShareModal();
+      this.shareDocument('pdf-financial');
+    });
+
+    const btnShareModalExcel = document.getElementById('btn-share-modal-excel');
+    if (btnShareModalExcel) btnShareModalExcel.addEventListener('click', () => {
+      this.closeShareModal();
+      this.shareDocument('excel');
+    });
+
+    const btnShareModalDocKitchen = document.getElementById('btn-share-modal-doc-kitchen');
+    if (btnShareModalDocKitchen) btnShareModalDocKitchen.addEventListener('click', () => {
+      this.closeShareModal();
+      this.shareDocument('doc-kitchen');
+    });
+
+    const btnShareModalDocFinancial = document.getElementById('btn-share-modal-doc-financial');
+    if (btnShareModalDocFinancial) btnShareModalDocFinancial.addEventListener('click', () => {
+      this.closeShareModal();
+      this.shareDocument('doc-financial');
+    });
+
+    // Voice Dictation modal & control listeners
+    const btnVoiceDictation = document.getElementById('btn-voice-dictation');
+    if (btnVoiceDictation) btnVoiceDictation.addEventListener('click', () => this.openVoiceDictationModal());
+
+    const btnVoiceDictationTop = document.getElementById('btn-voice-dictation-top');
+    if (btnVoiceDictationTop) btnVoiceDictationTop.addEventListener('click', () => this.openVoiceDictationModal());
+
+    const btnCloseVoiceModal = document.getElementById('btn-close-voice-modal');
+    if (btnCloseVoiceModal) btnCloseVoiceModal.addEventListener('click', () => this.closeVoiceDictationModal());
+
+    const btnVoiceClose = document.getElementById('btn-voice-close');
+    if (btnVoiceClose) btnVoiceClose.addEventListener('click', () => this.closeVoiceDictationModal());
+
+    const voiceModal = document.getElementById('voice-dictation-modal');
+    if (voiceModal) {
+      voiceModal.addEventListener('click', e => {
+        if (e.target === voiceModal) this.closeVoiceDictationModal();
+      });
+    }
+
+    const btnVoiceRecordToggle = document.getElementById('btn-voice-record-toggle');
+    if (btnVoiceRecordToggle) btnVoiceRecordToggle.addEventListener('click', () => this.toggleVoiceRecording());
+
+    const btnVoiceClear = document.getElementById('btn-voice-clear');
+    if (btnVoiceClear) btnVoiceClear.addEventListener('click', () => {
+      const inp = document.getElementById('voice-transcript-input');
+      if (inp) inp.value = '';
+      const parsedContainer = document.getElementById('voice-parsed-container');
+      if (parsedContainer) parsedContainer.style.display = 'none';
+      const insertBtn = document.getElementById('btn-voice-insert');
+      if (insertBtn) insertBtn.style.display = 'none';
+      this._voiceParsedItems = [];
+    });
+
+    const btnVoiceParse = document.getElementById('btn-voice-parse');
+    if (btnVoiceParse) btnVoiceParse.addEventListener('click', () => {
+      const inp = document.getElementById('voice-transcript-input');
+      const txt = inp ? inp.value.trim() : '';
+      if (!txt) {
+        toast('No hay texto para analizar. Dicta o escribe ingredientes primero', 'w');
+        return;
+      }
+      const items = this.parseSpanishCulinary(txt);
+      if (!items || !items.length) {
+        toast('No se pudieron extraer ingredientes del texto proporcionado', 'w');
+        return;
+      }
+      this.renderVoiceParsedResults(items);
+    });
+
+    const btnVoiceInsert = document.getElementById('btn-voice-insert');
+    if (btnVoiceInsert) btnVoiceInsert.addEventListener('click', () => {
+      this.insertVoiceIngredients();
+    });
+
+    // AI Recipe Notes Assistant trigger
+    const btnAiNotes = document.getElementById('btn-ai-recipe-notes');
+    if (btnAiNotes) btnAiNotes.addEventListener('click', () => this.generateRecipeNotesWithAI());
     const btnExpBackup = document.getElementById('btn-export-backup');
     if (btnExpBackup) btnExpBackup.addEventListener('click', () => {
       this.toggleExportModal(false);
@@ -13071,6 +13382,903 @@ class GC {
   }
 
   /* ═══════════════════════════════════════════════
+     V17.2 WEB SHARE API & GOOGLE DRIVE INTEGRATION
+     ═══════════════════════════════════════════════ */
+  toggleShareModal(show) {
+    const modal = document.getElementById('share-drive-modal');
+    if (!modal) return;
+    if (show) {
+      modal.classList.add('open');
+      document.body.classList.add('modal-open');
+    } else {
+      modal.classList.remove('open');
+      document.body.classList.remove('modal-open');
+    }
+  }
+
+  openShareModal() {
+    this.toggleExportModal(false);
+    this.toggleShareModal(true);
+  }
+
+  closeShareModal() {
+    this.toggleShareModal(false);
+  }
+
+  async shareDocument(type = 'pdf-kitchen') {
+    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+    const cfg = r.config || {};
+    const dishName = cfg.dishName || 'Ficha_Tecnica';
+
+    if (type === 'pdf-kitchen') {
+      const filename = this._safeFilename(dishName, 'Ficha_Cocina', 'pdf');
+      const blob = await this._generateKitchenPDFBlob();
+      if (blob) {
+        return await this._shareFile(blob, filename, 'application/pdf', `🍳 Ficha de Cocina — ${dishName}`);
+      } else {
+        const docBlob = this._generateWordKitchenBlob();
+        const docName = this._safeFilename(dishName, 'Ficha_Cocina', 'doc');
+        return await this._shareFile(docBlob, docName, 'application/msword', `🍳 Ficha de Cocina — ${dishName}`);
+      }
+    } else if (type === 'pdf-financial') {
+      const filename = this._safeFilename(dishName, 'Escandallo_Financiero', 'pdf');
+      const blob = await this._generateFinancialPDFBlob();
+      if (blob) {
+        return await this._shareFile(blob, filename, 'application/pdf', `📊 Escandallo Financiero — ${dishName}`);
+      } else {
+        const docBlob = this._generateWordFinancialBlob();
+        const docName = this._safeFilename(dishName, 'Escandallo_Financiero', 'doc');
+        return await this._shareFile(docBlob, docName, 'application/msword', `📊 Escandallo Financiero — ${dishName}`);
+      }
+    } else if (type === 'excel') {
+      const filename = `GastroCost_${dishName.replace(/[^a-zA-Z0-9_-]/g, '_')}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      const blob = await this._generateExcelBlob();
+      if (blob) {
+        return await this._shareFile(blob, filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', `📗 Excel Escandallo — ${dishName}`);
+      } else {
+        toast('No se pudo compilar el archivo Excel', 'e');
+        return false;
+      }
+    } else if (type === 'doc-kitchen') {
+      const filename = this._safeFilename(dishName, 'Ficha_Cocina', 'doc');
+      const blob = this._generateWordKitchenBlob();
+      return await this._shareFile(blob, filename, 'application/msword', `📝 Ficha de Cocina Word — ${dishName}`);
+    } else if (type === 'doc-financial') {
+      const filename = this._safeFilename(dishName, 'Escandallo_Financiero', 'doc');
+      const blob = this._generateWordFinancialBlob();
+      return await this._shareFile(blob, filename, 'application/msword', `📝 Escandallo Financiero Word — ${dishName}`);
+    }
+  }
+
+  async _shareFile(blob, filename, mimeType, title, text) {
+    if (!blob) {
+      toast('No se pudo generar el archivo para compartir', 'e');
+      return false;
+    }
+    let file = null;
+    try {
+      if (typeof File !== 'undefined') {
+        file = new File([blob], filename, { type: mimeType });
+      }
+    } catch (e) {
+      file = null;
+    }
+
+    const shareTitle = title || filename;
+    const shareText = text || `Ficha técnica exportada desde GastroCost PRO: ${filename}`;
+
+    if (typeof navigator !== 'undefined' && navigator.share && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          title: shareTitle,
+          text: shareText
+        });
+        toast('Documento compartido / guardado con éxito ✓');
+        return true;
+      } catch (err) {
+        if (err && err.name === 'AbortError') {
+          return false;
+        }
+        console.warn('navigator.share falló, usando descarga estándar:', err);
+      }
+    }
+
+    // Graceful fallback: standard download
+    this._downloadBlob(blob, filename, mimeType);
+    toast('Descargando archivo (Web Share no disponible en este dispositivo) ✓');
+    return true;
+  }
+
+  async _generateKitchenPDFBlob() {
+    const html = this._buildKitchenFichaHTML();
+    const loaded = await this._ensureHTML2PDF().catch(() => false);
+    if (!loaded || !window.html2pdf) return null;
+    const wrap = document.getElementById('pdf-scratch');
+    if (!wrap) return null;
+
+    wrap.innerHTML = html;
+    wrap.style.display = 'block';
+    wrap.style.position = 'fixed';
+    wrap.style.top = '0';
+    wrap.style.left = '0';
+    wrap.style.width = '794px';
+    wrap.style.zIndex = '999999';
+    wrap.style.background = '#ffffff';
+
+    try {
+      const targetEl = wrap.firstElementChild || wrap;
+      const worker = window.html2pdf().set({
+        margin: [10, 10, 10, 10],
+        image: { type:'jpeg', quality:.95 },
+        html2canvas: { scale: 2, useCORS: true, windowWidth: 794, windowHeight: Math.max(1123, targetEl.scrollHeight || 1123) },
+        jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
+      }).from(targetEl);
+
+      let blob = null;
+      if (typeof worker.output === 'function') {
+        blob = await worker.output('blob');
+      } else if (typeof worker.outputPdf === 'function') {
+        blob = await worker.outputPdf('blob');
+      }
+      return blob;
+    } catch (e) {
+      console.warn('Kitchen PDF blob error:', e);
+      return null;
+    } finally {
+      wrap.innerHTML = '';
+      wrap.style.display = 'none';
+    }
+  }
+
+  async _generateFinancialPDFBlob() {
+    const html = this._buildFinancialFichaHTML();
+    const loaded = await this._ensureHTML2PDF().catch(() => false);
+    if (!loaded || !window.html2pdf) return null;
+    const wrap = document.getElementById('pdf-scratch');
+    if (!wrap) return null;
+
+    wrap.innerHTML = html;
+    wrap.style.display = 'block';
+    wrap.style.position = 'fixed';
+    wrap.style.top = '0';
+    wrap.style.left = '0';
+    wrap.style.width = '794px';
+    wrap.style.zIndex = '999999';
+    wrap.style.background = '#ffffff';
+
+    try {
+      const targetEl = wrap.firstElementChild || wrap;
+      const worker = window.html2pdf().set({
+        margin: [8, 8, 8, 8],
+        image: { type:'jpeg', quality:.95 },
+        html2canvas: { scale: 2, useCORS: true, windowWidth: 794, windowHeight: Math.max(1123, targetEl.scrollHeight || 1123) },
+        jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
+      }).from(targetEl);
+
+      let blob = null;
+      if (typeof worker.output === 'function') {
+        blob = await worker.output('blob');
+      } else if (typeof worker.outputPdf === 'function') {
+        blob = await worker.outputPdf('blob');
+      }
+      return blob;
+    } catch (e) {
+      console.warn('Financial PDF blob error:', e);
+      return null;
+    } finally {
+      wrap.innerHTML = '';
+      wrap.style.display = 'none';
+    }
+  }
+
+  async _generateExcelBlob() {
+    if (!await this._ensureXLSX()) return null;
+    const wb = XLSX.utils.book_new();
+    const recipes = Object.values(this.db.recipes);
+    recipes.forEach(r => this._buildSheet(wb, r));
+    if (recipes.length > 1) this._buildComparSheet(wb, recipes);
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    return new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  }
+
+  _generateWordKitchenBlob() {
+    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+    const cfg = r.config || {}, ings = r.ingredients || [], sc = this._scale();
+    const port = Math.max(Number(cfg.portions) || 1, 1);
+    const theme = (this.db && this.db.theme) || 'theme-default';
+    let brandColor = '#0f172a';
+    let brandBorder = '#e2e8f0';
+    let brandFont = 'Calibri, Arial, sans-serif';
+    let isSerif = false;
+    if (theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze') {
+      brandColor = '#800020'; brandBorder = '#dfd9cb'; brandFont = 'Georgia, serif'; isSerif = true;
+    } else if (theme === 'theme-nordic-forest' || theme === 'theme-navy-silver') {
+      brandColor = '#059669'; brandBorder = '#d1fae5'; brandFont = 'system-ui, -apple-system, sans-serif';
+    }
+    const rows = ings.map(ing => {
+      const ingAllergensStr = ing.allergens && Array.isArray(ing.allergens) && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
+      return `<tr><td style="border:1px solid ${brandBorder};padding:8px;font-weight:bold;color:#334155">${ing.name}${ingAllergensStr ? `<span style="font-size:8pt;margin-left:6px;vertical-align:middle">${ingAllergensStr}</span>` : ''}</td><td style="border:1px solid ${brandBorder};padding:8px;text-align:right;font-family:monospace;font-weight:bold;color:#0f172a">${F1(ing.net * sc)} ${ing.unit === 'ud' ? 'ud' : (ing.unit || 'g/ml')}</td></tr>`;
+    }).join('');
+    const allAllergens = new Set();
+    ings.forEach(ing => { if (ing.allergens && Array.isArray(ing.allergens)) ing.allergens.forEach(a => allAllergens.add(a)); });
+    const allergensDocSection = allAllergens.size > 0 ? `<p style="font-size:10pt;font-weight:700;color:#6b21a8;margin:16pt 0 6pt">ALÉRGENOS DECLARADOS</p><div style="background:#faf5ff;border:1px solid #e9d5ff;padding:8pt 10pt;border-radius:4pt;font-size:9.5pt;color:#6b21a8">${Array.from(allAllergens).map(a => `${ALLERGENS[a] ? ALLERGENS[a].emoji + ' ' + ALLERGENS[a].name : a}`).join('  |  ')}</div>` : '';
+    const notesSection = cfg.notes && cfg.notes.trim() ? `<p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">MÉTODO DE ELABORACIÓN</p><div style="background:#f8fafc;border:1px solid ${brandBorder};padding:10pt 12pt;border-radius:4pt;font-size:10pt;color:#334155;white-space:pre-wrap;font-family:Georgia,serif;line-height:1.5">${cfg.notes}</div>` : '';
+    const imageHtml = cfg.image ? `<p style="text-align:center;margin-bottom:12pt"><img src="__IMAGE_SRC__" width="280" style="width:280px;height:auto;border-radius:6pt;border:1px solid #cbd5e1" alt="Foto"></p>` : '';
+    const bodyHtml = `<h2>Ficha Técnica de Cocina · Chef Ejecutivo</h2><h1 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName || 'Sin Nombre'}</h1><p class="meta">Fecha: ${new Date().toLocaleDateString('es-ES')} · Raciones: ${port} · Escala: ×${sc}</p>${imageHtml}<p style="font-size:10pt;font-weight:700;color:${brandColor};margin:18pt 0 6pt">INGREDIENTES</p><table><thead><tr><th>Insumo</th><th style="text-align:right">Cantidad (Neto)</th></tr></thead><tbody>${rows}</tbody></table>${allergensDocSection}${notesSection}<p class="footer">Documento técnico confidencial reservado para uso en cocina. GastroCost PRO</p>`;
+    const doc = this._buildWordMHTML(bodyHtml, cfg.image, brandFont, brandColor, cfg.dishName || 'Ficha Cocina');
+    return new Blob([doc], { type: 'application/msword;charset=utf-8' });
+  }
+
+  _generateWordFinancialBlob() {
+    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+    const cfg = r.config || {}, ings = r.ingredients || [], sc = this._scale();
+    const port = Math.max(Number(cfg.portions) || 1, 1);
+    const lote = ings.reduce((s, i) => s + (i.cost || 0) * sc, 0);
+    const unit = lote / port;
+    const pvpN = cfg.fcGoal > 0 ? unit / (cfg.fcGoal / 100) : (cfg.customPVP || 0);
+    const pvpT = pvpN * (1 + (cfg.taxRate || 0) / 100);
+    const marg = pvpN - unit;
+    const fcR  = pvpN > 0 ? F1((unit / pvpN) * 100) : 0;
+    const theme = (this.db && this.db.theme) || 'theme-default';
+    let brandColor = '#0f172a';
+    let brandBorder = '#e2e8f0';
+    let brandFont = 'Calibri, Arial, sans-serif';
+    let isSerif = false;
+    if (theme === 'theme-chef-imperial' || theme === 'theme-pearl-bronze') {
+      brandColor = '#800020'; brandBorder = '#dfd9cb'; brandFont = 'Georgia, serif'; isSerif = true;
+    } else if (theme === 'theme-nordic-forest' || theme === 'theme-navy-silver') {
+      brandColor = '#059669'; brandBorder = '#d1fae5'; brandFont = 'system-ui, -apple-system, sans-serif';
+    }
+    const cur = cfg.currency || 'EUR';
+    let curSym = '€';
+    if (cur === 'USD' || cur === 'MXN' || cur === 'COP' || cur === 'ARS') curSym = '$';
+    if (cur === 'PEN') curSym = 'S/.';
+    const rows = ings.map(ing => {
+      const ingAllergensStr = ing.allergens && Array.isArray(ing.allergens) && ing.allergens.length ? ing.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
+      return `<tr><td style="border:1px solid ${brandBorder};padding:5pt">${ing.name}${ingAllergensStr ? `<span style="font-size:7.5pt;margin-left:4pt">${ingAllergensStr}</span>` : ''}</td><td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1(ing.net * sc)} ${ing.unit === 'ud' ? 'ud' : (ing.unit || 'g/ml')}</td><td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${ing.waste || 0}%</td><td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F1((ing.gross || 0) * sc)} ${ing.unit === 'ud' ? 'ud' : (ing.unit || 'g/ml')}</td><td style="border:1px solid ${brandBorder};padding:5pt;text-align:right">${F2(ing.price || ing.originalPrice || 0)} ${curSym}</td><td style="border:1px solid ${brandBorder};padding:5pt;text-align:right;font-weight:bold">${F2((ing.cost || 0) * sc)} ${curSym}</td></tr>`;
+    }).join('');
+    const allAllergens = new Set();
+    ings.forEach(ing => { if (ing.allergens && Array.isArray(ing.allergens)) ing.allergens.forEach(a => allAllergens.add(a)); });
+    const allergensDocSection = allAllergens.size > 0 ? `<p style="font-size:9.5pt;font-weight:700;color:#6b21a8;margin:14pt 0 4pt">DECLARACIÓN DE ALÉRGENOS</p><div style="background:#faf5ff;border:1px solid #e9d5ff;padding:6pt 8pt;border-radius:4pt;font-size:9pt;color:#6b21a8">${Array.from(allAllergens).map(a => `${ALLERGENS[a] ? ALLERGENS[a].emoji + ' ' + ALLERGENS[a].name : a}`).join('  |  ')}</div>` : '';
+    const notesSection = cfg.notes && cfg.notes.trim() ? `<p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">NOTAS DE ELABORACIÓN</p><div style="background:#f8fafc;border:1px solid ${brandBorder};padding:8pt 10pt;border-radius:4pt;font-size:9pt;color:#374151;white-space:pre-wrap;line-height:1.5">${cfg.notes}</div>` : '';
+    const imageHtml = cfg.image ? `<p style="text-align:center;margin-bottom:12pt"><img src="__IMAGE_SRC__" width="280" style="width:280px;height:auto;border-radius:6pt;border:1px solid #cbd5e1" alt="Foto"></p>` : '';
+    const bodyHtml = `<h2>Escandallo Oficial · Informe de Rentabilidad</h2><h1 style="font-family:${isSerif ? 'Georgia, serif' : 'inherit'}">${cfg.dishName || 'Sin Nombre'}</h1><p class="meta">Fecha: ${new Date().toLocaleDateString('es-ES')} · Raciones: ${port} · Escala: ×${sc}</p>${imageHtml}<p style="font-size:10pt;font-weight:700;color:${brandColor};margin:16pt 0 6pt">DETALLE DE INGREDIENTES</p><table><thead><tr><th>Insumo</th><th style="text-align:right">Neto</th><th style="text-align:right">Merma</th><th style="text-align:right">Bruto</th><th style="text-align:right">Precio</th><th style="text-align:right">Coste</th></tr></thead><tbody>${rows}</tbody></table><table style="width:100%;margin-top:14pt;border:1px solid ${brandBorder}"><tr><td style="padding:6pt">Coste de Materia Prima (Lote):</td><td style="padding:6pt;text-align:right;font-weight:bold">${F2(lote)} ${curSym}</td></tr><tr><td style="padding:6pt">Coste por Ración:</td><td style="padding:6pt;text-align:right;font-weight:bold">${F2(unit)} ${curSym}</td></tr><tr><td style="padding:6pt">PVP Neto Sugerido:</td><td style="padding:6pt;text-align:right;font-weight:bold">${F2(pvpN)} ${curSym}</td></tr><tr><td style="padding:6pt">PVP Total (con impuestos):</td><td style="padding:6pt;text-align:right;font-weight:bold;color:${brandColor}">${F2(pvpT)} ${curSym}</td></tr><tr><td style="padding:6pt">Margen Bruto Unitario:</td><td style="padding:6pt;text-align:right;font-weight:bold">${F2(marg)} ${curSym}</td></tr><tr><td style="padding:6pt">Food Cost Real:</td><td style="padding:6pt;text-align:right;font-weight:bold">${fcR}%</td></tr></table>${allergensDocSection}${notesSection}<p class="footer">Documento técnico confidencial GastroCost PRO</p>`;
+    const doc = this._buildWordMHTML(bodyHtml, cfg.image, brandFont, brandColor, cfg.dishName || 'Escandallo Financiero');
+    return new Blob([doc], { type: 'application/msword;charset=utf-8' });
+  }
+
+  /* ═══════════════════════════════════════════════
+     V17.2 CULINARY VOICE DICTATION & SPANISH PARSER
+     ═══════════════════════════════════════════════ */
+  toggleVoiceDictationModal(show) {
+    const modal = document.getElementById('voice-dictation-modal');
+    if (!modal) return;
+    if (show) {
+      modal.classList.add('open');
+      document.body.classList.add('modal-open');
+      const inp = document.getElementById('voice-transcript-input');
+      if (inp) inp.focus();
+    } else {
+      if (this._isVoiceRecording) this.toggleVoiceRecording();
+      modal.classList.remove('open');
+      document.body.classList.remove('modal-open');
+    }
+  }
+
+  openVoiceDictationModal() {
+    this.toggleVoiceDictationModal(true);
+  }
+
+  closeVoiceDictationModal() {
+    this.toggleVoiceDictationModal(false);
+  }
+
+  _initVoiceRecognition() {
+    const SpeechRec = (typeof window !== 'undefined') && (window.SpeechRecognition || window.webkitSpeechRecognition);
+    if (!SpeechRec) {
+      this._hasSpeechRecognition = false;
+      return null;
+    }
+    this._hasSpeechRecognition = true;
+    try {
+      const rec = new SpeechRec();
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.lang = 'es-ES';
+
+      rec.onresult = (event) => {
+        let finalTranscript = '';
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript + ' ';
+          }
+        }
+        const input = document.getElementById('voice-transcript-input');
+        if (input && finalTranscript) {
+          const current = input.value;
+          input.value = (current ? current.trim() + ' ' : '') + finalTranscript.trim();
+        }
+      };
+
+      rec.onerror = (event) => {
+        console.warn('Voice recognition error:', event.error);
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          toast('Permiso de micrófono no concedido. Puedes escribir el dictado manualmente.', 'w');
+        }
+        this._setVoiceRecordingState(false);
+      };
+
+      rec.onend = () => {
+        this._setVoiceRecordingState(false);
+      };
+
+      return rec;
+    } catch (e) {
+      console.warn('Could not initialize SpeechRecognition:', e);
+      return null;
+    }
+  }
+
+  toggleVoiceRecording() {
+    if (!this._speechRecognition) {
+      this._speechRecognition = this._initVoiceRecognition();
+    }
+    if (!this._speechRecognition) {
+      toast('Reconocimiento de voz no soportado en este navegador. Escribe o pega los ingredientes directamente.', 'w');
+      return;
+    }
+
+    if (this._isVoiceRecording) {
+      try { this._speechRecognition.stop(); } catch(e){}
+      this._setVoiceRecordingState(false);
+    } else {
+      try {
+        this._speechRecognition.start();
+        this._setVoiceRecordingState(true);
+      } catch (err) {
+        console.warn('Error starting speech recognition:', err);
+        this._setVoiceRecordingState(false);
+      }
+    }
+  }
+
+  _setVoiceRecordingState(isRecording) {
+    this._isVoiceRecording = !!isRecording;
+    const btn = document.getElementById('btn-voice-record-toggle');
+    const status = document.getElementById('voice-record-status');
+    if (btn) {
+      if (this._isVoiceRecording) {
+        btn.classList.add('is-recording');
+        btn.style.background = '#ef4444';
+      } else {
+        btn.classList.remove('is-recording');
+        btn.style.background = 'linear-gradient(135deg, #0284c7, #06b6d4)';
+      }
+    }
+    if (status) {
+      status.textContent = this._isVoiceRecording
+        ? '🎙️ Grabando... Habla tus ingredientes (Toca para detener)'
+        : 'Toca el micrófono para comenzar a dictar';
+      status.style.color = this._isVoiceRecording ? '#ef4444' : 'var(--t1)';
+    }
+  }
+
+  parseSpanishCulinary(text, customCatalog) {
+    if (!text || typeof text !== 'string') return [];
+    const catalog = customCatalog || (this.db && this.db.catalog) || [];
+
+    const WORD_NUMS = {
+      'cero': 0, 'un': 1, 'uno': 1, 'una': 1, 'dos': 2, 'tres': 3, 'cuatro': 4,
+      'cinco': 5, 'seis': 6, 'siete': 7, 'ocho': 8, 'nueve': 9, 'diez': 10,
+      'once': 11, 'doce': 12, 'trece': 13, 'catorce': 14, 'quince': 15,
+      'dieciseis': 16, 'dieciséis': 16, 'diecisiete': 17, 'dieciocho': 18, 'diecinueve': 19,
+      'veinte': 20, 'veintiuno': 21, 'veintiún': 21, 'veintiun': 21, 'veintidos': 22, 'veintidós': 22,
+      'veintitres': 23, 'veintitrés': 23, 'veinticuatro': 24, 'veinticinco': 25,
+      'veintiseis': 26, 'veintiséis': 26, 'veintisiete': 27, 'veintiocho': 28, 'veintinueve': 29,
+      'treinta': 30, 'cuarenta': 40, 'cincuenta': 50, 'sesenta': 60, 'setenta': 70,
+      'ochenta': 80, 'noventa': 90, 'cien': 100, 'ciento': 100,
+      'doscientos': 200, 'doscientas': 200, 'trescientos': 300, 'trescientas': 300,
+      'cuatrocientos': 400, 'cuatrocientas': 400, 'quinientos': 500, 'quinientas': 500,
+      'seiscientos': 600, 'seiscientas': 600, 'setecientos': 700, 'setecientas': 700,
+      'ochocientos': 800, 'ochocientas': 800, 'novecientos': 900, 'novecientas': 900,
+      'mil': 1000
+    };
+
+    function parseSpokenWordsNumber(str) {
+      if (!str) return null;
+      str = str.trim().toLowerCase();
+      if (!str) return null;
+      if (!isNaN(str.replace(',', '.'))) return parseFloat(str.replace(',', '.'));
+
+      const tokens = str.split(/\s+/).filter(t => t !== 'y');
+      let total = 0;
+      let current = 0;
+      let matched = false;
+
+      for (const t of tokens) {
+        if (WORD_NUMS[t] !== undefined) {
+          matched = true;
+          const val = WORD_NUMS[t];
+          if (val === 1000) {
+            total += (current || 1) * 1000;
+            current = 0;
+          } else if (val >= 100) {
+            current += val;
+          } else {
+            current += val;
+          }
+        } else if (!isNaN(t.replace(',', '.'))) {
+          matched = true;
+          current += parseFloat(t.replace(',', '.'));
+        } else {
+          return null;
+        }
+      }
+      if (!matched) return null;
+      return total + current;
+    }
+
+    // Preserve conjunctions inside compound expressions
+    let raw = text.replace(/\b(\w+)\s+y\s+(medio|media)\b/gi, '$1___Y_MEDIO___')
+                  .replace(/\b(\w+)\s+y\s+(cuarto)\b/gi, '$1___Y_CUARTO___')
+                  .replace(/\b(treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa)\s+y\s+(un|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve)\b/gi, '$1___Y_NUM___$2');
+
+    const rawChunks = raw.split(/[\n,;]|\s+(?:y|e)\s+/i)
+      .map(c => c.replace(/___Y_MEDIO___/g, ' y medio')
+                 .replace(/___Y_CUARTO___/g, ' y cuarto')
+                 .replace(/___Y_NUM___/g, ' y ')
+                 .trim())
+      .filter(Boolean);
+
+    const results = [];
+
+    for (let chunk of rawChunks) {
+      chunk = chunk.replace(/^(?:[-*•]|\d+[\.\)])\s*/, '').trim();
+      if (!chunk) continue;
+
+      let net = null;
+      let unit = 'g';
+      let ingName = chunk;
+
+      // Idiom rules
+      const idioms = [
+        { re: /^(?:un\s+)?medio\s+kilo(?:\s+de\b|\s+del\b)?/i, net: 500, unit: 'g' },
+        { re: /^(?:un\s+)?cuarto\s+de\s+kilo(?:\s+de\b|\s+del\b)?/i, net: 250, unit: 'g' },
+        { re: /^tres\s+cuartos\s+de\s+kilo(?:\s+de\b|\s+del\b)?/i, net: 750, unit: 'g' },
+        { re: /^(?:un\s+)?medio\s+litro(?:\s+de\b|\s+del\b)?/i, net: 500, unit: 'g' },
+        { re: /^(?:un\s+)?cuarto\s+de\s+litro(?:\s+de\b|\s+del\b)?/i, net: 250, unit: 'g' },
+        { re: /^tres\s+cuartos\s+de\s+litro(?:\s+de\b|\s+del\b)?/i, net: 750, unit: 'g' },
+        { re: /^(?:un\s+)?chorrito(?:\s+de\b|\s+del\b)?/i, net: 10, unit: 'g' },
+        { re: /^(?:un\s+)?chorro(?:\s+de\b|\s+del\b)?/i, net: 20, unit: 'g' },
+        { re: /^(?:una\s+)?pizca(?:\s+de\b|\s+del\b)?/i, net: 2, unit: 'g' }
+      ];
+
+      for (const idm of idioms) {
+        if (idm.re.test(chunk)) {
+          net = idm.net;
+          unit = idm.unit;
+          ingName = chunk.replace(idm.re, '').trim();
+          break;
+        }
+      }
+
+      // Kilo y medio / Litro y medio
+      if (net === null) {
+        const halfMatch = chunk.match(/^(?:([\d\.,]+|[a-záéíóúñ\s]+?)\s+)?(kilos?|litros?)\s+y\s+(?:medio|media)(?:\s+de\b|\s+del\b)?\s*(.*)$/i);
+        if (halfMatch) {
+          const baseWord = halfMatch[1] ? halfMatch[1].trim() : 'un';
+          const base = parseSpokenWordsNumber(baseWord) || 1;
+          net = (base - 1 + 1.5) * 1000;
+          unit = 'g';
+          ingName = halfMatch[3].trim();
+        }
+      }
+
+      // Cucharadas / cucharaditas
+      if (net === null) {
+        const spoonMatch = chunk.match(/^(?:([\d\.,]+|[a-záéíóúñ\s]+?)\s+)?(cucharaditas?|cucharadas?)(?:\s+de\b|\s+del\b)?\s*(.*)$/i);
+        if (spoonMatch) {
+          const count = spoonMatch[1] ? (parseSpokenWordsNumber(spoonMatch[1]) || 1) : 1;
+          const isTeaSpoon = spoonMatch[2].toLowerCase().startsWith('cucharadita');
+          net = count * (isTeaSpoon ? 5 : 15);
+          unit = 'g';
+          ingName = spoonMatch[3].trim();
+        }
+      }
+
+      // Regular pattern with unit keyword
+      if (net === null) {
+        const unitRegex = /\b(kilos?|kg|litros?|l|gramos?|gr|g|mililitros?|ml|cl|dl|unidades?|uds?|ud|piezas?|pieza)\b/i;
+        const unitMatch = chunk.match(unitRegex);
+        if (unitMatch) {
+          const beforeUnit = chunk.slice(0, unitMatch.index).trim();
+          const unitWord = unitMatch[1].toLowerCase();
+          const afterUnit = chunk.slice(unitMatch.index + unitMatch[0].length).replace(/^(?:\s+de\b|\s+del\b|\s+)/i, '').trim();
+
+          const parsedNum = parseSpokenWordsNumber(beforeUnit);
+          if (parsedNum !== null) {
+            net = parsedNum;
+            if (['kilos', 'kilo', 'kg', 'litros', 'litro', 'l'].includes(unitWord)) {
+              net = parsedNum * 1000;
+              unit = 'g';
+            } else if (['mililitros', 'mililitro', 'ml', 'gramos', 'gramo', 'gr', 'g'].includes(unitWord)) {
+              net = parsedNum;
+              unit = 'g';
+            } else if (unitWord === 'cl') {
+              net = parsedNum * 10;
+              unit = 'g';
+            } else if (unitWord === 'dl') {
+              net = parsedNum * 100;
+              unit = 'g';
+            } else if (['unidades', 'unidad', 'uds', 'ud', 'piezas', 'pieza'].includes(unitWord)) {
+              net = parsedNum;
+              unit = 'ud';
+            }
+            ingName = afterUnit;
+          }
+        }
+      }
+
+      // Unitless number at start: e.g. "3 huevos"
+      if (net === null) {
+        const words = chunk.split(/\s+/);
+        for (let i = words.length; i >= 1; i--) {
+          const candidate = words.slice(0, i).join(' ');
+          const num = parseSpokenWordsNumber(candidate);
+          if (num !== null) {
+            const rest = words.slice(i).join(' ').replace(/^(?:de\s+|del\s+)/i, '').trim();
+            net = num;
+            unit = (num < 20 && !chunk.includes('gram') && !chunk.includes('kilo')) ? 'ud' : 'g';
+            ingName = rest;
+            break;
+          }
+        }
+      }
+
+      if (net === null) {
+        net = 100;
+        unit = 'g';
+      }
+
+      // Clean up ingredient name
+      ingName = ingName.replace(/^(?:de\s+|del\s+)/i, '').trim();
+      if (!ingName) continue;
+      const cleanName = ingName.charAt(0).toUpperCase() + ingName.slice(1);
+
+      // Search Catalog
+      let matchedCat = null;
+      if (catalog && catalog.length) {
+        const q = cleanName.toLowerCase();
+        matchedCat = catalog.find(c => c.name && c.name.toLowerCase() === q);
+        if (!matchedCat) {
+          matchedCat = catalog.find(c => c.name && (c.name.toLowerCase().includes(q) || q.includes(c.name.toLowerCase())));
+        }
+      }
+
+      results.push({
+        name: matchedCat ? matchedCat.name : cleanName,
+        net: Math.round(net * 100) / 100,
+        unit: (matchedCat && matchedCat.unit) ? matchedCat.unit : (unit || 'g'),
+        waste: matchedCat ? (matchedCat.waste || 0) : 0,
+        price: matchedCat ? (matchedCat.price || 0) : 0,
+        category: matchedCat ? (matchedCat.category || 'other') : 'other',
+        allergens: matchedCat ? (matchedCat.allergens ? [...matchedCat.allergens] : []) : [],
+        isMatched: !!matchedCat
+      });
+    }
+
+    return results;
+  }
+
+  renderVoiceParsedResults(items) {
+    this._voiceParsedItems = items || [];
+    const container = document.getElementById('voice-parsed-container');
+    const listEl = document.getElementById('voice-parsed-list');
+    const countEl = document.getElementById('voice-parsed-count');
+    const insertBtn = document.getElementById('btn-voice-insert');
+
+    if (!container || !listEl) return;
+
+    if (!this._voiceParsedItems.length) {
+      container.style.display = 'none';
+      if (insertBtn) insertBtn.style.display = 'none';
+      return;
+    }
+
+    container.style.display = 'block';
+    if (countEl) countEl.textContent = `Insumos Detectados (${this._voiceParsedItems.length})`;
+    if (insertBtn) {
+      insertBtn.style.display = 'inline-block';
+      insertBtn.textContent = `📥 Insertar ${this._voiceParsedItems.length} insumos en el Escandallo`;
+      insertBtn.disabled = false;
+    }
+
+    listEl.innerHTML = this._voiceParsedItems.map((item, idx) => {
+      const matchBadge = item.isMatched
+        ? `<span class="badge" style="background:rgba(34,197,94,0.15);color:var(--green);border:1px solid var(--green);font-size:0.68rem;padding:2px 6px;border-radius:4px;">✓ Catálogo (${F2(item.price)} €)</span>`
+        : `<span class="badge" style="background:rgba(148,163,184,0.15);color:var(--t3);border:1px solid var(--b2);font-size:0.68rem;padding:2px 6px;border-radius:4px;">📦 Nuevo Insumo</span>`;
+
+      return `
+        <div class="voice-item-card ${item.isMatched ? 'is-matched' : ''}" data-idx="${idx}" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:8px 10px;font-size:0.82rem;">
+          <input type="checkbox" class="voice-item-check" data-idx="${idx}" checked style="width:18px;height:18px;cursor:pointer;accent-color:var(--cyan);">
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px;">
+              <input type="text" class="fi voice-item-name" data-idx="${idx}" value="${item.name}" style="font-weight:700;font-size:0.82rem;padding:3px 6px;height:28px;flex:1;min-width:120px;">
+              ${matchBadge}
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:0.75rem;color:var(--t2);">
+              <span>Cantidad:</span>
+              <input type="number" class="fi voice-item-net" data-idx="${idx}" value="${item.net}" step="any" min="0.01" style="width:70px;padding:2px 4px;height:24px;text-align:right;">
+              <select class="fi voice-item-unit" data-idx="${idx}" style="width:65px;padding:2px 4px;height:24px;">
+                <option value="g" ${item.unit !== 'ud' ? 'selected' : ''}>g / ml</option>
+                <option value="ud" ${item.unit === 'ud' ? 'selected' : ''}>ud</option>
+              </select>
+              <span>Merma:</span>
+              <input type="number" class="fi voice-item-waste" data-idx="${idx}" value="${item.waste || 0}" min="0" max="99" style="width:50px;padding:2px 4px;height:24px;text-align:right;">%
+              <span>Precio:</span>
+              <input type="number" class="fi voice-item-price" data-idx="${idx}" value="${item.price || 0}" step="any" min="0" style="width:70px;padding:2px 4px;height:24px;text-align:right;">€
+            </div>
+          </div>
+          <button type="button" class="btn btn-ghost btn-sm btn-voice-del-item" data-idx="${idx}" style="padding:4px 8px;font-size:0.75rem;color:#ef4444;border-color:transparent;" title="Eliminar insumo">✕</button>
+        </div>`;
+    }).join('');
+
+    // Dynamic controls listeners
+    listEl.querySelectorAll('.voice-item-check').forEach(cb => {
+      cb.addEventListener('change', () => this._updateVoiceInsertBtnCount());
+    });
+    listEl.querySelectorAll('.voice-item-name').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = parseInt(e.target.dataset.idx, 10);
+        if (this._voiceParsedItems[idx]) this._voiceParsedItems[idx].name = e.target.value;
+      });
+    });
+    listEl.querySelectorAll('.voice-item-net').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = parseInt(e.target.dataset.idx, 10);
+        if (this._voiceParsedItems[idx]) this._voiceParsedItems[idx].net = parseFloat(e.target.value) || 0;
+      });
+    });
+    listEl.querySelectorAll('.voice-item-unit').forEach(sel => {
+      sel.addEventListener('change', e => {
+        const idx = parseInt(e.target.dataset.idx, 10);
+        if (this._voiceParsedItems[idx]) this._voiceParsedItems[idx].unit = e.target.value;
+      });
+    });
+    listEl.querySelectorAll('.voice-item-waste').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = parseInt(e.target.dataset.idx, 10);
+        if (this._voiceParsedItems[idx]) this._voiceParsedItems[idx].waste = parseFloat(e.target.value) || 0;
+      });
+    });
+    listEl.querySelectorAll('.voice-item-price').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const idx = parseInt(e.target.dataset.idx, 10);
+        if (this._voiceParsedItems[idx]) this._voiceParsedItems[idx].price = parseFloat(e.target.value) || 0;
+      });
+    });
+    listEl.querySelectorAll('.btn-voice-del-item').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const idx = parseInt(btn.dataset.idx, 10);
+        this._voiceParsedItems.splice(idx, 1);
+        this.renderVoiceParsedResults(this._voiceParsedItems);
+      });
+    });
+  }
+
+  _updateVoiceInsertBtnCount() {
+    const listEl = document.getElementById('voice-parsed-list');
+    const insertBtn = document.getElementById('btn-voice-insert');
+    if (!listEl || !insertBtn) return;
+    const allBoxes = Array.from(listEl.querySelectorAll('.voice-item-check'));
+    const checkedBoxes = allBoxes.filter(cb => cb.checked);
+    const count = checkedBoxes.length;
+    insertBtn.textContent = `📥 Insertar ${count} insumo${count === 1 ? '' : 's'} en el Escandallo`;
+    insertBtn.disabled = count === 0;
+  }
+
+  insertVoiceIngredients() {
+    const listEl = document.getElementById('voice-parsed-list');
+    if (!listEl || !this._voiceParsedItems || !this._voiceParsedItems.length) return;
+
+    const allBoxes = Array.from(listEl.querySelectorAll('.voice-item-check'));
+    const checkedBoxes = allBoxes.filter(cb => cb.checked);
+    if (!checkedBoxes.length) {
+      toast('Selecciona al menos un insumo para insertar', 'w');
+      return;
+    }
+
+    const checkedIndexes = checkedBoxes.map(cb => parseInt(cb.dataset.idx, 10));
+    let insertedCount = 0;
+
+    checkedIndexes.forEach(idx => {
+      const item = this._voiceParsedItems[idx];
+      if (!item || !item.name.trim()) return;
+
+      const name = item.name.trim();
+      const net = Math.max(parseFloat(item.net) || 0, 0.01);
+      const waste = Math.min(Math.max(parseFloat(item.waste) || 0, 0), 99);
+      const price = Math.max(parseFloat(item.price) || 0, 0);
+      const unit = item.unit === 'ud' ? 'ud' : 'g';
+      const cat = item.category || 'other';
+      const allergens = Array.isArray(item.allergens) ? [...item.allergens] : [];
+
+      const gross = net / (1 - waste / 100);
+      const cost = unit === 'ud' ? (gross * price) : ((gross / 1000) * price);
+
+      const newIng = {
+        id: uid(),
+        name,
+        net,
+        waste,
+        gross,
+        cost,
+        originalPrice: price,
+        category: cat,
+        unit,
+        allergens,
+        isSubRecipe: false,
+        subRecipeId: null
+      };
+
+      this.R.ingredients.push(newIng);
+
+      // Add to catalog if not present and has price
+      if (this.db.catalog && price > 0) {
+        const exists = this.db.catalog.some(c => c.name.trim().toLowerCase() === name.toLowerCase());
+        if (!exists) {
+          this.db.catalog.push({
+            id: uid(),
+            name,
+            price,
+            category: cat,
+            waste,
+            unit,
+            allergens: [...allergens]
+          });
+        }
+      }
+
+      insertedCount++;
+    });
+
+    if (insertedCount > 0) {
+      this.R.updatedAt = Date.now();
+      if (this.R.config && this.R.config.isSubRecipe) {
+        this._updateSubRecipeCostInfo();
+        this._recalculateCascade(this.R.id);
+      }
+      this._render();
+      this._autoSave();
+      this.closeVoiceDictationModal();
+      toast(`✅ ${insertedCount} insumo${insertedCount === 1 ? '' : 's'} insertado${insertedCount === 1 ? '' : 's'} desde el dictáfono ✓`);
+    }
+  }
+
+  /* ═══════════════════════════════════════════════
+     V17.2 AI RECIPE NOTES ASSISTANT
+     ═══════════════════════════════════════════════ */
+  async generateRecipeNotesWithAI() {
+    const btn = document.getElementById('btn-ai-recipe-notes');
+    const origHtml = btn ? btn.innerHTML : '🪄 Redactar Elaboración con IA';
+    if (btn) {
+      btn.innerHTML = '⏳ Redactando con IA…';
+      btn.disabled = true;
+    }
+
+    const r = this.R || {};
+    const cfg = r.config || {};
+    const dishName = (cfg.dishName && cfg.dishName.trim()) ? cfg.dishName.trim() : 'Plato';
+    const portions = Math.max(Number(cfg.portions) || 1, 1);
+    const isSub = !!cfg.isSubRecipe;
+    const ings = r.ingredients || [];
+    const ingSummary = ings.map(i => `${i.name} (${i.net} ${i.unit === 'ud' ? 'ud' : 'g/ml'})`).join(', ');
+
+    const systemPrompt = `Eres un Chef Ejecutivo con 3 estrellas Michelin y auditor de calidad gastronómica de alta restauración. Redacta las instrucciones de elaboración técnica y método culinario estructurado para una ficha técnica profesional. La respuesta DEBE estar estructurada obligatoriamente en tres secciones claramente rotuladas:
+1. MISE EN PLACE Y PREPARACIÓN PREVIA (cortes, limpiezas, marinados y pesajes precisos).
+2. ELABORACIÓN Y TÉCNICAS DE COCCIÓN (temperaturas, puntos de cocción, texturas y procesos paso a paso).
+3. PASE, MONTAJE Y EMPLATADO (vajilla, disposición de elementos, toques finales y servicio).
+Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. No incluyas saludos ni despedidas, únicamente las instrucciones numeradas y estructuradas.`;
+
+    const userPrompt = `Ficha técnica: "${dishName}". ${isSub ? 'Elaboración Base' : 'Plato de Carta'}. Raciones: ${portions}. Insumos declarados: ${ingSummary || 'Sin insumos definidos'}.`;
+
+    let generatedNotes = '';
+    let usedAI = false;
+
+    try {
+      const apiKey = localStorage.getItem('gastrocost_gemini_api_key');
+      if (apiKey) {
+        generatedNotes = await this._queryGemini(systemPrompt, userPrompt);
+        usedAI = true;
+      }
+    } catch (err) {
+      console.warn('Gemini AI call failed, falling back to culinary template:', err);
+    }
+
+    if (!generatedNotes || !generatedNotes.trim()) {
+      generatedNotes = this._generateCulinaryTemplateNotes(dishName, portions, ings, isSub);
+    }
+
+    // Set notes on active recipe
+    if (!this.R.config) this.R.config = {};
+    this.R.config.notes = generatedNotes;
+    this.R.updatedAt = Date.now();
+
+    // Update UI elements
+    const notesTa = document.getElementById('recipe-notes');
+    if (notesTa) {
+      notesTa.value = generatedNotes;
+      notesTa.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    const notesSection = document.getElementById('notes-section');
+    if (notesSection) notesSection.classList.add('open');
+
+    // Update kitchen view if open
+    const kNotes = document.getElementById('kview-notes');
+    if (kNotes) kNotes.textContent = generatedNotes;
+    if (typeof this._renderKitchenView === 'function') this._renderKitchenView();
+
+    this._autoSave();
+
+    if (btn) {
+      btn.innerHTML = origHtml;
+      btn.disabled = false;
+    }
+
+    if (usedAI) {
+      toast('🪄 Elaboración técnica redactada con IA Michelin ✓');
+    } else {
+      toast('🪄 Elaboración estructurada generada con plantilla culinaria ejecutiva ✓');
+    }
+  }
+
+  _generateCulinaryTemplateNotes(dishName, portions, ingredients, isSubRecipe) {
+    const ingNames = (ingredients && ingredients.length)
+      ? ingredients.map(i => i.name).slice(0, 5).join(', ')
+      : 'los ingredientes principales';
+
+    if (isSubRecipe) {
+      return `1. MISE EN PLACE Y PREPARACIÓN PREVIA:
+- Acondicionar y sanitizar las materias primas principales (${ingNames}).
+- Realizar pesaje estricto de mermas e insumos en báscula de precisión.
+- Preparar recipientes gastronorm higienizados para la conservación intermedia.
+
+2. ELABORACIÓN Y TÉCNICAS DE COCCIÓN:
+- Iniciar la base aromática a temperatura controlada para concentrar aromas.
+- Incorporar los componentes según punto de cocción y densidad técnica.
+- Mantener cocción sostenida respetando temperaturas y tiempos de infusión o reducción.
+- Filtrar por estameña o triturar a alta velocidad hasta textura sedosa y homogénea.
+- Rectificar sazón y realizar control de pH o refractómetro si aplica.
+
+3. ABATIMIENTO, ROTULACIÓN Y CONSERVACIÓN:
+- Abatir térmicamente de +65°C a +3°C en menos de 90 minutos según protocolo APPCC.
+- Envasar al vacío o filmar a piel en recipientes herméticos.
+- Etiquetar con nombre de la elaboración base, fecha de producción, caducidad y firma de partida.`;
+    }
+
+    return `1. MISE EN PLACE Y PREPARACIÓN PREVIA:
+- Limpiar y desespinar/desgrasar minuciosamente las piezas principales (${ingNames}).
+- Realizar los cortes técnicos uniformes según estándar de servicio (juliana, brunoise o raciones).
+- Medir líquidos y pesar con precisión aderezos y elementos de ligazón.
+- Mantener la cadena de frío para proteínas perecederas (< 4°C).
+
+2. ELABORACIÓN Y TÉCNICAS DE COCCIÓN:
+- Procesar los fondos y guarniciones en mise en place antes del servicio.
+- Marcar la proteína a fuego vivo sellando superficies para retener jugos internos.
+- Aplicar la técnica de cocción óptima para ${dishName}, respetando tiempos y temperaturas nucleares.
+- Ligar y emulsionar salsas o reducciones hasta punto nappe brillante.
+- Rectificar punto de sal y balance organoléptico justo antes del emplatado.
+
+3. PASE, MONTAJE Y EMPLATADO:
+- Calentar la vajilla de pase a 60°C para mantener la temperatura del servicio.
+- Disponer armónicamente la base y guarnición buscando equilibrio visual, textura y altura.
+- Posicionar la pieza protagonista en el foco visual del plato y salsear con precisión.
+- Terminar con brotes frescos, escamas de sal marina o aceite aromatizado.
+- Limpiar el borde del plato e iniciar servicio inmediato a sala.`;
+  }
+
+  /* ═══════════════════════════════════════════════
      V14.0 GEMINI AI ASSISTANT & AUDITOR
      ═══════════════════════════════════════════════ */
   _scrollChatToBottom() {
@@ -13326,6 +14534,10 @@ ${ingsStr}`;
 const gc = new GC();
 window.GC = GC;
 window.gc = gc;
+window.parseSpanishCulinary = (text, catalog) => gc.parseSpanishCulinary(text, catalog);
+if (typeof CULINARY_MATH !== 'undefined') {
+  CULINARY_MATH.parseSpanishCulinary = (text, catalog) => gc.parseSpanishCulinary(text, catalog);
+}
 
 // Register Service Worker for offline capability when run from a local/web server
 if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
