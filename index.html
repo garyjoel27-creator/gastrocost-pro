@@ -13467,7 +13467,14 @@ class GC {
     const shareTitle = title || filename;
     const shareText = text || `Ficha técnica exportada desde GastroCost PRO: ${filename}`;
 
-    if (typeof navigator !== 'undefined' && navigator.share && file && navigator.canShare && navigator.canShare({ files: [file] })) {
+    let canShareFiles = false;
+    try {
+      canShareFiles = !!(typeof navigator !== 'undefined' && navigator.share && file && navigator.canShare && navigator.canShare({ files: [file] }));
+    } catch (e) {
+      canShareFiles = false;
+    }
+
+    if (canShareFiles) {
       try {
         await navigator.share({
           files: [file],
@@ -13689,15 +13696,19 @@ class GC {
 
       rec.onresult = (event) => {
         let finalTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
+        let interimTranscript = '';
+        for (let i = 0; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
             finalTranscript += event.results[i][0].transcript + ' ';
+          } else {
+            interimTranscript += event.results[i][0].transcript;
           }
         }
         const input = document.getElementById('voice-transcript-input');
-        if (input && finalTranscript) {
-          const current = input.value;
-          input.value = (current ? current.trim() + ' ' : '') + finalTranscript.trim();
+        if (input) {
+          const base = this._voiceBaseText ? (this._voiceBaseText + ' ') : '';
+          const currentWords = (finalTranscript + interimTranscript).trim();
+          input.value = (base + currentWords).trim();
         }
       };
 
@@ -13710,6 +13721,8 @@ class GC {
       };
 
       rec.onend = () => {
+        const input = document.getElementById('voice-transcript-input');
+        if (input) this._voiceBaseText = input.value.trim();
         this._setVoiceRecordingState(false);
       };
 
@@ -13734,6 +13747,8 @@ class GC {
       this._setVoiceRecordingState(false);
     } else {
       try {
+        const input = document.getElementById('voice-transcript-input');
+        this._voiceBaseText = input ? input.value.trim() : '';
         this._speechRecognition.start();
         this._setVoiceRecordingState(true);
       } catch (err) {
@@ -13766,7 +13781,7 @@ class GC {
 
   parseSpanishCulinary(text, customCatalog) {
     if (!text || typeof text !== 'string') return [];
-    const catalog = customCatalog || (this.db && this.db.catalog) || [];
+    const catalog = customCatalog || (typeof this._getIngredientHistory === 'function' ? this._getIngredientHistory() : (this.db && this.db.catalog) || []);
 
     const WORD_NUMS = {
       'cero': 0, 'un': 1, 'uno': 1, 'una': 1, 'dos': 2, 'tres': 3, 'cuatro': 4,
@@ -13789,6 +13804,15 @@ class GC {
       if (!str) return null;
       str = str.trim().toLowerCase();
       if (!str) return null;
+
+      // Handle fractions like 1/2, 1/4, 3/4
+      const fracMatch = str.match(/^(\d+(?:\.\d+)?)\s*\/\s*(\d+(?:\.\d+)?)$/);
+      if (fracMatch) {
+        const num = parseFloat(fracMatch[1]);
+        const den = parseFloat(fracMatch[2]);
+        if (den !== 0) return num / den;
+      }
+
       if (!isNaN(str.replace(',', '.'))) return parseFloat(str.replace(',', '.'));
 
       const tokens = str.split(/\s+/).filter(t => t !== 'y');
@@ -13819,14 +13843,25 @@ class GC {
       return total + current;
     }
 
+    // Normalize decimal commas between digits (e.g. 1,5 kg -> 1.5 kg)
+    let cleanText = text.replace(/(\d+),(\d+)/g, '$1.$2');
+
+    // Normalize unicode fractions
+    cleanText = cleanText.replace(/½/g, ' 1/2 ')
+                         .replace(/¼/g, ' 1/4 ')
+                         .replace(/¾/g, ' 3/4 ');
+
     // Preserve conjunctions inside compound expressions
-    let raw = text.replace(/\b(\w+)\s+y\s+(medio|media)\b/gi, '$1___Y_MEDIO___')
-                  .replace(/\b(\w+)\s+y\s+(cuarto)\b/gi, '$1___Y_CUARTO___')
-                  .replace(/\b(treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa)\s+y\s+(un|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve)\b/gi, '$1___Y_NUM___$2');
+    let raw = cleanText
+      .replace(/\b(\w+)\s+y\s+(medio|media)\b/gi, '$1___Y_MEDIO___')
+      .replace(/\b(\w+)\s+y\s+(cuarto)\b/gi, '$1___Y_CUARTO___')
+      .replace(/\b(\w+)\s+y\s+(tres\s+cuartos)\b/gi, '$1___Y_TRESCUARTOS___')
+      .replace(/\b(treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa)\s+y\s+(un|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve)\b/gi, '$1___Y_NUM___$2');
 
     const rawChunks = raw.split(/[\n,;]|\s+(?:y|e)\s+/i)
       .map(c => c.replace(/___Y_MEDIO___/g, ' y medio')
                  .replace(/___Y_CUARTO___/g, ' y cuarto')
+                 .replace(/___Y_TRESCUARTOS___/g, ' y tres cuartos')
                  .replace(/___Y_NUM___/g, ' y ')
                  .trim())
       .filter(Boolean);
@@ -13834,24 +13869,26 @@ class GC {
     const results = [];
 
     for (let chunk of rawChunks) {
-      chunk = chunk.replace(/^(?:[-*•]|\d+[\.\)])\s*/, '').trim();
+      // Only strip bullet points if followed by whitespace: e.g. '1. ', '1) ', '- '
+      chunk = chunk.replace(/^(?:[-*•]\s+|\d+[\.\)]\s+)/, '').trim();
       if (!chunk) continue;
+
+      // Separate attached units: e.g. 500g -> 500 g, 1kg -> 1 kg, 250ml -> 250 ml
+      chunk = chunk.replace(/(\d+(?:\.\d+)?)\s*(kg|kilos?|g|gr|gramos?|l|litros?|ml|mililitros?|cl|dl|uds?|unidades?|piezas?)\b/gi, '$1 $2');
 
       let net = null;
       let unit = 'g';
       let ingName = chunk;
 
-      // Idiom rules
+      // Standard idioms (medio kilo, cuarto de kilo, tres cuartos de kilo, etc.)
       const idioms = [
-        { re: /^(?:un\s+)?medio\s+kilo(?:\s+de\b|\s+del\b)?/i, net: 500, unit: 'g' },
-        { re: /^(?:un\s+)?cuarto\s+de\s+kilo(?:\s+de\b|\s+del\b)?/i, net: 250, unit: 'g' },
-        { re: /^tres\s+cuartos\s+de\s+kilo(?:\s+de\b|\s+del\b)?/i, net: 750, unit: 'g' },
-        { re: /^(?:un\s+)?medio\s+litro(?:\s+de\b|\s+del\b)?/i, net: 500, unit: 'g' },
-        { re: /^(?:un\s+)?cuarto\s+de\s+litro(?:\s+de\b|\s+del\b)?/i, net: 250, unit: 'g' },
-        { re: /^tres\s+cuartos\s+de\s+litro(?:\s+de\b|\s+del\b)?/i, net: 750, unit: 'g' },
-        { re: /^(?:un\s+)?chorrito(?:\s+de\b|\s+del\b)?/i, net: 10, unit: 'g' },
-        { re: /^(?:un\s+)?chorro(?:\s+de\b|\s+del\b)?/i, net: 20, unit: 'g' },
-        { re: /^(?:una\s+)?pizca(?:\s+de\b|\s+del\b)?/i, net: 2, unit: 'g' }
+        { re: /^(?:(?:un|1)\s+)?(?:medio|1\/2)\s+kilo(?:\s+de\b|\s+del\b)?/i, net: 500, unit: 'g' },
+        { re: /^(?:(?:un|1)\s+)?(?:cuarto|1\/4)\s+de\s+kilo(?:\s+de\b|\s+del\b)?/i, net: 250, unit: 'g' },
+        { re: /^(?:tres\s+cuartos|3\/4)(?:\s+de)?\s+kilo(?:\s+de\b|\s+del\b)?/i, net: 750, unit: 'g' },
+        { re: /^(?:(?:un|1)\s+)?(?:medio|1\/2)\s+litro(?:\s+de\b|\s+del\b)?/i, net: 500, unit: 'g' },
+        { re: /^(?:(?:un|1)\s+)?(?:cuarto|1\/4)\s+de\s+litro(?:\s+de\b|\s+del\b)?/i, net: 250, unit: 'g' },
+        { re: /^(?:tres\s+cuartos|3\/4)(?:\s+de)?\s+litro(?:\s+de\b|\s+del\b)?/i, net: 750, unit: 'g' },
+        { re: /^(?:(?:un|1)\s+)?cuarto\s+y\s+mitad(?:\s+de\b|\s+del\b)?/i, net: 375, unit: 'g' }
       ];
 
       for (const idm of idioms) {
@@ -13863,27 +13900,81 @@ class GC {
         }
       }
 
-      // Kilo y medio / Litro y medio
+      // Fractional idioms without unit: e.g. 'media cebolla', 'medio limón', '1/2 cebolla', 'un cuarto de sandía'
       if (net === null) {
-        const halfMatch = chunk.match(/^(?:([\d\.,]+|[a-záéíóúñ\s]+?)\s+)?(kilos?|litros?)\s+y\s+(?:medio|media)(?:\s+de\b|\s+del\b)?\s*(.*)$/i);
-        if (halfMatch) {
-          const baseWord = halfMatch[1] ? halfMatch[1].trim() : 'un';
-          const base = parseSpokenWordsNumber(baseWord) || 1;
-          net = (base - 1 + 1.5) * 1000;
-          unit = 'g';
-          ingName = halfMatch[3].trim();
+        const fracItemMatch = chunk.match(/^(?:(1\/2|1\/4|3\/4)|(?:un\s+)?(medio|media|cuarto|tres\s+cuartos))(?:\s+de\b|\s+del\b|\s+)(.*)$/i);
+        if (fracItemMatch && !/^(?:kilos?|kg|litros?|l)\b/i.test(fracItemMatch[3].trim())) {
+          const fracWord = (fracItemMatch[1] || fracItemMatch[2]).toLowerCase();
+          let factor = 0.5;
+          if (fracWord === '1/4' || fracWord === 'cuarto') factor = 0.25;
+          else if (fracWord === '3/4' || fracWord === 'tres cuartos') factor = 0.75;
+          net = factor;
+          unit = 'ud';
+          ingName = fracItemMatch[3].trim();
         }
       }
 
-      // Cucharadas / cucharaditas
+      // Idiom rules with quantities (pizcas, chorritos, etc.)
       if (net === null) {
-        const spoonMatch = chunk.match(/^(?:([\d\.,]+|[a-záéíóúñ\s]+?)\s+)?(cucharaditas?|cucharadas?)(?:\s+de\b|\s+del\b)?\s*(.*)$/i);
+        const pizcaMatch = chunk.match(/^(?:([\d\.,]+|[a-záéíóúñ\s]+?)\s+)?pizcas?(?:\s+de\b|\s+del\b)?\s*(.*)$/i);
+        if (pizcaMatch) {
+          const count = pizcaMatch[1] ? (parseSpokenWordsNumber(pizcaMatch[1]) || 1) : 1;
+          net = count * 2;
+          unit = 'g';
+          ingName = pizcaMatch[2].trim();
+        }
+      }
+
+      if (net === null) {
+        const chorroMatch = chunk.match(/^(?:([\d\.,]+|[a-záéíóúñ\s]+?)\s+)?(chorritos?|chorros?)(?:\s+de\b|\s+del\b)?\s*(.*)$/i);
+        if (chorroMatch) {
+          const count = chorroMatch[1] ? (parseSpokenWordsNumber(chorroMatch[1]) || 1) : 1;
+          const isChorrito = chorroMatch[2].toLowerCase().startsWith('chorrito');
+          net = count * (isChorrito ? 10 : 20);
+          unit = 'g';
+          ingName = chorroMatch[3].trim();
+        }
+      }
+
+      // Kilo / Litro y medio / cuarto / tres cuartos
+      if (net === null) {
+        const compoundMatch = chunk.match(/^(?:([\d\.,]+|[a-záéíóúñ\s]+?)\s+)?(kilos?|kg|litros?|l)\s+y\s+(medio|media|cuarto|tres\s+cuartos)(?:\s+de\b|\s+del\b)?\s*(.*)$/i);
+        if (compoundMatch) {
+          const baseWord = compoundMatch[1] ? compoundMatch[1].trim() : 'un';
+          const base = parseSpokenWordsNumber(baseWord) || 1;
+          const fracType = compoundMatch[3].toLowerCase();
+          let add = 0.5;
+          if (fracType === 'cuarto') add = 0.25;
+          else if (fracType.includes('tres')) add = 0.75;
+          net = (base - 1 + 1 + add) * 1000;
+          unit = 'g';
+          ingName = compoundMatch[4].trim();
+        }
+      }
+
+      // Cucharadas / cucharaditas / vasos / tazas
+      if (net === null) {
+        const spoonMatch = chunk.match(/^(?:([\d\.,]+|[a-záéíóúñ\s]+?)\s+)?(cucharaditas?|cucharadas?|vasos?|tazas?|copitas?)(?:\s+de\b|\s+del\b)?\s*(.*)$/i);
         if (spoonMatch) {
           const count = spoonMatch[1] ? (parseSpokenWordsNumber(spoonMatch[1]) || 1) : 1;
-          const isTeaSpoon = spoonMatch[2].toLowerCase().startsWith('cucharadita');
-          net = count * (isTeaSpoon ? 5 : 15);
+          const measure = spoonMatch[2].toLowerCase();
+          if (measure.startsWith('cucharadita')) net = count * 5;
+          else if (measure.startsWith('cucharada')) net = count * 15;
+          else if (measure.startsWith('copita')) net = count * 50;
+          else net = count * 250;
           unit = 'g';
           ingName = spoonMatch[3].trim();
+        }
+      }
+
+      // Dientes de ajo / manojos / lonchas
+      if (net === null) {
+        const countItemMatch = chunk.match(/^(?:([\d\.,]+|[a-záéíóúñ\s]+?)\s+)?(dientes?|manojos?|ramitas?|rodajas?|lonchas?|rebanadas?)(?:\s+de\b|\s+del\b)?\s*(.*)$/i);
+        if (countItemMatch) {
+          const count = countItemMatch[1] ? (parseSpokenWordsNumber(countItemMatch[1]) || 1) : 1;
+          net = count;
+          unit = 'ud';
+          ingName = countItemMatch[3].trim() || countItemMatch[2].trim();
         }
       }
 
@@ -13927,7 +14018,7 @@ class GC {
           const candidate = words.slice(0, i).join(' ');
           const num = parseSpokenWordsNumber(candidate);
           if (num !== null) {
-            const rest = words.slice(i).join(' ').replace(/^(?:de\s+|del\s+)/i, '').trim();
+            const rest = words.slice(i).join(' ').replace(/^(?:de\s+la\b|de\s+los\b|de\s+las\b|de\s+|del\s+)/i, '').trim();
             net = num;
             unit = (num < 20 && !chunk.includes('gram') && !chunk.includes('kilo')) ? 'ud' : 'g';
             ingName = rest;
@@ -13942,11 +14033,11 @@ class GC {
       }
 
       // Clean up ingredient name
-      ingName = ingName.replace(/^(?:de\s+|del\s+)/i, '').trim();
+      ingName = ingName.replace(/^(?:de\s+la\b|de\s+los\b|de\s+las\b|de\s+|del\s+)/i, '').trim();
       if (!ingName) continue;
       const cleanName = ingName.charAt(0).toUpperCase() + ingName.slice(1);
 
-      // Search Catalog
+      // Search Catalog & Sub-recipe History
       let matchedCat = null;
       if (catalog && catalog.length) {
         const q = cleanName.toLowerCase();
@@ -13956,15 +14047,26 @@ class GC {
         }
       }
 
+      let allergensArr = [];
+      if (matchedCat && matchedCat.allergens) {
+        if (Array.isArray(matchedCat.allergens)) {
+          allergensArr = [...matchedCat.allergens];
+        } else if (typeof matchedCat.allergens === 'string') {
+          allergensArr = matchedCat.allergens.split(',').map(a => a.trim()).filter(Boolean);
+        }
+      }
+
       results.push({
         name: matchedCat ? matchedCat.name : cleanName,
         net: Math.round(net * 100) / 100,
-        unit: (matchedCat && matchedCat.unit) ? matchedCat.unit : (unit || 'g'),
+        unit: unit === 'ud' ? 'ud' : ((matchedCat && matchedCat.unit) ? matchedCat.unit : 'g'),
         waste: matchedCat ? (matchedCat.waste || 0) : 0,
         price: matchedCat ? (matchedCat.price || 0) : 0,
         category: matchedCat ? (matchedCat.category || 'other') : 'other',
-        allergens: matchedCat ? (matchedCat.allergens ? [...matchedCat.allergens] : []) : [],
-        isMatched: !!matchedCat
+        allergens: allergensArr,
+        isMatched: !!matchedCat,
+        isSubRecipe: !!(matchedCat && matchedCat.isSubRecipe),
+        subRecipeId: (matchedCat && matchedCat.subRecipeId) || null
       });
     }
 
@@ -13995,9 +14097,12 @@ class GC {
     }
 
     listEl.innerHTML = this._voiceParsedItems.map((item, idx) => {
-      const matchBadge = item.isMatched
-        ? `<span class="badge" style="background:rgba(34,197,94,0.15);color:var(--green);border:1px solid var(--green);font-size:0.68rem;padding:2px 6px;border-radius:4px;">✓ Catálogo (${F2(item.price)} €)</span>`
-        : `<span class="badge" style="background:rgba(148,163,184,0.15);color:var(--t3);border:1px solid var(--b2);font-size:0.68rem;padding:2px 6px;border-radius:4px;">📦 Nuevo Insumo</span>`;
+      let matchBadge = `<span class="badge" style="background:rgba(148,163,184,0.15);color:var(--t3);border:1px solid var(--b2);font-size:0.68rem;padding:2px 6px;border-radius:4px;">📦 Nuevo Insumo</span>`;
+      if (item.isSubRecipe) {
+        matchBadge = `<span class="badge" style="background:rgba(139,92,246,0.15);color:#8b5cf6;border:1px solid rgba(139,92,246,0.4);font-size:0.68rem;padding:2px 6px;border-radius:4px;">🥘 Base (${F2(item.price)} €)</span>`;
+      } else if (item.isMatched) {
+        matchBadge = `<span class="badge" style="background:rgba(34,197,94,0.15);color:var(--green);border:1px solid var(--green);font-size:0.68rem;padding:2px 6px;border-radius:4px;">✓ Catálogo (${F2(item.price)} €)</span>`;
+      }
 
       return `
         <div class="voice-item-card ${item.isMatched ? 'is-matched' : ''}" data-idx="${idx}" style="display:flex;align-items:center;gap:10px;background:var(--bg3);border:1px solid var(--b1);border-radius:8px;padding:8px 10px;font-size:0.82rem;">
@@ -14089,6 +14194,9 @@ class GC {
       return;
     }
 
+    const insertBtn = document.getElementById('btn-voice-insert');
+    if (insertBtn) insertBtn.disabled = true;
+
     const checkedIndexes = checkedBoxes.map(cb => parseInt(cb.dataset.idx, 10));
     let insertedCount = 0;
 
@@ -14103,6 +14211,16 @@ class GC {
       const unit = item.unit === 'ud' ? 'ud' : 'g';
       const cat = item.category || 'other';
       const allergens = Array.isArray(item.allergens) ? [...item.allergens] : [];
+      const isSub = !!item.isSubRecipe;
+      const subId = item.subRecipeId || null;
+
+      // Cycle detection check
+      if (isSub && subId) {
+        if (subId === this.R.id || (typeof this._isDescendantOf === 'function' && this._isDescendantOf(subId, this.R.id))) {
+          toast(`Referencia circular bloqueada para "${name}"`, 'e');
+          return;
+        }
+      }
 
       const gross = net / (1 - waste / 100);
       const cost = unit === 'ud' ? (gross * price) : ((gross / 1000) * price);
@@ -14118,14 +14236,14 @@ class GC {
         category: cat,
         unit,
         allergens,
-        isSubRecipe: false,
-        subRecipeId: null
+        isSubRecipe: isSub,
+        subRecipeId: subId
       };
 
       this.R.ingredients.push(newIng);
 
-      // Add to catalog if not present and has price
-      if (this.db.catalog && price > 0) {
+      // Add to catalog if not present and has price AND is not a subrecipe
+      if (!isSub && this.db.catalog && price > 0) {
         const exists = this.db.catalog.some(c => c.name.trim().toLowerCase() === name.toLowerCase());
         if (!exists) {
           this.db.catalog.push({
@@ -14152,7 +14270,20 @@ class GC {
       this._render();
       this._autoSave();
       this.closeVoiceDictationModal();
+
+      // Reset modal state after successful injection
+      this._voiceParsedItems = [];
+      const transcriptEl = document.getElementById('voice-transcript-input');
+      if (transcriptEl) transcriptEl.value = '';
+      const parsedContainer = document.getElementById('voice-parsed-container');
+      if (parsedContainer) parsedContainer.style.display = 'none';
+      const parsedList = document.getElementById('voice-parsed-list');
+      if (parsedList) parsedList.innerHTML = '';
+      if (insertBtn) insertBtn.style.display = 'none';
+
       toast(`✅ ${insertedCount} insumo${insertedCount === 1 ? '' : 's'} insertado${insertedCount === 1 ? '' : 's'} desde el dictáfono ✓`);
+    } else {
+      if (insertBtn) insertBtn.disabled = false;
     }
   }
 
@@ -14167,69 +14298,71 @@ class GC {
       btn.disabled = true;
     }
 
-    const r = this.R || {};
-    const cfg = r.config || {};
-    const dishName = (cfg.dishName && cfg.dishName.trim()) ? cfg.dishName.trim() : 'Plato';
-    const portions = Math.max(Number(cfg.portions) || 1, 1);
-    const isSub = !!cfg.isSubRecipe;
-    const ings = r.ingredients || [];
-    const ingSummary = ings.map(i => `${i.name} (${i.net} ${i.unit === 'ud' ? 'ud' : 'g/ml'})`).join(', ');
+    try {
+      const r = this.R || {};
+      const cfg = r.config || {};
+      const dishName = (cfg.dishName && cfg.dishName.trim()) ? cfg.dishName.trim() : 'Plato';
+      const portions = Math.max(Number(cfg.portions) || 1, 1);
+      const isSub = !!cfg.isSubRecipe;
+      const ings = r.ingredients || [];
+      const ingSummary = ings.map(i => `${i.name} (${i.net} ${i.unit === 'ud' ? 'ud' : 'g/ml'})`).join(', ');
 
-    const systemPrompt = `Eres un Chef Ejecutivo con 3 estrellas Michelin y auditor de calidad gastronómica de alta restauración. Redacta las instrucciones de elaboración técnica y método culinario estructurado para una ficha técnica profesional. La respuesta DEBE estar estructurada obligatoriamente en tres secciones claramente rotuladas:
+      const systemPrompt = `Eres un Chef Ejecutivo con 3 estrellas Michelin y auditor de calidad gastronómica de alta restauración. Redacta las instrucciones de elaboración técnica y método culinario estructurado para una ficha técnica profesional. La respuesta DEBE estar estructurada obligatoriamente en tres secciones claramente rotuladas:
 1. MISE EN PLACE Y PREPARACIÓN PREVIA (cortes, limpiezas, marinados y pesajes precisos).
 2. ELABORACIÓN Y TÉCNICAS DE COCCIÓN (temperaturas, puntos de cocción, texturas y procesos paso a paso).
 3. PASE, MONTAJE Y EMPLATADO (vajilla, disposición de elementos, toques finales y servicio).
 Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. No incluyas saludos ni despedidas, únicamente las instrucciones numeradas y estructuradas.`;
 
-    const userPrompt = `Ficha técnica: "${dishName}". ${isSub ? 'Elaboración Base' : 'Plato de Carta'}. Raciones: ${portions}. Insumos declarados: ${ingSummary || 'Sin insumos definidos'}.`;
+      const userPrompt = `Ficha técnica: "${dishName}". ${isSub ? 'Elaboración Base' : 'Plato de Carta'}. Raciones: ${portions}. Insumos declarados: ${ingSummary || 'Sin insumos definidos'}.`;
 
-    let generatedNotes = '';
-    let usedAI = false;
+      let generatedNotes = '';
+      let usedAI = false;
 
-    try {
-      const apiKey = localStorage.getItem('gastrocost_gemini_api_key');
-      if (apiKey) {
-        generatedNotes = await this._queryGemini(systemPrompt, userPrompt);
-        usedAI = true;
+      try {
+        const apiKey = localStorage.getItem('gastrocost_gemini_api_key');
+        if (apiKey) {
+          generatedNotes = await this._queryGemini(systemPrompt, userPrompt);
+          usedAI = true;
+        }
+      } catch (err) {
+        console.warn('Gemini AI call failed, falling back to culinary template:', err);
       }
-    } catch (err) {
-      console.warn('Gemini AI call failed, falling back to culinary template:', err);
-    }
 
-    if (!generatedNotes || !generatedNotes.trim()) {
-      generatedNotes = this._generateCulinaryTemplateNotes(dishName, portions, ings, isSub);
-    }
+      if (!generatedNotes || !generatedNotes.trim()) {
+        generatedNotes = this._generateCulinaryTemplateNotes(dishName, portions, ings, isSub);
+      }
 
-    // Set notes on active recipe
-    if (!this.R.config) this.R.config = {};
-    this.R.config.notes = generatedNotes;
-    this.R.updatedAt = Date.now();
+      // Set notes on active recipe
+      if (!this.R.config) this.R.config = {};
+      this.R.config.notes = generatedNotes;
+      this.R.updatedAt = Date.now();
 
-    // Update UI elements
-    const notesTa = document.getElementById('recipe-notes');
-    if (notesTa) {
-      notesTa.value = generatedNotes;
-      notesTa.dispatchEvent(new Event('input', { bubbles: true }));
-    }
-    const notesSection = document.getElementById('notes-section');
-    if (notesSection) notesSection.classList.add('open');
+      // Update UI elements
+      const notesTa = document.getElementById('recipe-notes');
+      if (notesTa) {
+        notesTa.value = generatedNotes;
+        notesTa.dispatchEvent(new Event('input', { bubbles: true }));
+      }
+      const notesSection = document.getElementById('notes-section');
+      if (notesSection) notesSection.classList.add('open');
 
-    // Update kitchen view if open
-    const kNotes = document.getElementById('kview-notes');
-    if (kNotes) kNotes.textContent = generatedNotes;
-    if (typeof this._renderKitchenView === 'function') this._renderKitchenView();
+      // Update kitchen view if open
+      const kNotes = document.getElementById('kview-notes');
+      if (kNotes) kNotes.textContent = generatedNotes;
+      if (typeof this._renderKitchenView === 'function') this._renderKitchenView();
 
-    this._autoSave();
+      this._autoSave();
 
-    if (btn) {
-      btn.innerHTML = origHtml;
-      btn.disabled = false;
-    }
-
-    if (usedAI) {
-      toast('🪄 Elaboración técnica redactada con IA Michelin ✓');
-    } else {
-      toast('🪄 Elaboración estructurada generada con plantilla culinaria ejecutiva ✓');
+      if (usedAI) {
+        toast('🪄 Elaboración técnica redactada con IA Michelin ✓');
+      } else {
+        toast('🪄 Elaboración estructurada generada con plantilla culinaria ejecutiva ✓');
+      }
+    } finally {
+      if (btn) {
+        btn.innerHTML = origHtml;
+        btn.disabled = false;
+      }
     }
   }
 

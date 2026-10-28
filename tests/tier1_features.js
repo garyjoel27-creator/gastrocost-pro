@@ -1216,6 +1216,49 @@ function runTier1Tests(registerTest) {
     assert.strictEqual(compoundRes[2].net, 3);
     assert.strictEqual(compoundRes[2].unit, 'ud');
     assert.strictEqual(compoundRes[3].net, 10);
+
+    // Case 11: Attached units without spaces (500g, 1kg, 250ml, 100gr)
+    const attachedRes = app.parseSpanishCulinary('500g cebolla, 1kg patatas, 250ml nata y 100gr harina');
+    assert.strictEqual(attachedRes.length, 4, 'Attached units must parse 4 ingredients');
+    assert.strictEqual(attachedRes[0].net, 500, '500g must be 500');
+    assert.strictEqual(attachedRes[1].net, 1000, '1kg must be 1000');
+    assert.strictEqual(attachedRes[2].net, 250, '250ml must be 250');
+    assert.strictEqual(attachedRes[3].net, 100, '100gr must be 100');
+
+    // Case 12: Decimals with dot and comma (1.5 kilos, 1,5 kg, 0.5 litros)
+    const decDot = app.parseSpanishCulinary('1.5 kilos de patatas');
+    assert.strictEqual(decDot[0].net, 1500, '1.5 kilos must resolve to 1500g, not 5000g');
+    const decComma = app.parseSpanishCulinary('1,5 kg de patatas');
+    assert.strictEqual(decComma[0].net, 1500, '1,5 kg must resolve to 1500g');
+    const decZero = app.parseSpanishCulinary('0.5 litros de caldo');
+    assert.strictEqual(decZero[0].net, 500, '0.5 litros must resolve to 500g');
+
+    // Case 13: Spoken compound fractions (un kilo y cuarto, dos kilos y medio)
+    const kiloCuarto = app.parseSpanishCulinary('un kilo y cuarto de harina');
+    assert.strictEqual(kiloCuarto[0].net, 1250, 'un kilo y cuarto must resolve to 1250');
+    assert(kiloCuarto[0].name.toLowerCase().includes('harina'), 'Name must contain harina');
+    const dosKilosMedio = app.parseSpanishCulinary('dos kilos y medio de tomates');
+    assert.strictEqual(dosKilosMedio[0].net, 2500, 'dos kilos y medio must resolve to 2500');
+
+    // Case 14: Fractions in digits and unicode (1/2 kilo, 3/4 litro, media cebolla, 1/2 cebolla)
+    const fracKilo = app.parseSpanishCulinary('1/2 kilo de azucar');
+    assert.strictEqual(fracKilo[0].net, 500, '1/2 kilo must resolve to 500');
+    const fracLitro = app.parseSpanishCulinary('3/4 litro de leche');
+    assert.strictEqual(fracLitro[0].net, 750, '3/4 litro must resolve to 750');
+    const mediaCebolla = app.parseSpanishCulinary('media cebolla');
+    assert.strictEqual(mediaCebolla[0].net, 0.5, 'media cebolla must resolve to 0.5 ud');
+    assert.strictEqual(mediaCebolla[0].unit, 'ud');
+    const mitadCebolla = app.parseSpanishCulinary('1/2 cebolla');
+    assert.strictEqual(mitadCebolla[0].net, 0.5, '1/2 cebolla must resolve to 0.5 ud');
+
+    // Case 15: Idioms with quantities (2 pizcas, 2 chorritos, 2 dientes de ajo)
+    const pizcas = app.parseSpanishCulinary('2 pizcas de pimienta');
+    assert.strictEqual(pizcas[0].net, 4, '2 pizcas must resolve to 4g');
+    const chorritos = app.parseSpanishCulinary('2 chorritos de aceite');
+    assert.strictEqual(chorritos[0].net, 20, '2 chorritos must resolve to 20g');
+    const ajos = app.parseSpanishCulinary('2 dientes de ajo');
+    assert.strictEqual(ajos[0].net, 2, '2 dientes de ajo must resolve to 2 ud');
+    assert.strictEqual(ajos[0].unit, 'ud');
   });
 
   registerTest('T1.R9.3: Voice Dictation parsing with Master Catalog automatic matching and enrichment', () => {
@@ -1244,6 +1287,23 @@ function runTier1Tests(registerTest) {
       }
     ];
 
+    // Also populate a sub-recipe in DB recipes
+    app.db.recipes['sub-bechamel'] = {
+      id: 'sub-bechamel',
+      config: {
+        dishName: 'Salsa Bechamel Tradicional',
+        isSubRecipe: true,
+        yieldQty: 1000,
+        yieldUnit: 'g',
+        portions: 1
+      },
+      ingredients: [
+        { name: 'Mantequilla', net: 100, unit: 'g', cost: 1.20, allergens: ['dairy'] },
+        { name: 'Harina', net: 100, unit: 'g', cost: 0.15, allergens: ['gluten'] },
+        { name: 'Leche', net: 800, unit: 'g', cost: 0.80, allergens: ['dairy'] }
+      ]
+    };
+
     const parsed = app.parseSpanishCulinary('Doscientos gramos de atún rojo y 50 gramos de trufa negra');
     assert.strictEqual(parsed.length, 2, 'Must parse 2 items');
 
@@ -1259,6 +1319,15 @@ function runTier1Tests(registerTest) {
     const item2 = parsed[1];
     assert.strictEqual(item2.isMatched, true, 'Trufa negra must match catalog');
     assert.strictEqual(item2.price, 950.00, 'Price must be 950.00');
+
+    // Check sub-recipe matching from recipe history
+    const subParsed = app.parseSpanishCulinary('300g salsa bechamel');
+    assert.strictEqual(subParsed.length, 1);
+    assert.strictEqual(subParsed[0].isMatched, true, 'Sub-recipe must be recognized');
+    assert.strictEqual(subParsed[0].isSubRecipe, true, 'isSubRecipe must be true');
+    assert.strictEqual(subParsed[0].subRecipeId, 'sub-bechamel', 'subRecipeId must link to recipe ID');
+    assert(subParsed[0].allergens.includes('gluten'), 'Allergens must inherit without string spreading');
+    assert(subParsed[0].allergens.includes('dairy'), 'Allergens must inherit dairy');
 
     // Check non-catalog item
     const unknownParsed = app.parseSpanishCulinary('100 gramos de fruta del dragón desconocida');
@@ -1316,6 +1385,11 @@ function runTier1Tests(registerTest) {
 
     // Verify autoSave was triggered
     assert.strictEqual(saved, true, 'AutoSave must be called after voice ingredient insertion');
+
+    // Verify voice items and modal state were cleanly reset
+    assert.strictEqual(app._voiceParsedItems.length, 0, 'voiceParsedItems must be reset after insertion');
+    const inp = document.getElementById('voice-transcript-input');
+    assert.strictEqual(inp.value, '', 'Voice transcript input must be cleared after insertion');
   });
 
   registerTest('T1.R9.5: AI Recipe Notes Assistant with structured Michelin-grade method generation and auto-save', async () => {
