@@ -4628,145 +4628,163 @@ body.theme-pearl-bronze #btn-open-export {
   </div>
 </div>
 
+<!-- V17.3 Centro de Exportación Productivo (3 Modelos Oficiales) -->
 <div class="modal-overlay" id="export-modal">
-  <div class="export-modal-card has-scroll-body">
+  <div class="export-modal-card has-scroll-body" style="max-width:720px;width:95%;">
     <button class="modal-close" id="btn-close-export" title="Cerrar modal">✕</button>
-    <div class="modal-header-fixed" style="flex-shrink:0;padding-right:36px;margin-bottom:12px;">
-      <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
-        <span>📤</span> <span>Documentos & Exportación</span>
+    <div class="modal-header-fixed" style="flex-shrink:0;padding-right:36px;margin-bottom:14px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div class="modal-title" style="display:flex;align-items:center;gap:8px;margin-bottom:0;">
+          <span style="font-size:1.3rem;">📤</span> <span>Centro de Exportación & Documentos</span>
+        </div>
+        <span class="tag" style="background:rgba(212,175,55,0.15);color:var(--gold);border:1px solid var(--gold);font-size:0.65rem;font-weight:700;">3 Modelos Oficiales</span>
       </div>
-      <div class="modal-subtitle" style="margin-bottom:0;">Ficha Activa: <span id="export-dish-name" style="font-weight:700;color:var(--cyan)"></span></div>
+      <div class="modal-subtitle" style="margin-bottom:0;margin-top:2px;">Ficha Activa: <span id="export-dish-name" style="font-weight:700;color:var(--cyan)"></span></div>
     </div>
     <div class="modal-scroll-body">
-    
-    <div class="export-options-grid">
-      <!-- V17.2 Guardado en Google Drive / Compartir Nativo (Web Share API) -->
-      <div class="export-card" style="grid-column: 1 / -1; background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(6, 182, 212, 0.06)); border: 1px solid rgba(59, 130, 246, 0.35);">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <div style="flex:1;min-width:240px;">
-            <div class="export-card-header" style="color:var(--cyan); margin-bottom:4px;font-size:0.95rem;display:flex;align-items:center;gap:6px;">
-              <span>📲</span> <span>Guardado en Drive / Compartir Nativo</span>
-            </div>
-            <div class="export-card-desc" style="margin-bottom:0;">Envía directamente tus fichas técnicas y escandallos a Google Drive, WhatsApp, Correo o Archivos de tu dispositivo con un solo toque sin requerir configuración previa (Web Share API nativa).</div>
-          </div>
-          <button type="button" class="btn btn-primary" id="btn-share-drive" style="background:#2563eb;border-color:#3b82f6;font-weight:700;min-width:210px;">📲 Compartir / Guardar en Drive</button>
-        </div>
-      </div>
 
-      <!-- Ficha de Cocina -->
-      <div class="export-card">
-        <div>
-          <div class="export-card-header" style="color:var(--cyan);font-size:0.95rem;">🍳 Ficha Técnica de Cocina</div>
-          <div class="export-card-desc">Uso operativo para cocineros y brigada. Incluye foto del emplatado, gramajes netos sin costes, declaración de alérgenos y elaboración paso a paso.</div>
+    <!-- Acceso Rápido: Compartir Nativo / Guardar en Drive -->
+    <div class="export-card" style="margin-bottom:14px;background:linear-gradient(135deg, rgba(37,99,235,0.08), rgba(6,182,212,0.08));border:1px solid rgba(59,130,246,0.35);padding:14px 16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div style="flex:1;min-width:230px;">
+          <div class="export-card-header" style="color:var(--cyan);margin-bottom:3px;font-size:0.92rem;display:flex;align-items:center;gap:6px;">
+            <span>📲</span> <span>Guardado Directo en Drive / Compartir Nativo</span>
+          </div>
+          <div class="export-card-desc" style="margin-bottom:0;font-size:0.73rem;line-height:1.35;">Envía tus fichas técnicas a Google Drive, WhatsApp, Correo o Archivos de tu dispositivo en un solo toque (Web Share API nativa).</div>
         </div>
-        <div class="export-card-actions">
-          <button class="btn btn-primary" id="btn-export-pdf-kitchen" style="width:100%;font-weight:700;">📄 Exportar PDF Cocina</button>
-          <button type="button" class="btn btn-ghost" id="btn-share-kitchen" style="width:100%;border-color:var(--cyan);color:var(--cyan);">📲 Compartir / Guardar en Drive (Cocina)</button>
-          <button class="btn btn-ghost" id="btn-export-doc-kitchen" style="width:100%;">📝 Exportar Word (.doc)</button>
-          <button class="btn btn-ghost" id="btn-print-kitchen" style="width:100%;font-size:0.8rem;">🖨️ Imprimir / Guardar PDF (Nativo)</button>
-        </div>
+        <button type="button" class="btn btn-primary" id="btn-share-drive" style="background:#2563eb;border-color:#3b82f6;font-weight:700;min-height:44px;padding:0 18px;display:inline-flex;align-items:center;gap:6px;">
+          <span>📲</span> <span>Compartir / Guardar en Drive</span>
+        </button>
       </div>
+    </div>
+
+    <div class="export-options-grid" style="grid-template-columns:1fr;gap:14px;">
       
-      <!-- Ficha Financiera / Escandallo -->
-      <div class="export-card">
-        <div>
-          <div class="export-card-header" style="color:var(--green);font-size:0.95rem;">📊 Escandallo Financiero</div>
-          <div class="export-card-desc">Para dirección de F&B y gerencia. Detalle exhaustivo de precios unitarios, mermas calculadas, márgenes netos, PVP y KPIs de rentabilidad.</div>
+      <!-- MODELO 1: FICHA TÉCNICA OPERATIVA DE COCINA -->
+      <div class="export-card model-card-kitchen" style="border-left:4px solid var(--cyan);background:rgba(6,182,212,0.03);padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+          <div class="export-card-header" style="color:var(--cyan);font-size:1.02rem;margin-bottom:0;font-weight:800;">
+            <span>🍳</span> <span>MODELO 1: Ficha Técnica Operativa (Cocina)</span>
+          </div>
+          <span class="tag" style="background:rgba(6,182,212,0.15);color:var(--cyan);border:1px solid var(--cyan);font-size:0.65rem;font-weight:700;">Word / Docs · PDF Brigada</span>
         </div>
-        <div class="export-card-actions">
-          <button class="btn btn-green" id="btn-export-pdf-financial" style="width:100%;font-weight:700;">📄 Exportar PDF Financiero</button>
-          <button class="btn btn-primary" id="btn-export-xls" style="width:100%;font-weight:700;background:rgba(34,197,94,0.15);border-color:var(--green);color:var(--green);">📊 Exportar Excel (.xlsx)</button>
-          <button type="button" class="btn btn-ghost" id="btn-share-financial" style="width:100%;border-color:var(--green);color:var(--green);">📲 Compartir / Guardar en Drive (Financiero)</button>
-          <button class="btn btn-ghost" id="btn-export-doc-financial" style="width:100%;">📝 Exportar Word (.doc)</button>
-          <button class="btn btn-ghost" id="btn-print-financial" style="width:100%;font-size:0.8rem;">🖨️ Imprimir / Guardar PDF (Nativo)</button>
+        <div class="export-card-desc" style="margin-bottom:14px;font-size:0.75rem;line-height:1.45;">
+          Uso operativo para la brigada. Incluye foto de emplatado, gramajes netos sin costes financieros, cuadro de los 14 alérgenos obligatorios (RD 126/2015), método de elaboración paso a paso y firmas de verificación de calidad.
+        </div>
+        <div class="export-card-actions" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:8px;">
+          <button class="btn btn-primary" id="btn-export-doc-kitchen" style="font-weight:700;background:linear-gradient(135deg, #0284c7, #0369a1);border-color:#0284c7;min-height:46px;">📝 Descargar Word / Docs (.doc)</button>
+          <button class="btn btn-ghost" id="btn-export-pdf-kitchen" style="border-color:var(--cyan);color:var(--cyan);font-weight:700;min-height:46px;">📄 Descargar PDF Cocina</button>
+          <button type="button" class="btn btn-ghost" id="btn-share-kitchen" style="border-color:rgba(6,182,212,0.5);color:var(--cyan);min-height:46px;">📲 Compartir / Drive</button>
+          <button class="btn btn-ghost" id="btn-print-kitchen" style="font-size:0.75rem;min-height:46px;">🖨️ Imprimir / Guardar PDF (Nativo)</button>
         </div>
       </div>
 
-      <!-- Libro Digital de Recetas Consolidado (R5) -->
-      <div class="export-card" style="grid-column: 1 / -1; background: rgba(34, 211, 238, 0.04); border-color: rgba(34, 211, 238, 0.25);">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <div style="flex:1;min-width:240px;">
-            <div class="export-card-header" style="color:var(--cyan); margin-bottom:4px;font-size:0.95rem;">📖 Libro Digital de Recetas & Dossier APPCC</div>
-            <div class="export-card-desc" style="margin-bottom:0;">Compilación ejecutiva multirreceta en un único documento maestro unificado con portada corporativa, índice interactivo navegable y fichas estandarizadas para auditorías sanitarias y operativas.</div>
+      <!-- MODELO 2: ESCANDALLO FINANCIERO VIVO -->
+      <div class="export-card model-card-financial" style="border-left:4px solid var(--green);background:rgba(34,197,94,0.03);padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+          <div class="export-card-header" style="color:var(--green);font-size:1.02rem;margin-bottom:0;font-weight:800;">
+            <span>📊</span> <span>MODELO 2: Escandallo Financiero Vivo (Excel & Gerencia)</span>
           </div>
-          <button type="button" class="btn btn-primary" id="btn-open-recipe-book" style="min-width:190px;">📖 Abrir Compilador</button>
+          <span class="tag" style="background:rgba(34,197,94,0.15);color:var(--green);border:1px solid var(--green);font-size:0.65rem;font-weight:700;">Excel Vivo (.xlsx) · Fórmulas Activas</span>
+        </div>
+        <div class="export-card-desc" style="margin-bottom:14px;font-size:0.75rem;line-height:1.45;">
+          Para dirección de F&B y gerencia gastronómica. Hoja de cálculo viva con fórmulas dinámicas reales de Excel (<code style="color:var(--green);font-weight:bold;">=SUM(...)</code>, márgenes, coste por ración, PVP e impuestos). Modifica cualquier ingrediente o precio en Excel o Google Sheets y los totales se recalculan automáticamente.
+        </div>
+        <div class="export-card-actions" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:8px;">
+          <button class="btn btn-primary" id="btn-export-xls" style="font-weight:700;background:linear-gradient(135deg, #15803d, #16a34a);border-color:#16a34a;min-height:46px;">📊 Descargar Excel Financiero (.xlsx)</button>
+          <button class="btn btn-green" id="btn-export-pdf-financial" style="font-weight:700;min-height:46px;">📄 Descargar Escandallo PDF</button>
+          <button type="button" class="btn btn-ghost" id="btn-share-financial" style="border-color:var(--green);color:var(--green);min-height:46px;">📲 Compartir / Drive</button>
+          <button class="btn btn-ghost" id="btn-export-doc-financial" style="font-size:0.75rem;min-height:46px;">📝 Word Financiero (.doc)</button>
+          <button class="btn btn-ghost" id="btn-print-financial" style="font-size:0.75rem;min-height:46px;">🖨️ Imprimir Escandallo</button>
         </div>
       </div>
 
-      <!-- Importador de Escandallos Excel (V16.4) -->
-      <div class="export-card" style="grid-column: 1 / -1; background: rgba(34, 197, 94, 0.03); border-color: rgba(34, 197, 94, 0.2);">
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
-          <div style="flex:1;min-width:240px;">
-            <div class="export-card-header" style="color:var(--green); margin-bottom:4px;font-size:0.95rem;">📥 Importar Escandallo desde Excel (.xlsx / .csv)</div>
-            <div class="export-card-desc" style="margin-bottom:0;">Carga recetas desde Excel o CSV con plantilla oficial, autocompletado y reconciliación automática con tu Catálogo Maestro de ingredientes.</div>
+      <!-- MODELO 3: LIBRO DIGITAL DE RECETAS & DOSSIER APPCC -->
+      <div class="export-card model-card-master" style="border-left:4px solid var(--gold);background:rgba(212,175,55,0.03);padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+          <div class="export-card-header" style="color:var(--gold);font-size:1.02rem;margin-bottom:0;font-weight:800;">
+            <span>📖</span> <span>MODELO 3: Dossier de Recetas & Auditoría APPCC</span>
           </div>
-          <button type="button" class="btn btn-green" id="btn-modal-open-recipe-import" style="min-width:190px;">📥 Importar Escandallo</button>
+          <span class="tag" style="background:rgba(212,175,55,0.15);color:var(--gold);border:1px solid var(--gold);font-size:0.65rem;font-weight:700;">Dossier Multirreceta · Importación Excel</span>
+        </div>
+        <div class="export-card-desc" style="margin-bottom:14px;font-size:0.75rem;line-height:1.45;">
+          Compilación multirreceta ejecutiva para manuales de operaciones, aperturas y auditorías sanitarias oficiales. Genera un dossier con portada de restaurante, índice dinámico interactivo y fichas estandarizadas. Incluye motor de carga e importación bidireccional desde plantillas Excel externas.
+        </div>
+        <div class="export-card-actions" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:8px;">
+          <button type="button" class="btn btn-primary" id="btn-open-recipe-book" style="background:linear-gradient(135deg, #d97706, #b45309);border-color:#d97706;font-weight:700;min-height:46px;">📖 Abrir Compilador de Libro</button>
+          <button type="button" class="btn btn-ghost" id="btn-modal-open-recipe-import" style="border-color:rgba(212,175,55,0.5);color:var(--gold);font-weight:600;min-height:46px;">📥 Importar Escandallo Excel / CSV</button>
         </div>
       </div>
+
     </div>
     
     </div>
     <div class="modal-footer-fixed" style="display:flex;justify-content:flex-end;margin-top:14px;padding-top:12px;border-top:1px solid var(--b1);flex-shrink:0;">
-      <button type="button" class="btn btn-ghost" id="btn-close-export-footer" style="font-size:0.78rem;padding:7px 18px;">Cerrar</button>
+      <button type="button" class="btn btn-ghost" id="btn-close-export-footer" style="font-size:0.78rem;padding:7px 18px;min-height:40px;">Cerrar</button>
     </div>
   </div>
 </div>
 
 <!-- V17.2 Modal de Compartir Nativo & Guardar en Drive -->
+<!-- V17.3 Modal de Compartir Nativo & Guardar en Drive (3 Modelos) -->
 <div class="modal-overlay" id="share-drive-modal">
-  <div class="export-modal-card" style="max-width:540px;padding:24px;">
+  <div class="export-modal-card" style="max-width:560px;padding:24px;">
     <button class="modal-close" id="btn-close-share-modal" title="Cerrar modal">✕</button>
     <div class="modal-title" style="display:flex;align-items:center;gap:8px;">
       <span>📲</span> <span>Compartir / Guardar en Drive</span>
     </div>
     <div class="modal-subtitle" style="margin-bottom:16px;">
-      Envía la ficha técnica seleccionada directamente a Google Drive, WhatsApp, Correo o Archivos de tu dispositivo.
+      Elige el formato de la ficha técnica para enviarlo directamente a Google Drive, WhatsApp, Correo o Archivos de tu dispositivo.
     </div>
 
     <div style="display:flex;flex-direction:column;gap:10px;">
-      <button type="button" class="btn btn-ghost" id="btn-share-modal-pdf-kitchen" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;border-color:var(--cyan);">
+      <!-- Modelo 1: Cocina -->
+      <div style="font-size:0.75rem;font-weight:700;color:var(--cyan);text-transform:uppercase;letter-spacing:0.04em;margin-top:4px;">🍳 Modelo 1: Operaciones & Brigada</div>
+      <button type="button" class="btn btn-ghost" id="btn-share-modal-doc-kitchen" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;border-color:var(--cyan);min-height:50px;">
         <div>
-          <div style="font-weight:700;color:var(--cyan);font-size:0.9rem;">🍳 Ficha Técnica de Cocina (PDF)</div>
-          <div style="font-size:0.72rem;color:var(--t3);">Gramajes netos, foto, alérgenos y elaboración paso a paso</div>
+          <div style="font-weight:700;color:var(--cyan);font-size:0.9rem;">📝 Documento Word / Google Docs (.doc)</div>
+          <div style="font-size:0.72rem;color:var(--t3);">Abre directamente en Word y Google Docs con formato de chef ejecutivo</div>
         </div>
-        <span style="font-size:1.1rem;">📲</span>
+        <span style="font-size:1.2rem;">📲</span>
       </button>
 
-      <button type="button" class="btn btn-ghost" id="btn-share-modal-pdf-financial" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;border-color:var(--green);">
+      <button type="button" class="btn btn-ghost" id="btn-share-modal-pdf-kitchen" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;border-color:rgba(6,182,212,0.4);min-height:50px;">
         <div>
-          <div style="font-weight:700;color:var(--green);font-size:0.9rem;">📊 Escandallo Financiero (PDF)</div>
-          <div style="font-size:0.72rem;color:var(--t3);">Márgenes, mermas calculadas, precios unitarios y rentabilidad</div>
+          <div style="font-weight:700;color:var(--t1);font-size:0.9rem;">📄 Ficha de Cocina en PDF</div>
+          <div style="font-size:0.72rem;color:var(--t3);">Gramajes netos, fotografía de emplatado y alérgenos</div>
         </div>
-        <span style="font-size:1.1rem;">📲</span>
+        <span style="font-size:1.2rem;">📲</span>
       </button>
 
-      <button type="button" class="btn btn-ghost" id="btn-share-modal-excel" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;border-color:rgba(34,197,94,0.4);">
+      <!-- Modelo 2: Finanzas -->
+      <div style="font-size:0.75rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.04em;margin-top:8px;">📊 Modelo 2: Finanzas & Rentabilidad</div>
+      <button type="button" class="btn btn-ghost" id="btn-share-modal-excel" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;border-color:var(--green);min-height:50px;">
         <div>
-          <div style="font-weight:700;color:var(--green);font-size:0.9rem;">📗 Hoja de Cálculo Excel (.xlsx)</div>
-          <div style="font-size:0.72rem;color:var(--t3);">Libro de costes editable con fórmulas completas</div>
+          <div style="font-weight:700;color:var(--green);font-size:0.9rem;">📗 Hoja de Cálculo Excel (.xlsx con Fórmulas Vivas)</div>
+          <div style="font-size:0.72rem;color:var(--t3);">Libro dinámico con recálculo automático en Excel y Google Sheets</div>
         </div>
-        <span style="font-size:1.1rem;">📲</span>
+        <span style="font-size:1.2rem;">📲</span>
       </button>
 
-      <button type="button" class="btn btn-ghost" id="btn-share-modal-doc-kitchen" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;">
+      <button type="button" class="btn btn-ghost" id="btn-share-modal-pdf-financial" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;border-color:rgba(34,197,94,0.4);min-height:50px;">
         <div>
-          <div style="font-weight:700;color:var(--t1);font-size:0.9rem;">📝 Documento Word Cocina (.doc)</div>
-          <div style="font-size:0.72rem;color:var(--t3);">Documento editable con formato oficial de chef ejecutivo</div>
+          <div style="font-weight:700;color:var(--t1);font-size:0.9rem;">📊 Escandallo Financiero (PDF)</div>
+          <div style="font-size:0.72rem;color:var(--t3);">Márgenes, mermas, precios unitarios y rentabilidad</div>
         </div>
-        <span style="font-size:1.1rem;">📲</span>
+        <span style="font-size:1.2rem;">📲</span>
       </button>
 
-      <button type="button" class="btn btn-ghost" id="btn-share-modal-doc-financial" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;">
+      <button type="button" class="btn btn-ghost" id="btn-share-modal-doc-financial" style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;text-align:left;min-height:50px;">
         <div>
-          <div style="font-weight:700;color:var(--t1);font-size:0.9rem;">📝 Documento Word Financiero (.doc)</div>
-          <div style="font-size:0.72rem;color:var(--t3);">Informe ejecutivo de escandallo para gerencia</div>
+          <div style="font-weight:700;color:var(--t2);font-size:0.9rem;">📝 Escandallo Financiero Word (.doc)</div>
+          <div style="font-size:0.72rem;color:var(--t3);">Informe de costes editable para dirección</div>
         </div>
-        <span style="font-size:1.1rem;">📲</span>
+        <span style="font-size:1.2rem;">📲</span>
       </button>
     </div>
 
     <div style="display:flex;justify-content:flex-end;margin-top:16px;">
-      <button type="button" class="btn btn-ghost" id="btn-close-share-footer" style="font-size:0.8rem;padding:7px 18px;">Cerrar</button>
+      <button type="button" class="btn btn-ghost" id="btn-close-share-footer" style="font-size:0.8rem;padding:7px 18px;min-height:40px;">Cerrar</button>
     </div>
   </div>
 </div>
@@ -11080,9 +11098,13 @@ class GC {
     
     if (show) {
       const nameEl = document.getElementById('export-dish-name');
-      if (nameEl) nameEl.textContent = this.R.config.dishName || 'Nueva Ficha';
+      const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]);
+      if (nameEl) nameEl.textContent = (r && r.config && r.config.dishName) ? r.config.dishName : 'Nueva Ficha';
       modal.classList.add('open');
       document.body.classList.add('modal-open');
+      // Pre-warm script loaders in background to avoid user-gesture timeout on mobile/tablet
+      if (typeof this._ensureXLSX === 'function') this._ensureXLSX().catch(() => {});
+      if (typeof this._ensureHTML2PDF === 'function') this._ensureHTML2PDF().catch(() => {});
     } else {
       modal.classList.remove('open');
       document.body.classList.remove('modal-open');
@@ -12372,7 +12394,7 @@ class GC {
   }
 
   _buildSheet(wb, recipe) {
-    const cfg = recipe.config, ings = recipe.ingredients, sc = this._scale();
+    const cfg = recipe.config || {}, ings = recipe.ingredients || [], sc = this._scale();
     const shName = (cfg.dishName || 'Ficha').slice(0, 28).replace(/[:\\/?*[\]]/g, '_');
 
     const cur = cfg.currency || 'EUR';
@@ -12386,23 +12408,23 @@ class GC {
     const rMrgU = AF+8, rBenL = AF+9, rMrgP = AF+10;
 
     const aoa = [];
-    aoa.push([`ESCANDALLO — ${(cfg.dishName || '').toUpperCase()}`]);
-    aoa.push([`Generado: ${new Date().toLocaleDateString('es-ES')} · Escala: ×${sc} · FC Obj: ${cfg.fcGoal}% · IGIC/IVA: ${cfg.taxRate}% · Divisa: ${cur}`]);
+    aoa.push(['ESCANDALLO — ' + (cfg.dishName || '').toUpperCase()]);
+    aoa.push(['Generado: ' + new Date().toLocaleDateString('es-ES') + ' · Escala: ×' + sc + ' · FC Obj: ' + (cfg.fcGoal || 28) + '% · IGIC/IVA: ' + (cfg.taxRate || 0) + '% · Divisa: ' + cur]);
     aoa.push([]);
-    aoa.push(['INGREDIENTE', 'NETO PLAN. (g/ud)', 'MERMA (%)', 'BRUTO REAL (g/ud)', `PRECIO (${curSym}/kg o ud)`, `COSTO LOTE (${curSym})`, 'ALÉRGENOS']);
-    ings.forEach(ing => aoa.push([ing.name, ing.net * sc, ing.waste, null, ing.originalPrice, null, ing.allergens ? ing.allergens.join(', ').toUpperCase() : '']));
+    aoa.push(['INGREDIENTE', 'NETO PLAN. (g/ud)', 'MERMA (%)', 'BRUTO REAL (g/ud)', 'PRECIO (' + curSym + '/kg o ud)', 'COSTO LOTE (' + curSym + ')', 'ALÉRGENOS']);
+    ings.forEach(ing => aoa.push([ing.name, (ing.net || 0) * sc, Number(ing.waste) || 0, null, Number(ing.originalPrice) || 0, null, ing.allergens ? ing.allergens.join(', ').toUpperCase() : '']));
     aoa.push(['TOTAL LOTE', null, null, null, null, null, '']);
     aoa.push([]);
     aoa.push(['ANÁLISIS FINANCIERO', 'VALOR', '', '', '', '', '']);
-    aoa.push(['Raciones Base', cfg.portions]);
-    aoa.push([`Costo Lote (${curSym})`, null]);
-    aoa.push([`Costo por Ración (${curSym})`, null]);
-    aoa.push(['Food Cost Objetivo (%)', cfg.fcGoal]);
-    aoa.push([`PVP Neto sin impuesto (${curSym})`, null]);
-    aoa.push(['IGIC / IVA (%)', cfg.taxRate]);
-    aoa.push([`PVP Carta con impuesto (${curSym})`, null]);
-    aoa.push([`Margen Bruto / Ración (${curSym})`, null]);
-    aoa.push([`Beneficio Total Lote (${curSym})`, null]);
+    aoa.push(['Raciones Base', Math.max(Number(cfg.portions) || 1, 1)]);
+    aoa.push(['Costo Lote (' + curSym + ')', null]);
+    aoa.push(['Costo por Ración (' + curSym + ')', null]);
+    aoa.push(['Food Cost Objetivo (%)', Number(cfg.fcGoal) || 28]);
+    aoa.push(['PVP Neto sin impuesto (' + curSym + ')', null]);
+    aoa.push(['IGIC / IVA (%)', Number(cfg.taxRate) || 0]);
+    aoa.push(['PVP Carta con impuesto (' + curSym + ')', null]);
+    aoa.push(['Margen Bruto / Ración (' + curSym + ')', null]);
+    aoa.push(['Beneficio Total Lote (' + curSym + ')', null]);
     aoa.push(['Margen (%)', null]);
 
     /* Add notes row if present */
@@ -12412,53 +12434,102 @@ class GC {
       aoa.push([cfg.notes]);
     }
 
-    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    const xlsx = (typeof XLSX !== 'undefined') ? XLSX : ((typeof window !== 'undefined' && window.XLSX) ? window.XLSX : null);
+    if (!xlsx) return null;
+    const ws = xlsx.utils.aoa_to_sheet(aoa);
+
+    let sumNet = 0;
+    let sumGross = 0;
+    let sumCost = 0;
 
     /* Formulas: ingredient rows */
     for (let i = 0; i < n; i++) {
       const row = DR + i;
       const ing = ings[i];
-      ws[`D${row}`] = { t:'n', f:`B${row}/(1-C${row}/100)`, z:'#,##0.0' };
+      const netVal = (ing.net || 0) * sc;
+      const wasteVal = Number(ing.waste) || 0;
+      const grossVal = wasteVal >= 100 ? netVal : (netVal / (1 - wasteVal / 100));
+      const priceVal = Number(ing.originalPrice) || 0;
+      const costVal = (ing.unit === 'ud') ? (grossVal * priceVal) : ((grossVal / 1000) * priceVal);
+
+      sumNet += netVal;
+      sumGross += grossVal;
+      sumCost += costVal;
+
+      ws['D' + row] = {
+        t: 'n',
+        f: 'IF(C' + row + '<100,B' + row + '/(1-C' + row + '/100),B' + row + ')',
+        v: Math.round(grossVal * 10) / 10,
+        z: '#,##0.0'
+      };
+
       if (ing.unit === 'ud') {
-        ws[`F${row}`] = { t:'n', f:`D${row}*E${row}`,    z:`#,##0.00\\ "\${curSym}"` };
+        ws['F' + row] = {
+          t: 'n',
+          f: 'D' + row + '*E' + row,
+          v: Math.round(costVal * 100) / 100,
+          z: '#,##0.00\ "' + curSym + '"'
+        };
       } else {
-        ws[`F${row}`] = { t:'n', f:`D${row}/1000*E${row}`,    z:`#,##0.00\\ "\${curSym}"` };
+        ws['F' + row] = {
+          t: 'n',
+          f: '(D' + row + '/1000)*E' + row,
+          v: Math.round(costVal * 100) / 100,
+          z: '#,##0.00\ "' + curSym + '"'
+        };
       }
     }
 
     /* Formulas: total row */
     if (n > 0) {
       const lastIng = DR + n - 1;
-      ws[`B${TR}`] = { t:'n', f:`SUM(B${DR}:B${lastIng})`, z:'#,##0.0' };
-      ws[`D${TR}`] = { t:'n', f:`SUM(D${DR}:D${lastIng})`, z:'#,##0.0' };
-      ws[`F${TR}`] = { t:'n', f:`SUM(F${DR}:F${lastIng})`, z:`#,##0.00\\ "${curSym}"` };
+      ws['B' + TR] = { t: 'n', f: 'SUM(B' + DR + ':B' + lastIng + ')', v: Math.round(sumNet * 10) / 10, z: '#,##0.0' };
+      ws['D' + TR] = { t: 'n', f: 'SUM(D' + DR + ':D' + lastIng + ')', v: Math.round(sumGross * 10) / 10, z: '#,##0.0' };
+      ws['F' + TR] = { t: 'n', f: 'SUM(F' + DR + ':F' + lastIng + ')', v: Math.round(sumCost * 100) / 100, z: '#,##0.00\ "' + curSym + '"' };
+    } else {
+      ws['B' + TR] = { t: 'n', v: 0, z: '#,##0.0' };
+      ws['D' + TR] = { t: 'n', v: 0, z: '#,##0.0' };
+      ws['F' + TR] = { t: 'n', v: 0, z: '#,##0.00\ "' + curSym + '"' };
     }
 
     /* Formulas: financial analysis */
-    ws[`B${rLote}`] = { t:'n', f:`F${TR}`,                                          z:`#,##0.00\\ "${curSym}"` };
-    ws[`B${rUnit}`] = { t:'n', f:`B${rLote}/B${rRac}`,                              z:`#,##0.000\\ "${curSym}"` };
-    ws[`B${rPVPN}`] = { t:'n', f:`IF(B${rFC}>0,B${rUnit}/(B${rFC}/100),0)`,         z:`#,##0.00\\ "${curSym}"` };
-    ws[`B${rPVPT}`] = { t:'n', f:`B${rPVPN}*(1+B${rIGIC}/100)`,                     z:`#,##0.00\\ "${curSym}"` };
-    ws[`B${rMrgU}`] = { t:'n', f:`B${rPVPN}-B${rUnit}`,                             z:`#,##0.00\\ "${curSym}"` };
-    ws[`B${rBenL}`] = { t:'n', f:`B${rMrgU}*B${rRac}`,                              z:`#,##0.00\\ "${curSym}"` };
-    ws[`B${rMrgP}`] = { t:'n', f:`IF(B${rPVPN}>0,(B${rMrgU}/B${rPVPN})*100,0)`,     z:'0.0\\%' };
+    const portions = Math.max(Number(cfg.portions) || 1, 1);
+    const unitCost = portions > 0 ? (sumCost / portions) : 0;
+    const targetFC = Number(cfg.fcGoal) || 28;
+    const taxRate = Number(cfg.taxRate) || 0;
+    const pvpNet = targetFC > 0 ? (unitCost / (targetFC / 100)) : 0;
+    const pvpTax = pvpNet * (1 + taxRate / 100);
+    const marginUnit = pvpNet - unitCost;
+    const marginBatch = marginUnit * portions;
+    const marginPct = pvpNet > 0 ? (marginUnit / pvpNet) * 100 : 0;
+
+    ws['B' + rRac]  = { t: 'n', v: portions, z: '#,##0' };
+    ws['B' + rLote] = { t: 'n', f: 'F' + TR, v: Math.round(sumCost * 100) / 100, z: '#,##0.00\ "' + curSym + '"' };
+    ws['B' + rUnit] = { t: 'n', f: 'IF(B' + rRac + '>0,B' + rLote + '/B' + rRac + ',0)', v: Math.round(unitCost * 1000) / 1000, z: '#,##0.000\ "' + curSym + '"' };
+    ws['B' + rFC]   = { t: 'n', v: targetFC, z: '0.0"%"' };
+    ws['B' + rPVPN] = { t: 'n', f: 'IF(B' + rFC + '>0,B' + rUnit + '/(B' + rFC + '/100),0)', v: Math.round(pvpNet * 100) / 100, z: '#,##0.00\ "' + curSym + '"' };
+    ws['B' + rIGIC] = { t: 'n', v: taxRate, z: '0.0"%"' };
+    ws['B' + rPVPT] = { t: 'n', f: 'B' + rPVPN + '*(1+B' + rIGIC + '/100)', v: Math.round(pvpTax * 100) / 100, z: '#,##0.00\ "' + curSym + '"' };
+    ws['B' + rMrgU] = { t: 'n', f: 'B' + rPVPN + '-B' + rUnit, v: Math.round(marginUnit * 100) / 100, z: '#,##0.00\ "' + curSym + '"' };
+    ws['B' + rBenL] = { t: 'n', f: 'B' + rMrgU + '*B' + rRac, v: Math.round(marginBatch * 100) / 100, z: '#,##0.00\ "' + curSym + '"' };
+    ws['B' + rMrgP] = { t: 'n', f: 'IF(B' + rPVPN + '>0,(B' + rMrgU + '/B' + rPVPN + ')*100,0)', v: Math.round(marginPct * 10) / 10, z: '0.0\%' };
 
     /* Formats */
     for (let i = 0; i < n; i++) {
       const r = DR + i;
-      if (ws[`B${r}`]) ws[`B${r}`].z = '#,##0.0';
-      if (ws[`C${r}`]) ws[`C${r}`].z = '0.0"%"';
-      if (ws[`E${r}`]) ws[`E${r}`].z = `#,##0.00\\ "${curSym}"`;
+      if (ws['B' + r]) ws['B' + r].z = '#,##0.0';
+      if (ws['C' + r]) ws['C' + r].z = '0.0"%"';
+      if (ws['E' + r]) ws['E' + r].z = '#,##0.00\ "' + curSym + '"';
     }
 
-    // Auto-fit column widths dynamically V14.1
-    const colWidths = aoa[0].map(() => ({ wch: 10 }));
+    // Auto-fit column widths dynamically
+    const colWidths = aoa[0].map(() => ({ wch: 12 }));
     aoa.forEach(row => {
       row.forEach((val, colIdx) => {
         if (val != null) {
           const len = val.toString().length;
           if (len > (colWidths[colIdx]?.wch || 0)) {
-            colWidths[colIdx] = { wch: Math.min(45, len + 3) }; // max width 45
+            colWidths[colIdx] = { wch: Math.min(45, len + 3) };
           }
         }
       });
@@ -12469,8 +12540,8 @@ class GC {
       {s:{r:0,c:0}, e:{r:0,c:6}},
       {s:{r:1,c:0}, e:{r:1,c:6}}
     ];
-    ws['!ref'] = XLSX.utils.encode_range({s:{r:0,c:0}, e:{r:aoa.length-1, c:6}});
-    XLSX.utils.book_append_sheet(wb, ws, shName);
+    ws['!ref'] = xlsx.utils.encode_range({s:{r:0,c:0}, e:{r:aoa.length-1, c:6}});
+    xlsx.utils.book_append_sheet(wb, ws, shName);
   }
 
   _buildComparSheet(wb, recipes) {
@@ -12498,7 +12569,9 @@ class GC {
       
       aoa.push([c.dishName, port, `${F2(lote)} ${curSym}`, `${F2(unit)} ${curSym}`, c.fcGoal, `${F2(pvpN)} ${curSym}`, `${F2(pvpT)} ${curSym}`, `${F2(marg)} ${curSym}`, mPct, ings.length, cur]);
     });
-    const ws = XLSX.utils.aoa_to_sheet(aoa);
+    const xlsx = (typeof XLSX !== 'undefined') ? XLSX : ((typeof window !== 'undefined' && window.XLSX) ? window.XLSX : null);
+    if (!xlsx) return;
+    const ws = xlsx.utils.aoa_to_sheet(aoa);
     
     // Auto-fit column widths dynamically V14.1
     const colWidths = aoa[0].map(() => ({ wch: 10 }));
@@ -12515,7 +12588,7 @@ class GC {
     ws['!cols'] = colWidths;
 
     ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:10}}, {s:{r:1,c:0},e:{r:1,c:10}}];
-    XLSX.utils.book_append_sheet(wb, ws, 'Comparativo');
+    xlsx.utils.book_append_sheet(wb, ws, 'Comparativo');
   }
   _safeFilename(dishName, prefix, ext) {
     const cleanName = (dishName || 'ficha')
@@ -12531,7 +12604,7 @@ class GC {
     if (typeof Blob === 'undefined' || typeof URL === 'undefined' || typeof URL.createObjectURL !== 'function') {
       return;
     }
-    const blob = new Blob([content], { type: mimeType });
+    const blob = (content instanceof Blob) ? content : new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -13410,8 +13483,14 @@ class GC {
     const cfg = r.config || {};
     const dishName = cfg.dishName || 'Ficha_Tecnica';
 
-    if (type === 'pdf-kitchen') {
+    // Model 1: Kitchen Operations (Word / Google Docs .doc & PDF)
+    if (type === 'doc-kitchen') {
+      const filename = this._safeFilename(dishName, 'Ficha_Cocina', 'doc');
+      const blob = this._generateWordKitchenBlob();
+      return await this._shareFile(blob, filename, 'application/msword', `📝 Ficha de Cocina Word — ${dishName}`);
+    } else if (type === 'pdf-kitchen') {
       const filename = this._safeFilename(dishName, 'Ficha_Cocina', 'pdf');
+      toast('⏳ Preparando Ficha de Cocina...', 'i');
       const blob = await this._generateKitchenPDFBlob();
       if (blob) {
         return await this._shareFile(blob, filename, 'application/pdf', `🍳 Ficha de Cocina — ${dishName}`);
@@ -13420,8 +13499,21 @@ class GC {
         const docName = this._safeFilename(dishName, 'Ficha_Cocina', 'doc');
         return await this._shareFile(docBlob, docName, 'application/msword', `🍳 Ficha de Cocina — ${dishName}`);
       }
+    }
+    // Model 2: Financial Escandallo (Excel .xlsx with Living Formulas & PDF)
+    else if (type === 'excel') {
+      const filename = `GastroCost_${dishName.replace(/[^a-zA-Z0-9_-]/g, '_')}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      toast('⏳ Compilando Escandallo Excel...', 'i');
+      const blob = await this._generateExcelBlob();
+      if (blob) {
+        return await this._shareFile(blob, filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', `📗 Excel Escandallo Vivo — ${dishName}`);
+      } else {
+        toast('No se pudo compilar el archivo Excel', 'e');
+        return false;
+      }
     } else if (type === 'pdf-financial') {
       const filename = this._safeFilename(dishName, 'Escandallo_Financiero', 'pdf');
+      toast('⏳ Preparando Escandallo PDF...', 'i');
       const blob = await this._generateFinancialPDFBlob();
       if (blob) {
         return await this._shareFile(blob, filename, 'application/pdf', `📊 Escandallo Financiero — ${dishName}`);
@@ -13430,19 +13522,6 @@ class GC {
         const docName = this._safeFilename(dishName, 'Escandallo_Financiero', 'doc');
         return await this._shareFile(docBlob, docName, 'application/msword', `📊 Escandallo Financiero — ${dishName}`);
       }
-    } else if (type === 'excel') {
-      const filename = `GastroCost_${dishName.replace(/[^a-zA-Z0-9_-]/g, '_')}_${new Date().toISOString().slice(0, 10)}.xlsx`;
-      const blob = await this._generateExcelBlob();
-      if (blob) {
-        return await this._shareFile(blob, filename, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', `📗 Excel Escandallo — ${dishName}`);
-      } else {
-        toast('No se pudo compilar el archivo Excel', 'e');
-        return false;
-      }
-    } else if (type === 'doc-kitchen') {
-      const filename = this._safeFilename(dishName, 'Ficha_Cocina', 'doc');
-      const blob = this._generateWordKitchenBlob();
-      return await this._shareFile(blob, filename, 'application/msword', `📝 Ficha de Cocina Word — ${dishName}`);
     } else if (type === 'doc-financial') {
       const filename = this._safeFilename(dishName, 'Escandallo_Financiero', 'doc');
       const blob = this._generateWordFinancialBlob();
@@ -13580,7 +13659,15 @@ class GC {
   }
 
   async _generateExcelBlob() {
-    if (!await this._ensureXLSX()) return null;
+    const loaded = await this._ensureXLSX();
+    if (!loaded && typeof window !== 'undefined' && !window.XLSX) {
+      // In offline / test harness fallback where CDN script is not loaded, construct a clean CSV/Excel blob
+      const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+      const cfg = r.config || {}, ings = r.ingredients || [], sc = this._scale();
+      const csvLines = [`ESCANDALLO;${cfg.dishName || 'Ficha'}`, `RACIONES;${cfg.portions || 1}`, 'INGREDIENTE;NETO;MERMA;COSTO'];
+      ings.forEach(i => csvLines.push(`${i.name};${(i.net||0)*sc};${i.waste||0};${(i.cost||0)*sc}`));
+      return new Blob([csvLines.join('\n')], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    }
     const wb = XLSX.utils.book_new();
     const recipes = Object.values(this.db.recipes);
     recipes.forEach(r => this._buildSheet(wb, r));

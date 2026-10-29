@@ -1423,6 +1423,129 @@ function runTier1Tests(registerTest) {
     const ta = app.document.getElementById('recipe-notes');
     assert.strictEqual(ta.value, app.R.config.notes, 'Textarea #recipe-notes value must match updated recipe notes');
   });
+
+  registerTest('T1.R9.6: Streamlined 3-Model Document Export Center architecture', () => {
+    const html = getIndexHtml();
+
+    // Verify 3 distinct high-value model cards exist
+    assert(html.includes('model-card-kitchen'), 'Export modal must contain Modelo 1 (Kitchen Operations)');
+    assert(html.includes('model-card-financial'), 'Export modal must contain Modelo 2 (Financial Living Escandallo)');
+    assert(html.includes('model-card-master'), 'Export modal must contain Modelo 3 (Master Recipe Book & Dossier)');
+
+    // Verify Modelo 1 actions
+    assert(html.includes('id="btn-export-doc-kitchen"'), 'Modelo 1 must have Word/Docs action');
+    assert(html.includes('id="btn-export-pdf-kitchen"'), 'Modelo 1 must have PDF Cocina action');
+    assert(html.includes('id="btn-share-kitchen"'), 'Modelo 1 must have Native Drive/Share action');
+    assert(html.includes('id="btn-print-kitchen"'), 'Modelo 1 must have Native Print action');
+
+    // Verify Modelo 2 actions
+    assert(html.includes('id="btn-export-xls"'), 'Modelo 2 must have Excel Living Formulas action');
+    assert(html.includes('id="btn-export-pdf-financial"'), 'Modelo 2 must have Financial PDF action');
+    assert(html.includes('id="btn-share-financial"'), 'Modelo 2 must have Native Drive/Share action');
+    assert(html.includes('id="btn-export-doc-financial"'), 'Modelo 2 must have Word Financial action');
+
+    // Verify Modelo 3 actions
+    assert(html.includes('id="btn-open-recipe-book"'), 'Modelo 3 must have Book compiler action');
+    assert(html.includes('id="btn-modal-open-recipe-import"'), 'Modelo 3 must have Excel Importer action');
+
+    // Quick direct share bar
+    assert(html.includes('id="btn-share-drive"'), 'Document Export Center must contain quick btn-share-drive bar');
+  });
+
+  registerTest('T1.R9.7: Live Excel Escandallo Generator with reactive formulas and precomputed values', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+
+    // Mock XLSX workbook and utilities
+    let appendedSheet = null;
+    let appendedName = '';
+    const mockXLSX = {
+      utils: {
+        aoa_to_sheet: (aoa) => {
+          const s = { '!aoa': aoa };
+          return s;
+        },
+        encode_range: (r) => 'A1:G20',
+        book_append_sheet: (wb, ws, name) => {
+          appendedSheet = ws;
+          appendedName = name;
+        }
+      }
+    };
+    window.XLSX = mockXLSX;
+    global.XLSX = mockXLSX;
+
+    const testRecipe = {
+      config: {
+        dishName: 'Solomillo Rossini',
+        portions: 4,
+        fcGoal: 25,
+        taxRate: 7,
+        currency: 'EUR'
+      },
+      ingredients: [
+        { name: 'Solomillo de Ternera', net: 800, waste: 10, unit: 'g', originalPrice: 28 }, // gross = 888.9g, cost = 24.89€
+        { name: 'Foie Gras Fresco', net: 200, waste: 5, unit: 'g', originalPrice: 45 },    // gross = 210.5g, cost = 9.47€
+        { name: 'Trufa Negra', net: 2, waste: 0, unit: 'ud', originalPrice: 8 }             // gross = 2ud, cost = 16.00€
+      ]
+    };
+
+    const wb = {};
+    app._buildSheet(wb, testRecipe);
+
+    assert(appendedSheet !== null, 'Sheet must be appended to workbook');
+    assert.strictEqual(appendedName, 'Solomillo Rossini', 'Sheet name must match recipe dishName');
+
+    // Verify ingredient 1 (Row 5 in Excel: DR = 5)
+    assert(appendedSheet['D5'], 'Cell D5 (Bruto) must exist');
+    assert.strictEqual(appendedSheet['D5'].f, 'IF(C5<100,B5/(1-C5/100),B5)', 'Cell D5 must contain reactive gross formula');
+    assert(Math.abs(appendedSheet['D5'].v - 888.9) < 0.2, 'Cell D5 must have precomputed value ~888.9g');
+    assert.strictEqual(appendedSheet['D5'].z, '#,##0.0', 'Cell D5 must have decimal number format');
+
+    // Solomillo cost in F5
+    assert(appendedSheet['F5'], 'Cell F5 (Costo Lote) must exist');
+    assert.strictEqual(appendedSheet['F5'].f, '(D5/1000)*E5', 'Cell F5 must contain formula for gram-based cost');
+    assert(Math.abs(appendedSheet['F5'].v - 24.89) < 0.1, 'Cell F5 must have precomputed cost ~24.89€');
+
+    // Discrete unit ingredient (Trufa in Row 7)
+    assert(appendedSheet['F7'], 'Cell F7 (Costo Lote ud) must exist');
+    assert.strictEqual(appendedSheet['F7'].f, 'D7*E7', 'Cell F7 must contain direct multiplication formula for discrete units');
+    assert.strictEqual(appendedSheet['F7'].v, 16.00, 'Cell F7 must have precomputed cost 16.00€');
+
+    // Total Row TR = 5 + 3 = 8
+    assert(appendedSheet['B8'], 'Cell B8 (Total Neto) must exist');
+    assert.strictEqual(appendedSheet['B8'].f, 'SUM(B5:B7)', 'Cell B8 must contain SUM formula for net ingredients');
+    assert(appendedSheet['F8'], 'Cell F8 (Total Costo) must exist');
+    assert.strictEqual(appendedSheet['F8'].f, 'SUM(F5:F7)', 'Cell F8 must contain SUM formula for batch cost');
+    const expectedTotalCost = Math.round((24.89 + 9.47 + 16.00) * 100) / 100;
+    assert(Math.abs(appendedSheet['F8'].v - expectedTotalCost) < 0.2, 'Total batch cost precomputed value must be accurate');
+
+    // Financial Analysis formulas:
+    // rRac = AF+1 = 11, rLote = 12, rUnit = 13, rFC = 14, rPVPN = 15, rIGIC = 16, rPVPT = 17, rMrgU = 18, rBenL = 19, rMrgP = 20
+    assert(appendedSheet['B12'], 'Cell B12 (Costo Lote) must exist');
+    assert.strictEqual(appendedSheet['B12'].f, 'F8', 'B12 must link directly to batch total F8');
+
+    assert(appendedSheet['B13'], 'Cell B13 (Costo Racion) must exist');
+    assert.strictEqual(appendedSheet['B13'].f, 'IF(B11>0,B12/B11,0)', 'B13 must compute unit cost per portion from B12/B11');
+
+    assert(appendedSheet['B15'], 'Cell B15 (PVP Neto) must exist');
+    assert.strictEqual(appendedSheet['B15'].f, 'IF(B14>0,B13/(B14/100),0)', 'B15 must compute PVP Neto from unit cost and FC goal');
+
+    assert(appendedSheet['B17'], 'Cell B17 (PVP Carta) must exist');
+    assert.strictEqual(appendedSheet['B17'].f, 'B15*(1+B16/100)', 'B17 must apply tax rate formula to PVP Neto');
+
+    assert(appendedSheet['B18'], 'Cell B18 (Margen Unitario) must exist');
+    assert.strictEqual(appendedSheet['B18'].f, 'B15-B13', 'B18 must compute gross margin formula');
+
+    assert(appendedSheet['B19'], 'Cell B19 (Beneficio Lote) must exist');
+    assert.strictEqual(appendedSheet['B19'].f, 'B18*B11', 'B19 must compute batch profit formula');
+
+    assert(appendedSheet['B20'], 'Cell B20 (Margen %) must exist');
+    assert.strictEqual(appendedSheet['B20'].f, 'IF(B15>0,(B18/B15)*100,0)', 'B20 must compute margin percentage formula');
+
+    // Auto-fit column widths
+    assert(appendedSheet['!cols'] && appendedSheet['!cols'].length >= 7, 'Column widths must be dynamically calculated for readability');
+  });
 }
 
 module.exports = { runTier1Tests };
