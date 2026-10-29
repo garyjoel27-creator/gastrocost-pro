@@ -1141,6 +1141,13 @@ function runTier1Tests(registerTest) {
     assert(shareCalls.length > 0, 'navigator.share must have been called');
     assert(shareCalls[0].files && shareCalls[0].files.length === 1, 'File object must be passed to navigator.share');
 
+    // Test cached pre-warmed blob sharing
+    app._cachedKitchenPDFBlob = new Blob(['%PDF-1.4 test'], { type: 'application/pdf' });
+    shareCalls = [];
+    const sharedPrewarm = await app.shareDocument('pdf-kitchen');
+    assert.strictEqual(sharedPrewarm, true, 'Cached pre-warmed PDF must be shared immediately without gesture timeout');
+    assert(shareCalls.length > 0, 'navigator.share must be called with cached blob');
+
     // Test graceful fallback when canShare returns false
     window.navigator.canShare = () => false;
     let downloadedBlob = null;
@@ -1542,6 +1549,7 @@ function runTier1Tests(registerTest) {
 
     assert(appendedSheet['B20'], 'Cell B20 (Margen %) must exist');
     assert.strictEqual(appendedSheet['B20'].f, 'IF(B15>0,(B18/B15)*100,0)', 'B20 must compute margin percentage formula');
+    assert.strictEqual(appendedSheet['B20'].z, '0.0"%"', 'B20 must format margin % with quoted literal to prevent Excel 7500% scaling error');
 
     // Auto-fit column widths
     assert(appendedSheet['!cols'] && appendedSheet['!cols'].length >= 7, 'Column widths must be dynamically calculated for readability');

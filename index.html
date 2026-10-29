@@ -3788,8 +3788,8 @@ body.theme-pearl-bronze #btn-open-export {
             <button type="button" class="cmd-mode-btn" id="btn-mode-consult" title="Modo Consulta: protección contra toques accidentales">👁️ Modo Consulta</button>
             <button type="button" class="cmd-mode-btn active" id="btn-mode-edit" title="Modo Edición: teclado rápido y edición de valores">✏️ Modo Edición</button>
           </div>
-          <button type="button" class="btn btn-ghost cmd-export-btn" id="btn-cmd-export" onclick="gc.toggleExportModal(true)" title="Exportar Documentos (PDF, Excel, Word)" style="display:inline-flex;align-items:center;gap:5px;font-size:0.78rem;padding:7px 12px;border-color:var(--cyan);color:var(--cyan);">
-            <span>📤 Exportar</span>
+          <button type="button" class="btn btn-ghost cmd-export-btn" id="btn-cmd-export" onclick="gc.toggleExportModal(true)" title="Exportar Documentos (PDF, Excel, Word)" style="display:inline-flex;align-items:center;gap:6px;font-size:0.84rem;font-weight:700;padding:8px 16px;min-height:44px;border:1.5px solid var(--cyan);color:var(--cyan);background:rgba(6,182,212,0.08);border-radius:var(--r);cursor:pointer;transition:all 0.15s ease;">
+            <span>📤 Exportar / Compartir</span>
           </button>
           <button type="button" class="btn btn-primary cmd-save-btn" id="btn-cmd-save" title="Guardar Plato en Base de Datos (Ctrl+S)">
             <span id="cmd-save-btn-text">💾 Guardar Plato / Receta</span>
@@ -11105,6 +11105,7 @@ class GC {
       // Pre-warm script loaders in background to avoid user-gesture timeout on mobile/tablet
       if (typeof this._ensureXLSX === 'function') this._ensureXLSX().catch(() => {});
       if (typeof this._ensureHTML2PDF === 'function') this._ensureHTML2PDF().catch(() => {});
+      if (typeof this._prepareKitchenPDFBlob === 'function') this._prepareKitchenPDFBlob().catch(() => {});
     } else {
       modal.classList.remove('open');
       document.body.classList.remove('modal-open');
@@ -12512,7 +12513,7 @@ class GC {
     ws['B' + rPVPT] = { t: 'n', f: 'B' + rPVPN + '*(1+B' + rIGIC + '/100)', v: Math.round(pvpTax * 100) / 100, z: '#,##0.00\ "' + curSym + '"' };
     ws['B' + rMrgU] = { t: 'n', f: 'B' + rPVPN + '-B' + rUnit, v: Math.round(marginUnit * 100) / 100, z: '#,##0.00\ "' + curSym + '"' };
     ws['B' + rBenL] = { t: 'n', f: 'B' + rMrgU + '*B' + rRac, v: Math.round(marginBatch * 100) / 100, z: '#,##0.00\ "' + curSym + '"' };
-    ws['B' + rMrgP] = { t: 'n', f: 'IF(B' + rPVPN + '>0,(B' + rMrgU + '/B' + rPVPN + ')*100,0)', v: Math.round(marginPct * 10) / 10, z: '0.0\%' };
+    ws['B' + rMrgP] = { t: 'n', f: 'IF(B' + rPVPN + '>0,(B' + rMrgU + '/B' + rPVPN + ')*100,0)', v: Math.round(marginPct * 10) / 10, z: '0.0"%"' };
 
     /* Formats */
     for (let i = 0; i < n; i++) {
@@ -13491,7 +13492,7 @@ class GC {
     } else if (type === 'pdf-kitchen') {
       const filename = this._safeFilename(dishName, 'Ficha_Cocina', 'pdf');
       toast('⏳ Preparando Ficha de Cocina...', 'i');
-      const blob = await this._generateKitchenPDFBlob();
+      const blob = this._cachedKitchenPDFBlob || await this._generateKitchenPDFBlob();
       if (blob) {
         return await this._shareFile(blob, filename, 'application/pdf', `🍳 Ficha de Cocina — ${dishName}`);
       } else {
@@ -13526,6 +13527,14 @@ class GC {
       const filename = this._safeFilename(dishName, 'Escandallo_Financiero', 'doc');
       const blob = this._generateWordFinancialBlob();
       return await this._shareFile(blob, filename, 'application/msword', `📝 Escandallo Financiero Word — ${dishName}`);
+    }
+  }
+
+  async _prepareKitchenPDFBlob() {
+    try {
+      this._cachedKitchenPDFBlob = await this._generateKitchenPDFBlob();
+    } catch {
+      this._cachedKitchenPDFBlob = null;
     }
   }
 
@@ -13566,13 +13575,53 @@ class GC {
         if (err && err.name === 'AbortError') {
           return false;
         }
-        console.warn('navigator.share falló, usando descarga estándar:', err);
+        console.warn('navigator.share con archivo falló:', err);
+      }
+    }
+
+    // Attempt text/URL native share if file sharing is not supported by device
+    if (typeof navigator !== 'undefined' && navigator.share && !canShareFiles) {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText
+        });
+        toast('Ficha compartida con éxito ✓');
+      } catch (err) {
+        if (err && err.name === 'AbortError') return false;
+      }
+    }
+
+    // Native File System Access API (Desktop Chrome/Edge & Android)
+    if (typeof window !== 'undefined' && window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({ suggestedName: filename });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        toast('Ficha técnica guardada con éxito en tu dispositivo ✓');
+        return true;
+      } catch (err) {
+        if (err && err.name === 'AbortError') return false;
+      }
+    }
+
+    // iOS Safari / Mobile Viewer Fallback
+    const isIOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent || '');
+    if (isIOS && typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+      try {
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        toast('Abriendo ficha técnica para Guardar / Compartir (AirDrop / Archivos) ✓');
+        return true;
+      } catch (e) {
+        // continue to standard download
       }
     }
 
     // Graceful fallback: standard download
     this._downloadBlob(blob, filename, mimeType);
-    toast('Descargando archivo (Web Share no disponible en este dispositivo) ✓');
+    toast('Descargando archivo ✓');
     return true;
   }
 
