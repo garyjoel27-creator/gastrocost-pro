@@ -1554,6 +1554,151 @@ function runTier1Tests(registerTest) {
     // Auto-fit column widths
     assert(appendedSheet['!cols'] && appendedSheet['!cols'].length >= 7, 'Column widths must be dynamically calculated for readability');
   });
+
+  /* ── R10: V18.0 Commercial Gold Readiness Tests ── */
+  registerTest('T1.R10.1: All 14 official EU Regulation 1169/2011 allergens are present and mapped', () => {
+    const html = getIndexHtml();
+    const required14 = ['gluten', 'crustacean', 'egg', 'fish', 'peanuts', 'soy', 'dairy', 'nuts', 'celery', 'mustard', 'sesame', 'sulfite', 'lupin', 'molluscs'];
+    required14.forEach(a => {
+      assert(html.includes(`${a}:`) || html.includes(`data-a="${a}"`), `Allergen ${a} must exist in JS/HTML`);
+      assert(html.includes(`value="${a}"`), `Allergen checkbox value="${a}" must exist in forms`);
+    });
+
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+    const parsedAllergens = app._parseRecipeExcelData([
+      ['INGREDIENTE', 'CANTIDAD NETA', 'UNIDAD', 'MERMA %', 'PRECIO KG', 'ALERGENOS'],
+      ['Crema Cacahuete y Apio', '100', 'g', '0', '8', 'cacahuetes, apio, mostaza, sesamo, altramuces, moluscos']
+    ], { dishName: 'Test 14 Alergenos', portions: 2 });
+    const mapped = parsedAllergens.ingredients[0].allergens;
+    ['peanuts', 'celery', 'mustard', 'sesame', 'lupin', 'molluscs'].forEach(k => {
+      assert(mapped.includes(k), `Excel parser must map ${k}`);
+    });
+  });
+
+  registerTest('T1.R10.2: Persistent APPCC Control Module (PCC Temps, Traceability Labels & 4-Col L+D)', () => {
+    const { GC, window, document } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+    app.setTab('tab-appcc');
+
+    // 1) Temperature logging + PCC alert detection
+    const alertLog = app._logAppccTemp('ch-veg', 7.2, 'Puerta abierta en descarga');
+    assert(alertLog && alertLog.isAlert === true, '7.2C on positive veg chamber (max 4C) must trigger PCC alert');
+    app._logAllOptimalTemps();
+    assert(app.db.appcc.tempLogs.length >= 5, 'Optimal logger + alert entry must persist in tempLogs');
+    assert(document.getElementById('appcc-chambers-grid').innerHTML.includes('status-ok'), 'Optimal log must update chamber card status');
+
+    // 2) Traceability batch label with allergen inheritance from Tataki
+    const lbl = app._createAppccLabel(0, {
+      recipeId: 'template-tataki',
+      prepDate: '2026-11-24',
+      expiryDate: '2026-11-26',
+      supplierLot: 'PROV-991'
+    });
+    assert(lbl && lbl.batchCode.startsWith('LOT-'), 'Label must auto-generate LOT code');
+    assert(lbl.allergens.includes('fish') && lbl.allergens.includes('soy'), 'Label must inherit recipe allergens');
+
+    // 3) L+D Verification & Daily Turn Reset (keeping Periodic tasks)
+    app._toggleCleaningTask('ld-tablas');
+    app._toggleCleaningTask('ld-filtros');
+    assert.strictEqual(app.db.appcc.cleaningTasks.find(t => t.id === 'ld-tablas').done, true, 'Daily L+D task toggled');
+    assert.strictEqual(app.db.appcc.cleaningTasks.find(t => t.id === 'ld-filtros').done, true, 'Periodic L+D task toggled');
+    app._resetDailyCleaningTurn();
+    assert.strictEqual(app.db.appcc.cleaningTasks.find(t => t.id === 'ld-tablas').done, false, 'New turn resets daily L+D task');
+    assert.strictEqual(app.db.appcc.cleaningTasks.find(t => t.id === 'ld-filtros').done, true, 'New turn preserves periodic L+D task');
+
+    // Audit PDF HTML checks
+    const auditHtml = app._buildAppccAuditHTML();
+    assert(auditHtml.includes('max-width:715px'), 'APPCC audit PDF must enforce 715px width cap');
+    assert(auditHtml.includes('word-break:break-word'), 'APPCC L+D table must use word-break without truncation');
+    assert(auditHtml.includes('PROV-991') || auditHtml.includes('Tataki'), 'APPCC audit PDF must include traceability lots');
+
+    // Persistence across reboot
+    const persistedRaw = window.localStorage.getItem('gc_v11');
+    const rebootEnv = loadGastroCostApp({ initialStorage: { gc_v11: persistedRaw } });
+    const rebootApp = new rebootEnv.GC();
+    assert(rebootApp.db.appcc.tempLogs.length >= 5, 'APPCC temp logs must survive reload');
+    assert.strictEqual(rebootApp.db.appcc.labels.length, 1, 'APPCC traceability labels must survive reload');
+  });
+
+  registerTest('T1.R10.3: Unified customPVP pricing, multicurrency safety and Kasavana-Smith BCG Matrix', () => {
+    const { GC, window, document } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    app.R.config.portions = 1;
+    app.R.config.taxRate = 10;
+    app.R.config.fcGoal = 28;
+    app.R.config.customPVP = 44.00; // PVP net = 40.00
+    app.R.ingredients = [{ id: 'i1', name: 'Rodaballo', net: 1000, waste: 0, gross: 1000, originalPrice: 10, cost: 10, unit: 'g', category: 'protein', allergens: ['fish'] }];
+
+    const p = app._getEffectivePricing(app.R, 1);
+    assert.strictEqual(p.isManual, true, 'customPVP > 0 activates manual pricing mode');
+    assert(Math.abs(p.pvpN - 40) < 0.01, 'Net PVP should equal 44 / 1.10 = 40');
+    assert(Math.abs(p.fcReal - 25) < 0.01, 'Real FC% should equal 10 / 40 = 25%');
+
+    app._renderKPIs();
+    assert(document.getElementById('k-fc').textContent.includes('25%'), 'KPI Food Cost must reflect real customPVP margin');
+    assert(document.getElementById('k-pvp').textContent.includes('44'), 'KPI PVP must display real customPVP');
+
+    // Multicurrency check
+    ['EUR', 'USD', 'MXN', 'COP', 'ARS', 'PEN'].forEach(c => {
+      app.R.config.currency = c;
+      app._renderKPIs();
+      assert(document.getElementById('k-pvp').textContent.length > 0, `CURR.format must support ${c}`);
+    });
+    app.R.config.currency = 'EUR';
+    app._renderKPIs();
+
+    // BCG Matrix check
+    app.R.config.monthlySales = 250;
+    app.setTab('tab-finanzas');
+    const bcgHtml = document.getElementById('bcg-table-body').innerHTML;
+    assert(bcgHtml.includes('Estrella') || bcgHtml.includes('Vaca') || bcgHtml.includes('Enigma') || bcgHtml.includes('Perro'), 'BCG table must render Kasavana-Smith categories');
+  });
+
+  registerTest('T1.R10.4: White-Label branding across exports and demoCleared schema persistence guard', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+    app.db.brand = { restaurantName: 'Bistro La Mar Salada', chefName: 'Chef Elena' };
+
+    const kitHtml = app._buildKitchenFichaHTML();
+    const finHtml = app._buildFinancialFichaHTML();
+    assert(kitHtml.includes('Bistro La Mar Salada') && kitHtml.includes('Chef Elena'), 'Kitchen PDF must display restaurant white-label');
+    assert(kitHtml.includes('max-width:715px') && finHtml.includes('max-width:715px'), 'PDF templates must stay <= 715px wide');
+    assert(kitHtml.includes('1169/2011') && finHtml.includes('1169/2011'), 'Exports must include legal allergen disclaimer');
+
+    // Clear demos cleanly
+    app._clearDemoRecipes(false);
+    assert.strictEqual(app.db.demoCleared, true, 'Clearing demos sets demoCleared flag');
+    assert(!app.db.recipes['template-tataki'], 'Template Tataki removed when clearing demos');
+
+    const persistedRaw = window.localStorage.getItem('gc_v11');
+    const reloadedEnv = loadGastroCostApp({ initialStorage: { gc_v11: persistedRaw } });
+    const reloadedApp = new reloadedEnv.GC();
+    assert(!reloadedApp.db.recipes['template-tataki'], 'demoCleared prevents templates from regenerating on reload');
+  });
+
+  registerTest('T1.R10.5: PWA assets, Gemini 2.5 upgrade, SW v18.0 and bundle size < 1.1 MB', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const rootDir = path.join(__dirname, '..');
+    const indexStat = fs.statSync(path.join(rootDir, 'index.html'));
+    const html = getIndexHtml();
+    const sw = getServiceWorkerJs();
+    const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, 'manifest.json'), 'utf8'));
+
+    assert(indexStat.size < 1100 * 1024, `index.html size (${indexStat.size} B) must be under 1.1 MB after image optimization`);
+    assert(html.includes('gemini-2.5-flash') && !html.includes('gemini-1.5-flash'), 'Must use active Gemini 2.5 Flash model');
+    assert(html.includes('manifest.json') && html.includes('icon.svg'), 'index.html must link manifest.json and icon.svg');
+    assert(html.includes('id="legal-modal"') && html.includes('id="btn-arsopol-wipe"'), 'Must include RGPD/ARSOPOL legal tools');
+    assert(fs.existsSync(path.join(rootDir, 'icon.svg')), 'icon.svg must exist');
+    assert.strictEqual(manifest.display, 'standalone', 'manifest.json must configure standalone PWA mode');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v18.0-cache'"), 'sw.js must bump cache version to v18.0');
+  });
 }
 
 module.exports = { runTier1Tests };

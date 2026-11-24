@@ -208,7 +208,15 @@ function createSandbox(initialStorage = {}, initialIdb = null) {
     'new-subrecipe-yield', 'new-subrecipe-unit', 'new-recipe-fcgoal',
     'btn-portions-dec', 'btn-portions-inc', 'card-type-dish', 'card-type-subrecipe',
     'box-new-portions', 'box-new-subrecipe-fields', 'btn-confirm-new-recipe',
-    'btn-close-new-recipe-modal', 'btn-cancel-new-recipe'
+    'btn-close-new-recipe-modal', 'btn-cancel-new-recipe',
+    'tab-appcc', 'appcc-responsible', 'appcc-chambers-grid', 'appcc-temp-logs-body',
+    'appcc-labels-body', 'appcc-ld-daily-body', 'appcc-ld-periodic-body',
+    'appcc-label-recipe', 'appcc-label-custom-name', 'appcc-label-batch',
+    'appcc-label-prep-date', 'appcc-label-expiry', 'appcc-label-allergens',
+    'appcc-kpi-temps', 'appcc-kpi-temps-sub', 'appcc-kpi-labels', 'appcc-kpi-labels-sub',
+    'appcc-kpi-ld', 'appcc-kpi-ld-sub', 'appcc-sticker-print',
+    'bcg-table-body', 'bcg-total-revenue', 'bcg-total-profit', 'bcg-avg-popularity', 'bcg-avg-margin',
+    'cfg-brand-restaurant', 'cfg-brand-chef', 'legal-modal', 'hdr-shield-label'
   ];
   standardIds.forEach(id => getOrCreateElement(id));
 
@@ -252,14 +260,14 @@ function createSandbox(initialStorage = {}, initialIdb = null) {
         });
       }
       if (sel === '.tab-btn') {
-        return ['tab-escandallo', 'tab-cocina', 'tab-finanzas', 'tab-catalogo'].map(t => {
+        return ['tab-escandallo', 'tab-cocina', 'tab-finanzas', 'tab-catalogo', 'tab-appcc'].map(t => {
           const btn = getOrCreateElement('btn-' + t, 'button', 'tab-btn');
           btn.dataset.tab = t;
           return btn;
         });
       }
       if (sel === '.tab-content') {
-        return ['tab-escandallo', 'tab-cocina', 'tab-finanzas', 'tab-catalogo'].map(t => getOrCreateElement(t, 'div', 'tab-content'));
+        return ['tab-escandallo', 'tab-cocina', 'tab-finanzas', 'tab-catalogo', 'tab-appcc'].map(t => getOrCreateElement(t, 'div', 'tab-content'));
       }
       if (sel.includes('checkbox')) {
         return [];

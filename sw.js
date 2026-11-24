@@ -1,8 +1,10 @@
 // Cache migration baseline: const CACHE_NAME = 'gastrocost-v16.8-cache'
-const CACHE_NAME = 'gastrocost-v17.4-cache';
+const CACHE_NAME = 'gastrocost-v18.0-cache';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',
+  'manifest.json',
+  'icon.svg',
   'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap',
   'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js'

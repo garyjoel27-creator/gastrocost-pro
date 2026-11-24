@@ -1,0 +1,21 @@
+{
+  "name": "GastroCost PRO · Escandallos, Finanzas & Control APPCC",
+  "short_name": "GastroCost PRO",
+  "description": "Suite profesional de escandallos, ingeniería de menú BCG, fichas técnicas de brigada y control oficial APPCC offline-first para hostelería.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#060911",
+  "theme_color": "#060911",
+  "lang": "es-ES",
+  "categories": ["business", "food", "productivity"],
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
