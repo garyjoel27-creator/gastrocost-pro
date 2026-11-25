@@ -3755,7 +3755,7 @@ body.printing-appcc-sticker #appcc-sticker-print { display:flex !important; flex
 <div class="hdr-left">
 <div class="logo">
 <span class="logo-mark"><em>Gastro</em>Cost PRO</span>
-<span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V21.0 COMMERCIAL SUITE</span>
+<span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V21.3 COMMERCIAL SUITE</span>
 </div>
 <span class="save-ind" id="save-ind">
 <span class="save-dot"></span> Guardado
@@ -5345,6 +5345,9 @@ Tus recetas y registros APPCC se guardan simultáneamente en <strong>LocalStorag
 <div style="display:flex;gap:8px;flex-wrap:wrap;">
 <button type="button" class="btn btn-ghost" id="btn-force-persist-sync" style="font-size:0.72rem;padding:6px 12px;border-color:rgba(34,197,94,0.4);color:var(--green);">
 🔄 Verificar y Sincronizar Almacenamiento
+</button>
+<button type="button" class="btn btn-ghost" id="btn-force-sw-update" style="font-size:0.72rem;padding:6px 12px;border-color:rgba(6,182,212,0.45);color:var(--cyan);">
+🔄 Forzar Actualización App
 </button>
 <button type="button" class="btn btn-ghost" id="btn-settings-export-backup" style="font-size:0.72rem;padding:6px 12px;border-color:rgba(212,175,55,0.4);color:var(--gold);">
 📥 Exportar Copia JSON
@@ -8533,6 +8536,23 @@ class GC {
     const btnTestAi = document.getElementById('btn-test-ai-key');
     if (btnTestAi) {
       btnTestAi.addEventListener('click', () => this._testGeminiConnection());
+    }
+    const btnForceSw = document.getElementById('btn-force-sw-update');
+    if (btnForceSw) {
+      btnForceSw.addEventListener('click', async () => {
+        try {
+          if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+            const regs = await navigator.serviceWorker.getRegistrations();
+            await Promise.all(regs.map(r => r.unregister()));
+          }
+          if (typeof caches !== 'undefined' && typeof caches.keys === 'function') {
+            const cKeys = await caches.keys();
+            await Promise.all(cKeys.map(k => caches.delete(k)));
+          }
+          toast('🔄 Actualizando aplicación a la última versión...');
+        } catch {}
+        window.location.href = window.location.pathname + '?v=' + Date.now();
+      });
     }
 
     const aiTrigger = document.getElementById('ai-chat-trigger');
@@ -19511,8 +19531,11 @@ if (typeof CULINARY_MATH !== 'undefined') {
 // Register Service Worker for offline capability when run from a local/web server
 if ('serviceWorker' in navigator && window.location.protocol.startsWith('http')) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(reg => console.log('GastroCost SW registered:', reg.scope))
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' })
+      .then(reg => {
+        console.log('GastroCost SW registered:', reg.scope);
+        if (reg && typeof reg.update === 'function') reg.update();
+      })
       .catch(err => console.warn('SW registration failed:', err));
   });
 

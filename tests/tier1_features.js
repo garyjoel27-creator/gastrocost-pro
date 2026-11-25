@@ -1697,7 +1697,7 @@ function runTier1Tests(registerTest) {
     assert(html.includes('id="legal-modal"') && html.includes('id="btn-arsopol-wipe"'), 'Must include RGPD/ARSOPOL legal tools');
     assert(fs.existsSync(path.join(rootDir, 'icon.svg')), 'icon.svg must exist');
     assert.strictEqual(manifest.display, 'standalone', 'manifest.json must configure standalone PWA mode');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.2-cache'"), 'sw.js must bump cache version to v21.2');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.3-cache'"), 'sw.js must bump cache version to v21.3');
   });
 
   registerTest('T1.R10.6: Mobile & Tablet scroll architecture unblocks end-of-strip buttons and modals', () => {
@@ -1808,7 +1808,7 @@ function runTier1Tests(registerTest) {
 
     const sw = getServiceWorkerJs();
     assert(sw.includes("const CACHE_NAME = 'gastrocost-v16.8-cache'"), 'sw.js baseline comment must remain intact');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.2-cache'"), 'sw.js cache version must be v21.2');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.3-cache'"), 'sw.js cache version must be v21.3');
   });
 
   registerTest('T1.R11.1: Albaranes Parser handles natural Spanish delivery notes, CSV & sanitary lots', () => {
@@ -2009,7 +2009,7 @@ function runTier1Tests(registerTest) {
     const indexStat = fs.statSync(path.join(rootDir, 'index.html'));
     assert(indexStat.size < 1100 * 1024, `index.html size (${indexStat.size} B) must stay under 1.1 MB`);
     const sw = getServiceWorkerJs();
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.2-cache'"), 'sw.js must run v21.2 cache');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.3-cache'"), 'sw.js must run v21.3 cache');
   });
 
   registerTest('T1.R11.6: Full-Viewport Responsive & Anti-Overflow Engine adapts from 360px mobile to desktop', () => {
@@ -2156,7 +2156,7 @@ function runTier1Tests(registerTest) {
     assert.strictEqual(cl.archivedLocal, true, 'Closure must mark archivedLocal = true after folder write');
 
     const sw = getServiceWorkerJs();
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.2-cache'"), 'sw.js must run v21.2 cache');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.3-cache'"), 'sw.js must run v21.3 cache');
   });
 
   registerTest('T1.R13.1: Quick Weekly Price Paste records purchase-to-purchase history & cascades recipes', () => {
@@ -2266,9 +2266,11 @@ function runTier1Tests(registerTest) {
     assert(html.includes('V21.0 Visual Legibility'), 'Visual legibility floor stylesheet must be present');
     assert(html.includes('.appcc-section-card { background:var(--s1)'), 'APPCC cards must use theme surface var(--s1) to avoid dark-on-dark in light themes');
     assert(html.includes('id="btn-test-ai-key"') && html.includes('_testGeminiConnection'), 'Settings must provide 1-click Gemini AI connection tester & status badge');
+    assert(html.includes("updateViaCache: 'none'") && html.includes('V21.3 COMMERCIAL SUITE'), 'SW registration must disable HTTP SW cache & display V21.3 badge');
     assert(indexStat.size < 1100 * 1024, `index.html (${indexStat.size} B) must stay under 1.1 MB`);
     const sw = getServiceWorkerJs();
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.2-cache'"), 'sw.js must run v21.2 cache');
+    assert(sw.includes('networkResponse.clone()') && sw.includes("event.request.mode === 'navigate'"), 'sw.js must use Network-First for HTML navigation with response cloning');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.3-cache'"), 'sw.js must run v21.3 cache');
   });
 }
 

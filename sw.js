@@ -1,5 +1,5 @@
 // Cache migration baseline: const CACHE_NAME = 'gastrocost-v16.8-cache'
-const CACHE_NAME = 'gastrocost-v21.2-cache';
+const CACHE_NAME = 'gastrocost-v21.3-cache';
 const ASSETS_TO_CACHE = [
   './',
   'index.html',
@@ -40,20 +40,36 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   // Solo cachear peticiones GET
   if (event.request.method !== 'GET') return;
-  
+
   const url = new URL(event.request.url);
   const isLocal = url.origin === self.location.origin;
-  const isCDN = url.hostname.includes('cdnjs.cloudflare.com') || 
-                url.hostname.includes('fonts.googleapis.com') || 
+  const isCDN = url.hostname.includes('cdnjs.cloudflare.com') ||
+                url.hostname.includes('fonts.googleapis.com') ||
                 url.hostname.includes('fonts.gstatic.com');
+  const isHtml = event.request.mode === 'navigate' || (isLocal && (url.pathname === '/' || url.pathname.endsWith('/index.html')));
+
+  if (isHtml) {
+    // Network-First para HTML para asegurar siempre la última versión cuando hay red
+    event.respondWith(
+      fetch(event.request, { cache: 'no-cache' }).then(networkResponse => {
+        if (networkResponse && networkResponse.ok) {
+          const copy = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+        }
+        return networkResponse;
+      }).catch(() => caches.match(event.request).then(r => r || caches.match('./') || caches.match('index.html')))
+    );
+    return;
+  }
 
   if (isLocal || isCDN) {
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
         // Ejecutar fetch en paralelo para actualizar la caché (Stale-While-Revalidate)
         const fetchPromise = fetch(event.request).then(networkResponse => {
-          if (networkResponse.status === 200) {
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, networkResponse));
+          if (networkResponse && networkResponse.status === 200) {
+            const copy = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
           }
           return networkResponse;
         }).catch(() => {});
