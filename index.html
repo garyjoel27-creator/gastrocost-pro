@@ -321,14 +321,21 @@ body {
 /* ═══════════════════════════════════════════════
    4. LAYOUT
    ═══════════════════════════════════════════════ */
-.shell, main, .tab-content, .form-table-split > div {
+.shell, .shell > *, main, main > *, .tab-content, .card, .appcc-section-card, .appcc-header-bar,
+.appcc-kpi-strip, .appcc-kpi-card, .alb-dropzone, .alb-grid, .alb-legal-box,
+.pricing-assistant-card, .pa-body, .pa-metrics-section, .ficha-cmd-bar, .cmd-bar-left, .cmd-bar-right,
+.kitchen-view, .kitchen-grid, .kitchen-grid > div, .form-table-split, .form-table-split > *,
+.finance-chart-section, .consulting-box, .tbl-wrap, .appcc-table-scroll, .hdr, .hdr-left, .hdr-btns {
   min-width: 0 !important;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .shell {
+  width: 100%;
   max-width: 1600px;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 310px 1fr;
+  grid-template-columns: 310px minmax(0, 1fr);
   gap: 16px;
 }
 .full { grid-column: 1 / -1; }
@@ -350,7 +357,7 @@ body {
   gap: 10px;
   box-shadow: var(--sh1);
 }
-.hdr-left { display:flex; align-items:center; gap:12px; }
+.hdr-left { display:flex; align-items:center; flex-wrap:wrap; gap:10px; }
 .logo { display:flex; align-items:baseline; gap:8px; }
 .logo-mark {
   font-size: 1.25rem;
@@ -630,11 +637,12 @@ body {
 @media (min-width: 701px) and (max-width: 1250px) {
   #form-ing, #form-cat-add {
     display: grid;
-    grid-template-columns: 2fr 1fr 1.2fr 1fr 1.8fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
     align-items: end;
   }
-  #form-ing .fg, #form-cat-add .fg { margin-bottom: 0; }
+  #form-ing .fg, #form-cat-add .fg { margin-bottom: 0; min-width: 0; }
+  #form-ing .fg:has(.allergen-select-grid), #form-cat-add .fg:has(.allergen-select-grid) { grid-column: 1 / -1; }
   #form-ing button[type="submit"], #form-cat-add button[type="submit"] { grid-column: 1 / -1; }
 }
 
@@ -1756,7 +1764,8 @@ input[inputmode="decimal"]:focus {
 
 @media (min-width: 1024px) {
   .desktop-opt {
-    max-width: 1100px;
+    width: 100%;
+    max-width: 1180px;
     margin: 0 auto;
   }
 }
@@ -3661,6 +3670,45 @@ body.theme-pearl-bronze #btn-open-export {
 .alb-badge-new { display:inline-block; padding:3px 7px; border-radius:4px; background:rgba(6,182,212,0.16); color:var(--cyan); border:1px solid rgba(6,182,212,0.45); font-weight:700; font-size:0.74rem; }
 .alb-photo-preview { max-height:140px; max-width:240px; object-fit:contain; border-radius:6px; border:1px solid var(--b2); background:#000; }
 .alb-legal-box { background:rgba(15,23,42,0.75); border:1px solid rgba(212,175,55,0.35); border-radius:var(--r2); padding:16px; font-size:0.78rem; color:var(--t2); line-height:1.5; }
+/* V19.1 Full-Viewport Responsive & Anti-Overflow Engine */
+.kpi-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 155px), 1fr)); }
+.appcc-kpi-strip { grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }
+.appcc-chambers-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); }
+.alb-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); }
+.fin-be-grid, .fin-be-kpis, .fg2-resp { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; }
+@media (min-width: 901px) and (max-width: 1240px) {
+  .shell { grid-template-columns: 265px minmax(0, 1fr); gap: 12px; }
+  .sidebar .card { padding: 14px; }
+}
+@media (min-width: 901px) and (max-width: 1180px) {
+  .tabs-nav { flex-wrap: wrap !important; overflow-x: visible !important; padding: 6px !important; }
+  .tabs-nav::after { display: none !important; }
+  .tabs-nav .tab-btn { flex: 1 1 135px !important; padding: 8px 10px !important; font-size: 0.76rem !important; min-height: 40px !important; gap: 5px !important; }
+}
+@media (min-width: 1181px) and (max-width: 1460px) {
+  .tabs-nav { flex-wrap: wrap; }
+  .tabs-nav .tab-btn { flex: 1 1 auto; padding: 9px 10px; font-size: 0.76rem; gap: 5px; }
+}
+@media (max-width: 768px) {
+  .hdr { padding: 10px 12px !important; }
+  .hdr-left { gap: 6px !important; }
+  .logo { padding: 4px 10px !important; gap: 6px !important; flex-wrap: wrap !important; max-width: 100% !important; }
+  .logo-mark { font-size: 1.05rem !important; }
+  .logo-badge { font-size: 0.52rem !important; padding: 2px 6px !important; letter-spacing: 0.3px !important; }
+  .storage-shield-badge { font-size: 0.62rem !important; padding: 2px 6px !important; }
+  .btn, .appcc-touch-btn { white-space: normal !important; text-align: center; max-width: 100%; line-height: 1.25; height: auto; }
+  .tabs-nav .tab-btn { white-space: nowrap !important; }
+  .cmd-bar-left { min-width: 0 !important; }
+  .cmd-title-row { flex-wrap: wrap; }
+  .kitchen-view-header, .kitchen-body { padding: 14px !important; }
+  .kitchen-title { font-size: 1.35rem !important; word-break: break-word; }
+  .prod-header-left { min-width: 0 !important; width: 100%; }
+  .appcc-header-bar, .appcc-section-card, .alb-dropzone, .alb-legal-box { padding: 12px !important; }
+  #alb-history-search, #alb-history-filter, #appcc-trace-search, #appcc-trace-filter, #appcc-responsible, #btn-alb-commit { min-width: 0 !important; width: 100%; }
+}
+@media (max-width: 600px) {
+  .fin-be-grid, .fin-be-kpis, .fg2-resp { grid-template-columns: 1fr !important; }
+}
 @media print {
   body.printing-appcc-sticker #hdr,
   body.printing-appcc-sticker .sidebar,
@@ -4142,7 +4190,7 @@ body.theme-pearl-bronze #btn-open-export {
       <div class="kitchen-view">
         <!-- Production Tablet Header -->
         <div class="kitchen-view-header prod-tablet-header">
-          <div class="prod-header-left" style="flex:1;min-width:260px;">
+          <div class="prod-header-left" style="flex:1;min-width:min(260px, 100%);">
             <div class="kitchen-title" id="kview-title" style="font-size:1.85rem;font-weight:800;letter-spacing:-0.5px;color:#ffffff;">Nombre del Plato</div>
             <div class="kitchen-meta" id="kview-meta" style="margin-top:6px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
               <span class="prod-badge" id="prod-base-portions">Base: 4 rac.</span>
@@ -4297,7 +4345,7 @@ body.theme-pearl-bronze #btn-open-export {
           <!-- Break-even inputs -->
           <div style="margin-top: 20px; border-top: 1px solid var(--b1); padding-top: 16px">
             <label class="fl" style="color:var(--cyan)">Simulador de Punto de Equilibrio Operativo</label>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px">
+            <div class="fin-be-grid" style="margin-top: 8px">
               <div class="fg">
                 <label class="fl">Costes Fijos Cocina (Mensual)</label>
                 <input class="fi" id="fin-fixed-costs" inputmode="decimal" type="number" min="0" step="10" placeholder="Ej. 3000">
@@ -4308,7 +4356,7 @@ body.theme-pearl-bronze #btn-open-export {
               </div>
             </div>
             
-            <div class="kpi-grid" style="margin-top: 10px; grid-template-columns: 1fr 1fr">
+            <div class="kpi-grid fin-be-kpis" style="margin-top: 10px;">
               <div class="kpi" style="padding: 12px 14px; background: var(--s1)">
                 <div class="kpi-lbl">Margen Contribución Unitario</div>
                 <div class="kpi-val" id="fin-mcu" style="font-size: 1.15rem; color: var(--green)">0,00 €</div>
@@ -4363,7 +4411,7 @@ body.theme-pearl-bronze #btn-open-export {
             <span class="appcc-kpi-val" id="bcg-avg-margin" style="color:var(--gold);">0,00 €</span>
           </div>
         </div>
-        <div style="overflow-x:auto;">
+        <div class="appcc-table-scroll">
           <table class="appcc-ld-table" style="table-layout:auto;">
             <thead>
               <tr>
@@ -4675,7 +4723,7 @@ body.theme-pearl-bronze #btn-open-export {
             <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-opt-send-appcc" checked> 🏷️ Registrar lotes en Trazabilidad APPCC (Etiquetas Térmicas)</label>
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
-            <button type="button" id="btn-alb-commit" class="btn btn-primary appcc-touch-btn" style="flex:1;min-width:240px;background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,0.5);">✅ Guardar Albarán, Sellar Hash y Actualizar Escandallos</button>
+            <button type="button" id="btn-alb-commit" class="btn btn-primary appcc-touch-btn" style="flex:1;min-width:min(240px,100%);background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,0.5);">✅ Guardar Albarán, Sellar Hash y Actualizar Escandallos</button>
             <button type="button" id="btn-alb-reset-draft" class="btn btn-ghost appcc-touch-btn">↺ Limpiar Borrador</button>
           </div>
         </div>
@@ -4684,8 +4732,8 @@ body.theme-pearl-bronze #btn-open-export {
       <section class="appcc-section-card" aria-label="Histórico de Albaranes">
         <h3 style="margin:0 0 10px;font-size:0.95rem;color:var(--t1);font-weight:800;">📚 2. Archivo Digital de Albaranes e Historial de Precios</h3>
         <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-          <input type="search" id="alb-history-search" class="fi" placeholder="🔍 Buscar proveedor, nº albarán, CIF o producto..." style="flex:1;min-width:220px;min-height:48px;">
-          <select id="alb-history-filter" class="fi" style="min-width:190px;min-height:48px;">
+          <input type="search" id="alb-history-search" class="fi" placeholder="🔍 Buscar proveedor, nº albarán, CIF o producto..." style="flex:1;min-width:min(220px,100%);min-height:48px;">
+          <select id="alb-history-filter" class="fi" style="min-width:min(190px,100%);min-height:48px;">
             <option value="all">Todos los Albaranes</option>
             <option value="spikes">Con Subidas de Precio</option>
             <option value="incidents">Con Incidencias / Rechazos</option>
@@ -4721,7 +4769,7 @@ body.theme-pearl-bronze #btn-open-export {
     <div id="tab-appcc" class="tab-content desktop-opt">
       <div class="appcc-header-bar">
         <div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
             <span style="font-size:1.25rem;">🛡️</span>
             <h2 style="margin:0;font-size:1.1rem;font-weight:800;color:var(--t1);">Control Oficial APPCC &amp; Trazabilidad</h2>
             <span style="font-size:0.65rem;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.35);font-weight:700;">Reg. CE 852/2004</span>
@@ -4731,7 +4779,7 @@ body.theme-pearl-bronze #btn-open-export {
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <div style="display:flex;flex-direction:column;gap:3px;">
             <label for="appcc-responsible" style="font-size:0.68rem;color:var(--t3);font-weight:700;text-transform:uppercase;">Responsable de Turno</label>
-            <input type="text" id="appcc-responsible" class="fi" placeholder="Ej. Chef Ejecutivo / Turno Tarde" style="min-width:210px;min-height:48px;font-size:0.82rem;">
+            <input type="text" id="appcc-responsible" class="fi" placeholder="Ej. Chef Ejecutivo / Turno Tarde" style="min-width:min(210px,100%);min-height:48px;font-size:0.82rem;">
           </div>
           <button type="button" id="btn-appcc-new-turn" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(245,158,11,0.45);color:#fbbf24;">🔄 Nuevo Turno (Reiniciar L+D)</button>
           <button type="button" id="btn-appcc-export-pdf" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">📄 Acta Oficial APPCC (PDF A4)</button>
@@ -4792,7 +4840,7 @@ body.theme-pearl-bronze #btn-open-export {
           </div>
         </details>
 
-        <div style="margin-top:16px;overflow-x:auto;">
+        <div class="appcc-table-scroll" style="margin-top:16px;">
           <div style="font-size:0.74rem;font-weight:700;color:var(--t2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Histórico Reciente de Temperaturas</div>
           <table class="appcc-ld-table" style="table-layout:auto;">
             <thead>
@@ -4911,8 +4959,8 @@ body.theme-pearl-bronze #btn-open-export {
         </div>
 
         <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
-          <input type="search" id="appcc-trace-search" class="fi" placeholder="🔍 Buscar en trazabilidad (lote, producto o proveedor)..." style="flex:1;min-width:220px;min-height:48px;">
-          <select id="appcc-trace-filter" class="fi" style="min-width:190px;min-height:48px;">
+          <input type="search" id="appcc-trace-search" class="fi" placeholder="🔍 Buscar en trazabilidad (lote, producto o proveedor)..." style="flex:1;min-width:min(220px,100%);min-height:48px;">
+          <select id="appcc-trace-filter" class="fi" style="min-width:min(190px,100%);min-height:48px;">
             <option value="all">Todos los Lotes</option>
             <option value="active">Activos en Cámara</option>
             <option value="expiring">Caducan Hoy / Caducados</option>
@@ -5041,7 +5089,7 @@ body.theme-pearl-bronze #btn-open-export {
           <span style="font-size:1.1rem;">🏨</span>
           <strong style="color:var(--gold);font-size:0.85rem;">Identidad Corporativa del Restaurante (Marca Blanca)</strong>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div class="fg2-resp">
           <div class="fg" style="margin-bottom:0;">
             <label class="fl" style="font-size:0.68rem;">Nombre del Restaurante / Hotel</label>
             <input class="fi" id="cfg-brand-restaurant" type="text" placeholder="Ej. Restaurante Atelier" style="margin-bottom:0;">

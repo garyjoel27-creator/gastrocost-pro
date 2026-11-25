@@ -1697,7 +1697,7 @@ function runTier1Tests(registerTest) {
     assert(html.includes('id="legal-modal"') && html.includes('id="btn-arsopol-wipe"'), 'Must include RGPD/ARSOPOL legal tools');
     assert(fs.existsSync(path.join(rootDir, 'icon.svg')), 'icon.svg must exist');
     assert.strictEqual(manifest.display, 'standalone', 'manifest.json must configure standalone PWA mode');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.0-cache'"), 'sw.js must bump cache version to v19.0');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.1-cache'"), 'sw.js must bump cache version to v19.1');
   });
 
   registerTest('T1.R10.6: Mobile & Tablet scroll architecture unblocks end-of-strip buttons and modals', () => {
@@ -1808,7 +1808,7 @@ function runTier1Tests(registerTest) {
 
     const sw = getServiceWorkerJs();
     assert(sw.includes("const CACHE_NAME = 'gastrocost-v16.8-cache'"), 'sw.js baseline comment must remain intact');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.0-cache'"), 'sw.js cache version must be v19.0');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.1-cache'"), 'sw.js cache version must be v19.1');
   });
 
   registerTest('T1.R11.1: Albaranes Parser handles natural Spanish delivery notes, CSV & sanitary lots', () => {
@@ -2009,7 +2009,16 @@ function runTier1Tests(registerTest) {
     const indexStat = fs.statSync(path.join(rootDir, 'index.html'));
     assert(indexStat.size < 1100 * 1024, `index.html size (${indexStat.size} B) must stay under 1.1 MB`);
     const sw = getServiceWorkerJs();
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.0-cache'"), 'sw.js must run v19.0 cache');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.1-cache'"), 'sw.js must run v19.1 cache');
+  });
+
+  registerTest('T1.R11.6: Full-Viewport Responsive & Anti-Overflow Engine adapts from 360px mobile to desktop', () => {
+    const html = getIndexHtml();
+    assert(html.includes('V19.1 Full-Viewport Responsive & Anti-Overflow Engine'), 'Responsive anti-overflow CSS engine must exist');
+    assert(html.includes('minmax(min(100%, 155px), 1fr)'), 'Grid minmax tracks must clamp to 100% on narrow viewports');
+    assert(html.includes('grid-template-columns: repeat(2, minmax(0, 1fr))'), 'Forms on medium screens must not force 5 overflowing columns');
+    assert(html.includes('.fin-be-grid') && html.includes('.fg2-resp'), 'Financial and Settings 2-col grids must use responsive collapse classes');
+    assert(html.includes('white-space: normal !important'), 'Long mobile action buttons must wrap gracefully without expanding viewport');
   });
 }
 
