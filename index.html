@@ -3653,6 +3653,14 @@ body.theme-pearl-bronze #btn-open-export {
 }
 .appcc-thermal-preview-wrap { background:#f8fafc; color:#000; border-radius:10px; border:2px dashed #94a3b8; padding:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; margin-top:12px; }
 .appcc-thermal-ticket { background:#ffffff; color:#000000; border:2px solid #000000; border-radius:4px; padding:8px 10px; font-family:Arial,Helvetica,sans-serif; box-sizing:border-box; width:100%; }
+/* V19.0 Albaranes & Delivery-Note OCR Module */
+.alb-dropzone { border:2px dashed rgba(212,175,55,0.45); background:rgba(212,175,55,0.04); border-radius:10px; padding:14px; display:flex; flex-direction:column; gap:10px; margin-bottom:14px; }
+.alb-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(190px, 1fr)); gap:10px; margin-bottom:12px; }
+.alb-badge-up { display:inline-block; padding:3px 7px; border-radius:4px; background:rgba(239,68,68,0.16); color:#f87171; border:1px solid rgba(239,68,68,0.45); font-weight:800; font-size:0.74rem; }
+.alb-badge-down { display:inline-block; padding:3px 7px; border-radius:4px; background:rgba(34,197,94,0.16); color:#4ade80; border:1px solid rgba(34,197,94,0.45); font-weight:800; font-size:0.74rem; }
+.alb-badge-new { display:inline-block; padding:3px 7px; border-radius:4px; background:rgba(6,182,212,0.16); color:var(--cyan); border:1px solid rgba(6,182,212,0.45); font-weight:700; font-size:0.74rem; }
+.alb-photo-preview { max-height:140px; max-width:240px; object-fit:contain; border-radius:6px; border:1px solid var(--b2); background:#000; }
+.alb-legal-box { background:rgba(15,23,42,0.75); border:1px solid rgba(212,175,55,0.35); border-radius:var(--r2); padding:16px; font-size:0.78rem; color:var(--t2); line-height:1.5; }
 @media print {
   body.printing-appcc-sticker #hdr,
   body.printing-appcc-sticker .sidebar,
@@ -3682,7 +3690,7 @@ body.theme-pearl-bronze #btn-open-export {
     <div class="hdr-left">
       <div class="logo">
         <span class="logo-mark"><em>Gastro</em>Cost PRO</span>
-        <span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V18.1 COMMERCIAL SUITE</span>
+        <span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V19.0 COMMERCIAL SUITE</span>
       </div>
       <span class="save-ind" id="save-ind">
         <span class="save-dot"></span> Guardado
@@ -3869,6 +3877,10 @@ body.theme-pearl-bronze #btn-open-export {
       <button class="tab-btn" data-tab="tab-catalogo" type="button">
         <svg class="tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"></path></svg>
         <span>Catálogo</span>
+      </button>
+      <button class="tab-btn" data-tab="tab-albaranes" type="button" id="tab-btn-albaranes">
+        <svg class="tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"></path><path d="M8 7h8"></path><path d="M8 11h8"></path><path d="M8 15h5"></path></svg>
+        <span>Albaranes</span>
       </button>
       <button class="tab-btn" data-tab="tab-appcc" type="button" id="tab-btn-appcc">
         <svg class="tab-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="m9 12 2 2 4-4"></path></svg>
@@ -4517,7 +4529,195 @@ body.theme-pearl-bronze #btn-open-export {
       </div>
     </div>
 
-    <!-- V18.0 PESTAÑA 5: CONTROL OFICIAL APPCC Y SEGURIDAD ALIMENTARIA (Reg. CE 852/2004) -->
+    <!-- V19.0 PESTAÑA 5: DIGITALIZACIÓN DE ALBARANES, DETECTOR DE SUBIDAS Y RECEPCIÓN LEGAL PCC -->
+    <div id="tab-albaranes" class="tab-content desktop-opt">
+      <div class="appcc-header-bar">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
+            <span style="font-size:1.25rem;">🧾</span>
+            <h2 style="margin:0;font-size:1.1rem;font-weight:800;color:var(--t1);">Recepción y Digitalización de Albaranes</h2>
+            <span style="font-size:0.65rem;padding:3px 8px;border-radius:4px;background:rgba(6,182,212,0.15);color:var(--cyan);border:1px solid rgba(6,182,212,0.35);font-weight:700;">Reg. CE 178/2002</span>
+            <span style="font-size:0.65rem;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.35);font-weight:700;">APPCC PCC-1</span>
+          </div>
+          <p style="margin:0;font-size:0.78rem;color:var(--t3);">Captura albaranes por foto, PDF, Excel o texto; detecta subidas frente al Catálogo, recalcula tus escandallos y sella la recepción sanitaria.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button type="button" id="btn-alb-export-csv" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(34,197,94,0.45);color:#4ade80;">📊 Exportar Libro Compras CSV</button>
+          <button type="button" id="btn-alb-prune-photos" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(245,158,11,0.45);color:#fbbf24;">🧹 Limpiar Fotos Antiguas</button>
+        </div>
+      </div>
+
+      <div class="appcc-kpi-strip">
+        <div class="appcc-kpi-card">
+          <span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Albaranes Digitalizados</span>
+          <span class="appcc-kpi-val" id="alb-kpi-count">0</span>
+        </div>
+        <div class="appcc-kpi-card">
+          <span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Compras Mes Actual</span>
+          <span class="appcc-kpi-val" id="alb-kpi-spend" style="color:var(--gold);">0,00 €</span>
+        </div>
+        <div class="appcc-kpi-card">
+          <span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Subidas Detectadas</span>
+          <span class="appcc-kpi-val" id="alb-kpi-spikes" style="color:#f87171;">0</span>
+        </div>
+        <div class="appcc-kpi-card">
+          <span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Incidencias / Rechazos PCC</span>
+          <span class="appcc-kpi-val" id="alb-kpi-incidents" style="color:#fbbf24;">0</span>
+        </div>
+      </div>
+
+      <section class="appcc-section-card" id="alb-capture-card" aria-label="Captura y Digitalización de Albarán">
+        <h3 style="margin:0 0 10px;font-size:0.95rem;color:var(--t1);font-weight:800;">📸 1. Captura, OCR y Control Sanitario de Descarga</h3>
+
+        <div class="alb-dropzone">
+          <input type="file" id="alb-camera-input" class="visually-hidden" accept="image/*" capture="environment">
+          <input type="file" id="alb-file-input" class="visually-hidden" accept="image/*,application/pdf,.csv,.xlsx,.xls">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <button type="button" id="btn-alb-take-photo" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#0284c7,#0369a1);">📷 Fotografiar Albarán</button>
+            <button type="button" id="btn-alb-upload-file" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📎 Subir Foto / PDF / Excel</button>
+            <button type="button" id="btn-alb-ocr-ai" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">🤖 Digitalizar con IA (Gemini 2.5)</button>
+          </div>
+          <div id="alb-doc-preview" style="display:none;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px;"></div>
+          <details id="alb-quick-paste-wrap" style="border-top:1px solid var(--b1);padding-top:8px;">
+            <summary style="cursor:pointer;font-size:0.78rem;color:var(--cyan);font-weight:700;">⚡ Pegado / Dictado Rápido Offline sin IA (1 línea por producto)</summary>
+            <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
+              <textarea id="alb-paste-text" class="fi" rows="3" placeholder="Ej.&#10;Lomo de Atún Rojo 5kg 34.50 Lote AT-204&#10;Aceite de Oliva Virgen Extra; 10; L; 9.80; Lote AOV-12" style="width:100%;font-size:0.82rem;"></textarea>
+              <button type="button" id="btn-alb-parse-text" class="btn btn-ghost appcc-touch-btn" style="align-self:flex-start;border-color:rgba(6,182,212,0.45);color:var(--cyan);">⚡ Extraer Líneas Offline</button>
+            </div>
+          </details>
+        </div>
+
+        <div class="alb-grid">
+          <div>
+            <label for="alb-supplier" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Proveedor *</label>
+            <input type="text" id="alb-supplier" class="fi" placeholder="Ej. Pescados del Norte S.L." style="min-height:48px;width:100%;">
+          </div>
+          <div>
+            <label for="alb-supplier-cif" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">NIF / CIF Proveedor</label>
+            <input type="text" id="alb-supplier-cif" class="fi" placeholder="Ej. B12345678" style="min-height:48px;width:100%;">
+          </div>
+          <div>
+            <label for="alb-number" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Nº Albarán / DeCA</label>
+            <input type="text" id="alb-number" class="fi" placeholder="Ej. ALB-2026-0142" style="min-height:48px;width:100%;font-family:'JetBrains Mono',monospace;">
+          </div>
+          <div>
+            <label for="alb-date" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Fecha de Recepción</label>
+            <input type="date" id="alb-date" class="fi" style="min-height:48px;width:100%;">
+          </div>
+        </div>
+
+        <div style="padding:12px;border-radius:8px;border:1px solid var(--b1);background:rgba(255,255,255,0.02);margin-bottom:12px;">
+          <div style="font-size:0.74rem;font-weight:800;color:var(--gold);margin-bottom:8px;text-transform:uppercase;">Control Sanitario PCC-1 en Descarga (Reg. CE 852/2004)</div>
+          <div class="alb-grid" style="margin-bottom:8px;">
+            <div>
+              <label for="alb-temp-regime" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Régimen Térmico</label>
+              <select id="alb-temp-regime" class="fi" style="min-height:48px;width:100%;">
+                <option value="refrigerated">Refrigerado (≤ 4°C)</option>
+                <option value="protein">Pescado / Carne (≤ 3°C)</option>
+                <option value="frozen">Congelado (≤ -18°C)</option>
+                <option value="ambient">Secos / Ambiente</option>
+              </select>
+            </div>
+            <div>
+              <label for="alb-temp-val" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Temperatura Sonda (°C)</label>
+              <input type="number" step="0.1" id="alb-temp-val" class="fi" placeholder="Ej. 2.5" style="min-height:48px;width:100%;font-family:'JetBrains Mono',monospace;">
+            </div>
+            <div>
+              <label for="alb-sanitary-status" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Dictamen de Recepción</label>
+              <select id="alb-sanitary-status" class="fi" style="min-height:48px;width:100%;">
+                <option value="accepted">✔ Conforme / Aceptado</option>
+                <option value="incident">⚠️ Aceptado con Incidencia</option>
+                <option value="rejected">🚫 Rechazado / Devolución</option>
+              </select>
+            </div>
+            <div>
+              <label for="alb-incident-note" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Observaciones / Reclamación</label>
+              <input type="text" id="alb-incident-note" class="fi" placeholder="Ej. Cadena frío OK / Envase dañado..." style="min-height:48px;width:100%;">
+            </div>
+          </div>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.78rem;color:var(--t2);">
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-chk-integrity" checked> Envases íntegros y etiquetado legible</label>
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-chk-vehicle" checked> Vehículo higiénico y cadena de frío verificada</label>
+          </div>
+        </div>
+
+        <div id="alb-price-alert-banner" class="alert alert-warn" style="display:none;margin-bottom:12px;"></div>
+
+        <div class="appcc-table-scroll">
+          <table class="appcc-ld-table" style="table-layout:auto;">
+            <thead>
+              <tr>
+                <th>Producto (Albarán)</th>
+                <th>Enlace Catálogo</th>
+                <th>Cant.</th>
+                <th>Ud</th>
+                <th>Precio Ud</th>
+                <th>Variación</th>
+                <th>Impacto Escandallos</th>
+                <th>Lote Prov.</th>
+                <th>Caducidad</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="alb-draft-lines-body"></tbody>
+          </table>
+        </div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:10px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--b1);">
+          <button type="button" id="btn-alb-add-line" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">➕ Añadir Línea Manual</button>
+          <div style="font-size:0.95rem;font-weight:800;color:var(--t1);font-family:'JetBrains Mono',monospace;">Total Albarán: <span id="alb-draft-total" style="color:var(--gold);">0,00 €</span></div>
+        </div>
+
+        <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:8px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.28);">
+          <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.78rem;color:var(--t2);">
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-opt-update-prices" checked> 📈 Actualizar Catálogo Maestro y recalcular escandallos en cascada</label>
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-opt-add-new" checked> ➕ Alta automática de insumos nuevos en Catálogo</label>
+            <label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-opt-send-appcc" checked> 🏷️ Registrar lotes en Trazabilidad APPCC (Etiquetas Térmicas)</label>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
+            <button type="button" id="btn-alb-commit" class="btn btn-primary appcc-touch-btn" style="flex:1;min-width:240px;background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,0.5);">✅ Guardar Albarán, Sellar Hash y Actualizar Escandallos</button>
+            <button type="button" id="btn-alb-reset-draft" class="btn btn-ghost appcc-touch-btn">↺ Limpiar Borrador</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="appcc-section-card" aria-label="Histórico de Albaranes">
+        <h3 style="margin:0 0 10px;font-size:0.95rem;color:var(--t1);font-weight:800;">📚 2. Archivo Digital de Albaranes e Historial de Precios</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+          <input type="search" id="alb-history-search" class="fi" placeholder="🔍 Buscar proveedor, nº albarán, CIF o producto..." style="flex:1;min-width:220px;min-height:48px;">
+          <select id="alb-history-filter" class="fi" style="min-width:190px;min-height:48px;">
+            <option value="all">Todos los Albaranes</option>
+            <option value="spikes">Con Subidas de Precio</option>
+            <option value="incidents">Con Incidencias / Rechazos</option>
+            <option value="rejected">Solo Rechazados</option>
+          </select>
+        </div>
+        <div class="appcc-table-scroll">
+          <table class="appcc-ld-table" style="table-layout:auto;">
+            <thead>
+              <tr>
+                <th>Fecha / Nº Albarán</th>
+                <th>Proveedor</th>
+                <th>Importe</th>
+                <th>Control PCC / Temp</th>
+                <th>Subidas / Recálculo</th>
+                <th>Sello Integridad</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="alb-history-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="alb-legal-box">
+        <strong style="color:var(--gold);display:block;margin-bottom:4px;">⚖️ Marco Legal de Recepción, Trazabilidad y Conservación (ES / UE)</strong>
+        <div>• <strong>Sanidad y Trazabilidad (Reg. CE 852/2004 y CE 178/2002):</strong> El registro de proveedor, lote de origen, temperatura en descarga e incidencias constituye el PCC-1 de recepción obligatoria ante inspección sanitaria.</div>
+        <div>• <strong>Integridad Auditada (Sello SHA-256) y Fiscalidad AEAT / VeriFactu:</strong> Cada albarán recibe un sello criptográfico de inmutabilidad operativa y trazabilidad interna de costes. Conforme a la AEAT/LGT, esta digitalización agiliza tu gestión diaria e inventario; recuerda conservar los documentos originales en papel/factura electrónica durante 4 años salvo uso de software homologado de digitalización certificada.</div>
+      </div>
+    </div>
+
+    <!-- V18.0 PESTAÑA 6: CONTROL OFICIAL APPCC Y SEGURIDAD ALIMENTARIA (Reg. CE 852/2004) -->
     <div id="tab-appcc" class="tab-content desktop-opt">
       <div class="appcc-header-bar">
         <div>
@@ -6363,6 +6563,7 @@ class GC {
         allergens: item.allergens ? [...item.allergens] : []
       })),
       brand: { restaurantName: '', chefName: '' },
+      albaranes: [],
       appcc: null
     };
     db.appcc = this._defaultAppcc();
@@ -7830,6 +8031,9 @@ class GC {
 
     /* V18.0 APPCC Control & Sanitary Compliance Events */
     this._bindAppccEvents();
+
+    /* V19.0 Albaranes & Delivery-Note OCR Events */
+    this._bindAlbaranesEvents();
 
     /* V12 Financial simulator input listeners */
     const finFixed = document.getElementById('fin-fixed-costs');
@@ -9833,6 +10037,8 @@ class GC {
       this._renderFinanceTab();
     } else if (tabId === 'tab-catalogo') {
       this._renderCatalogTab();
+    } else if (tabId === 'tab-albaranes') {
+      this._renderAlbaranesTab();
     } else if (tabId === 'tab-appcc') {
       this._renderAppccTab();
     }
@@ -12451,6 +12657,7 @@ class GC {
       if (!Array.isArray(data.appcc.cleaningTasks) || data.appcc.cleaningTasks.length === 0) data.appcc.cleaningTasks = defAppcc.cleaningTasks;
       if (!data.appcc.lastTurnDate) data.appcc.lastTurnDate = defAppcc.lastTurnDate;
     }
+    if (!Array.isArray(data.albaranes)) data.albaranes = [];
 
     if (!data.catalog) {
       data.catalog = INGREDIENTS_MASTER.map(item => ({
@@ -15479,6 +15686,47 @@ Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. 
     return txt;
   }
 
+  async _queryGeminiMultimodal(systemPrompt, userPrompt, base64DataUrl) {
+    const apiKey = localStorage.getItem('gastrocost_gemini_api_key');
+    if (!apiKey) {
+      throw new Error('API_KEY_MISSING');
+    }
+    const match = typeof base64DataUrl === 'string' && base64DataUrl.match(/^data:([^;]+);base64,(.+)$/s);
+    if (!match) {
+      return this._queryGemini(systemPrompt, userPrompt);
+    }
+    const mimeType = match[1];
+    const b64Data = match[2].replace(/\s+/g, '');
+    const callModel = async (model) => {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: userPrompt },
+              { inlineData: { mimeType, data: b64Data } }
+            ]
+          }],
+          systemInstruction: { parts: [{ text: systemPrompt }] }
+        })
+      });
+    };
+    let response = await callModel('gemini-2.5-flash');
+    if (response.status === 404) {
+      response = await callModel('gemini-2.0-flash');
+    }
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.error?.message || `HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!txt) throw new Error('Respuesta vacía de Gemini Multimodal.');
+    return txt;
+  }
+
   async _sendChatMessage() {
     const input = document.getElementById('ai-chat-input');
     const sendBtn = document.getElementById('ai-chat-send');
@@ -15674,6 +15922,8 @@ ${ingsStr}`;
           text = `La pestaña **Ficha Cocina** es para mise en place interactivo de los cocineros, mostrando foto del plato, alérgenos declarados y un checklist tachar-ingredientes interactivo.`;
         } else if (tabId === 'tab-finanzas') {
           text = `La pestaña **Finanzas** analiza el margen real del plato, PVP de venta final, Matriz BCG de Ingeniería de Menú y umbral de rentabilidad.`;
+        } else if (tabId === 'tab-albaranes') {
+          text = `La pestaña **Albaranes** digitaliza notas de entrega por foto/PDF (IA Gemini 2.5) o texto offline, detecta subidas de precios respecto al Catálogo, recalcula tus escandallos y sella la recepción sanitaria APPCC (CE 178/2002).`;
         } else if (tabId === 'tab-appcc') {
           text = `La pestaña **APPCC / Sanidad** registra temperaturas de cámaras PCC, etiquetas de trazabilidad y caducidad secundaria, y el Plan L+D oficial (CE 852/2004).`;
         } else {
@@ -16706,6 +16956,15 @@ ${ingsStr}`;
         <td style="word-break:break-word;font-weight:700;color:${t.done ? '#15803d' : '#b45309'};">${t.done ? '✔ Conforme' : '⚠ Pendiente'}</td>
       </tr>`).join('');
 
+    const recentAlbaranes = (this.db.albaranes || []).slice(0, 20);
+    const albRows = recentAlbaranes.length
+      ? recentAlbaranes.map(a => {
+          const stLabel = a.sanitaryStatus === 'rejected' ? '🚫 RECHAZADO' : a.sanitaryStatus === 'incident' ? '⚠️ INCIDENCIA' : '✔ Conforme';
+          const tempStr = (a.tempVal !== '' && a.tempVal !== null && a.tempVal !== undefined) ? `${a.tempVal}°C${a.tempAlert ? ' (ALERTA)' : ''}` : 'N/A';
+          return `<tr><td>${escHtml(a.date)}<br><small>${escHtml(a.number || '-')}</small></td><td><strong>${escHtml(a.supplier)}</strong></td><td style="text-align:center;">${escHtml(tempStr)}</td><td>${stLabel}${a.incidentNote ? '<br><small>' + escHtml(a.incidentNote) + '</small>' : ''}</td><td><small style="font-family:monospace;">${escHtml((a.auditHash || '').slice(0, 18))}</small></td></tr>`;
+        }).join('')
+      : '<tr><td colspan="5">Sin recepciones de albarán registradas.</td></tr>';
+
     return `
       <div style="max-width:715px;width:100%;margin:0 auto;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#111827;background:#ffffff;padding:16px;font-size:11px;line-height:1.4;">
         <div style="border-bottom:3px solid #d4af37;padding-bottom:10px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:flex-end;">
@@ -16735,6 +16994,12 @@ ${ingsStr}`;
         <table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:14px;">
           <thead><tr style="background:#e5e7eb;"><th style="border:1px solid #d1d5db;padding:5px;width:22%;">Elemento / Zona</th><th style="border:1px solid #d1d5db;padding:5px;width:14%;">Frecuencia</th><th style="border:1px solid #d1d5db;padding:5px;width:48%;">Protocolo POES y Químicos HA</th><th style="border:1px solid #d1d5db;padding:5px;width:16%;">Estado</th></tr></thead>
           <tbody>${ldRows}</tbody>
+        </table>
+
+        <h2 style="font-size:13px;background:#f3f4f6;padding:6px 8px;border-left:4px solid #6366f1;margin:12px 0 6px;">4. Registro de Recepción de Mercancías y Albaranes (Reg. CE 178/2002)</h2>
+        <table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:14px;">
+          <thead><tr style="background:#e5e7eb;"><th style="border:1px solid #d1d5db;padding:5px;width:18%;">Fecha / Nº</th><th style="border:1px solid #d1d5db;padding:5px;width:28%;">Proveedor</th><th style="border:1px solid #d1d5db;padding:5px;width:14%;">Temp. PCC</th><th style="border:1px solid #d1d5db;padding:5px;width:24%;">Dictamen Sanitario</th><th style="border:1px solid #d1d5db;padding:5px;width:16%;">Sello</th></tr></thead>
+          <tbody>${albRows}</tbody>
         </table>
 
         <div style="margin-top:16px;padding-top:10px;border-top:1px dashed #9ca3af;display:flex;justify-content:space-between;font-size:10px;color:#4b5563;">
@@ -16787,6 +17052,1031 @@ ${ingsStr}`;
       wrap.style.display = 'none';
       wrap.style.zIndex = '-1';
     }
+  }
+
+  /* ═══════════════════════════════════════════════
+     V19.0 RECEPCIÓN Y DIGITALIZACIÓN DE ALBARANES
+     ═══════════════════════════════════════════════ */
+  _ensureAlbaranesData() {
+    if (!Array.isArray(this.db.albaranes)) this.db.albaranes = [];
+    return this.db.albaranes;
+  }
+
+  _getEmptyAlbaranDraft() {
+    return {
+      supplier: '',
+      supplierCif: '',
+      number: '',
+      date: new Date().toISOString().slice(0, 10),
+      tempRegime: 'refrigerated',
+      tempVal: '',
+      sanitaryStatus: 'accepted',
+      packagingOk: true,
+      vehicleOk: true,
+      incidentNote: '',
+      attachmentThumb: '',
+      attachmentRawForOcr: '',
+      attachmentName: '',
+      attachmentMime: '',
+      lines: []
+    };
+  }
+
+  _ensureAlbaranDraft() {
+    if (!this.albaranDraft) this.albaranDraft = this._getEmptyAlbaranDraft();
+    return this.albaranDraft;
+  }
+
+  _bindAlbaranesEvents() {
+    const camIn = document.getElementById('alb-camera-input');
+    const fileIn = document.getElementById('alb-file-input');
+    const btnCam = document.getElementById('btn-alb-take-photo');
+    const btnUp = document.getElementById('btn-alb-upload-file');
+    const btnOcr = document.getElementById('btn-alb-ocr-ai');
+    const btnParseTxt = document.getElementById('btn-alb-parse-text');
+    const btnAddLine = document.getElementById('btn-alb-add-line');
+    const btnCommit = document.getElementById('btn-alb-commit');
+    const btnReset = document.getElementById('btn-alb-reset-draft');
+    const btnCsv = document.getElementById('btn-alb-export-csv');
+    const btnPrune = document.getElementById('btn-alb-prune-photos');
+
+    if (btnCam && camIn) btnCam.addEventListener('click', () => camIn.click());
+    if (btnUp && fileIn) btnUp.addEventListener('click', () => fileIn.click());
+    [camIn, fileIn].forEach(inp => {
+      if (!inp) return;
+      inp.addEventListener('change', e => {
+        const f = e.target.files && e.target.files[0];
+        if (f) this._readAlbaranFile(f);
+        e.target.value = '';
+      });
+    });
+
+    if (btnOcr) btnOcr.addEventListener('click', () => this._scanAlbaranWithAI());
+    if (btnParseTxt) {
+      btnParseTxt.addEventListener('click', () => {
+        const ta = document.getElementById('alb-paste-text');
+        const txt = ta ? ta.value : '';
+        const parsed = this._parseAlbaranText(txt);
+        if (parsed.length === 0) {
+          toast('No se detectaron líneas válidas. Usa formato: Producto Cantidad Precio', 'w');
+          return;
+        }
+        const draft = this._ensureAlbaranDraft();
+        draft.lines = draft.lines.concat(parsed);
+        this._renderAlbaranDraftLines();
+        toast(`⚡ ${parsed.length} líneas extraídas y cruzadas con Catálogo ✓`);
+      });
+    }
+
+    if (btnAddLine) {
+      btnAddLine.addEventListener('click', () => {
+        const draft = this._ensureAlbaranDraft();
+        draft.lines.push({ id: 'albl-' + uid(), name: '', qty: 1, unit: 'kg', unitPrice: 0, supplierLot: '', expiryDate: '', catalogId: '' });
+        this._renderAlbaranDraftLines();
+      });
+    }
+
+    if (btnCommit) btnCommit.addEventListener('click', () => this._commitAlbaran());
+    if (btnReset) btnReset.addEventListener('click', () => this._resetAlbaranDraft());
+    if (btnCsv) btnCsv.addEventListener('click', () => this._exportAlbaranesCSV());
+    if (btnPrune) btnPrune.addEventListener('click', () => this._pruneOldAlbaranPhotos(90));
+
+    const syncField = (id, key, isChk = false) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener(isChk || el.tagName === 'SELECT' ? 'change' : 'input', () => {
+        const d = this._ensureAlbaranDraft();
+        d[key] = isChk ? !!el.checked : el.value;
+        if (key === 'tempRegime' || key === 'tempVal') this._checkAlbaranTempWarning();
+      });
+    };
+    syncField('alb-supplier', 'supplier');
+    syncField('alb-supplier-cif', 'supplierCif');
+    syncField('alb-number', 'number');
+    syncField('alb-date', 'date');
+    syncField('alb-temp-regime', 'tempRegime');
+    syncField('alb-temp-val', 'tempVal');
+    syncField('alb-sanitary-status', 'sanitaryStatus');
+    syncField('alb-incident-note', 'incidentNote');
+    syncField('alb-chk-integrity', 'packagingOk', true);
+    syncField('alb-chk-vehicle', 'vehicleOk', true);
+
+    const draftBody = document.getElementById('alb-draft-lines-body');
+    if (draftBody) {
+      draftBody.addEventListener('change', e => {
+        const rowEl = e.target.closest('tr[data-line-id]');
+        if (!rowEl) return;
+        const line = this._ensureAlbaranDraft().lines.find(l => l.id === rowEl.dataset.lineId);
+        if (!line) return;
+        const field = e.target.dataset.field;
+        if (!field) return;
+        if (field === 'qty' || field === 'unitPrice') {
+          line[field] = Math.max(0, parseFloat(e.target.value) || 0);
+        } else {
+          line[field] = e.target.value;
+        }
+        this._renderAlbaranDraftLines();
+      });
+      draftBody.addEventListener('click', e => {
+        const del = e.target.closest('.alb-btn-del-line');
+        if (!del) return;
+        const d = this._ensureAlbaranDraft();
+        d.lines = d.lines.filter(l => l.id !== del.dataset.lineId);
+        this._renderAlbaranDraftLines();
+      });
+    }
+
+    const histSearch = document.getElementById('alb-history-search');
+    const histFilter = document.getElementById('alb-history-filter');
+    if (histSearch) histSearch.addEventListener('input', () => this._renderAlbaranHistory());
+    if (histFilter) histFilter.addEventListener('change', () => this._renderAlbaranHistory());
+
+    const histBody = document.getElementById('alb-history-body');
+    if (histBody) {
+      histBody.addEventListener('click', e => {
+        const pdfBtn = e.target.closest('.alb-btn-pdf');
+        if (pdfBtn) {
+          this._exportAlbaranAuditPDF(pdfBtn.dataset.albId);
+          return;
+        }
+        const delBtn = e.target.closest('.alb-btn-del-hist');
+        if (delBtn) {
+          this._ensureAlbaranesData();
+          this.db.albaranes = this.db.albaranes.filter(a => a.id !== delBtn.dataset.albId);
+          this._save();
+          this._renderAlbaranesTab();
+        }
+      });
+    }
+  }
+
+  _checkAlbaranTempWarning() {
+    const d = this._ensureAlbaranDraft();
+    const val = parseFloat(d.tempVal);
+    const statusEl = document.getElementById('alb-sanitary-status');
+    if (!isNaN(val) && this._isReceptionTempAlert(d.tempRegime, val)) {
+      toast(`⚠️ Temperatura ${val}°C supera el límite sanitario PCC-1 de recepción`, 'w');
+      if (statusEl && statusEl.value === 'accepted') {
+        statusEl.value = 'incident';
+        d.sanitaryStatus = 'incident';
+      }
+    }
+  }
+
+  async _readAlbaranFile(file) {
+    if (!file) return;
+    const draft = this._ensureAlbaranDraft();
+    const fname = file.name || 'albaran';
+    const lower = fname.toLowerCase();
+
+    if (lower.endsWith('.csv') || lower.endsWith('.xlsx') || lower.endsWith('.xls')) {
+      if (!window.XLSX) await this._ensureXLSX();
+      if (!window.XLSX) {
+        toast('SheetJS no disponible para leer Excel', 'e');
+        return;
+      }
+      try {
+        const buf = await file.arrayBuffer();
+        const wb = XLSX.read(buf, { type: 'array' });
+        const sheet = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+        const linesText = rows.filter(r => r && r.some(c => String(c).trim())).map(r => r.join(';')).join('\n');
+        const parsed = this._parseAlbaranText(linesText);
+        if (parsed.length) {
+          draft.lines = draft.lines.concat(parsed);
+          draft.attachmentName = fname;
+          this._renderAlbaranDraftLines();
+          this._renderAlbaranDocPreview();
+          toast(`📊 ${parsed.length} líneas importadas desde ${fname} ✓`);
+        } else {
+          toast('No se encontraron líneas con producto y precio en el archivo', 'w');
+        }
+      } catch (err) {
+        toast('Error leyendo Excel/CSV de albarán: ' + err.message, 'e');
+      }
+      return;
+    }
+
+    if (file.type === 'application/pdf' || lower.endsWith('.pdf')) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        draft.attachmentRawForOcr = e.target.result || '';
+        draft.attachmentThumb = '';
+        draft.attachmentName = fname;
+        draft.attachmentMime = 'application/pdf';
+        this._renderAlbaranDocPreview();
+        toast('📄 PDF cargado. Pulsa "🤖 Digitalizar con IA" para extraer las líneas ✓');
+      };
+      reader.readAsDataURL(file);
+      return;
+    }
+
+    // Compress document photo cleanly (higher resolution 960px Q72 for legible receipt OCR)
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_DOC = 960;
+        let w = img.width || 800;
+        let h = img.height || 600;
+        if (w > h && w > MAX_DOC) { h = Math.round(h * MAX_DOC / w); w = MAX_DOC; }
+        else if (h >= w && h > MAX_DOC) { w = Math.round(w * MAX_DOC / h); h = MAX_DOC; }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        const compressed = canvas.toDataURL('image/jpeg', 0.72);
+        draft.attachmentRawForOcr = compressed;
+        draft.attachmentThumb = compressed;
+        draft.attachmentName = fname;
+        draft.attachmentMime = 'image/jpeg';
+        this._renderAlbaranDocPreview();
+        toast('📷 Foto de albarán optimizada. Pulsa "🤖 Digitalizar con IA" ✓');
+      };
+      img.onerror = () => {
+        draft.attachmentRawForOcr = e.target.result || '';
+        draft.attachmentName = fname;
+        this._renderAlbaranDocPreview();
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  _renderAlbaranDocPreview() {
+    const box = document.getElementById('alb-doc-preview');
+    if (!box) return;
+    const draft = this._ensureAlbaranDraft();
+    if (!draft.attachmentRawForOcr && !draft.attachmentName) {
+      box.style.display = 'none';
+      box.innerHTML = '';
+      return;
+    }
+    box.style.display = 'flex';
+    const visual = draft.attachmentThumb
+      ? `<img src="${draft.attachmentThumb}" alt="Albarán" class="alb-photo-preview">`
+      : `<div style="padding:10px 14px;border:1px solid var(--cyan);border-radius:6px;background:rgba(6,182,212,0.1);color:var(--cyan);font-weight:700;">📄 ${escHtml(draft.attachmentName || 'Documento PDF')}</div>`;
+    box.innerHTML = `${visual}<div style="font-size:0.76rem;color:var(--t2);"><strong>${escHtml(draft.attachmentName || 'Documento adjunto')}</strong><div style="color:var(--t3);font-size:0.7rem;">Listo para OCR con Gemini 2.5 Flash y respaldo en acta PCC</div></div>`;
+  }
+
+  async _scanAlbaranWithAI() {
+    const draft = this._ensureAlbaranDraft();
+    if (!draft.attachmentRawForOcr) {
+      toast('Primero fotografia o sube una imagen/PDF de albarán (o usa Pegado Rápido Offline)', 'w');
+      return null;
+    }
+    const btn = document.getElementById('btn-alb-ocr-ai');
+    const origTxt = btn ? btn.innerHTML : '';
+    if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Analizando Albarán...'; }
+    try {
+      const systemPrompt = `Eres un experto auditor de compras y APPCC en hostelería en España. Extrae del albarán o factura los datos en JSON estricto SIN markdown ni texto adicional: {"supplier":"","supplierCif":"","number":"","date":"YYYY-MM-DD","lines":[{"name":"","qty":1,"unit":"kg","unitPrice":0,"supplierLot":"","expiryDate":""}]}. Usa siempre precio unitario neto en EUR por kg, L o ud. Si unit es g o ml, convierte a kg/L si el precio viene por kg/L.`;
+      const userPrompt = 'Extrae proveedor, CIF, número de albarán, fecha y todas las líneas con cantidad, unidad, precio unitario, lote de proveedor y caducidad si aparecen.';
+      const raw = await this._queryGeminiMultimodal(systemPrompt, userPrompt, draft.attachmentRawForOcr);
+      const cleaned = raw.replace(/```json\s*/gi, '').replace(/```/g, '').trim();
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : cleaned);
+
+      if (parsed.supplier) draft.supplier = String(parsed.supplier).trim();
+      if (parsed.supplierCif) draft.supplierCif = String(parsed.supplierCif).trim();
+      if (parsed.number) draft.number = String(parsed.number).trim();
+      if (parsed.date && /^\d{4}-\d{2}-\d{2}$/.test(parsed.date)) draft.date = parsed.date;
+      if (Array.isArray(parsed.lines)) {
+        const normLines = parsed.lines.filter(l => l && l.name).map(l => ({
+          id: 'albl-' + uid(),
+          name: String(l.name).trim(),
+          qty: Math.max(0.01, parseFloat(l.qty) || 1),
+          unit: this._normalizeAlbaranUnit(l.unit),
+          unitPrice: Math.max(0, parseFloat(l.unitPrice) || 0),
+          supplierLot: String(l.supplierLot || '').trim(),
+          expiryDate: String(l.expiryDate || '').trim(),
+          catalogId: ''
+        }));
+        draft.lines = draft.lines.concat(normLines);
+      }
+      this._syncAlbaranDraftInputs();
+      this._renderAlbaranDraftLines();
+      toast(`🤖 Albarán digitalizado con IA: ${(parsed.lines || []).length} líneas extraídas ✓`);
+      return parsed;
+    } catch (err) {
+      if (err.message === 'API_KEY_MISSING') {
+        toast('Configura tu Google Gemini API Key en ⚙️ Ajustes para OCR automático, o usa ⚡ Pegado Rápido Offline', 'w');
+        const det = document.getElementById('alb-quick-paste-wrap');
+        if (det) det.open = true;
+      } else {
+        toast(`Error OCR IA: ${err.message}`, 'e');
+      }
+      return null;
+    } finally {
+      if (btn) { btn.disabled = false; btn.innerHTML = origTxt; }
+    }
+  }
+
+  _normalizeAlbaranUnit(u) {
+    const s = String(u || 'kg').toLowerCase().trim();
+    if (/^(l|lt|lts|litro|litros)$/.test(s)) return 'L';
+    if (/^(ml|cc|cl)$/.test(s)) return 'ml';
+    if (/^(g|gr|gramo|gramos)$/.test(s)) return 'g';
+    if (/^(ud|uds|u|un|unidad|unidades|pz|pza|caja|cajas|bot)$/.test(s)) return 'ud';
+    return 'kg';
+  }
+
+  _parseAlbaranText(rawText) {
+    if (!rawText || typeof rawText !== 'string') return [];
+    const lines = rawText.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+    const out = [];
+
+    for (const rawLine of lines) {
+      if (/^(producto|descripci[oó]n|art[ií]culo|concepto|ingrediente)\b/i.test(rawLine)) continue;
+      let work = rawLine;
+      let supplierLot = '';
+      let expiryDate = '';
+
+      const lotM = work.match(/(?:lote|lot|mp)\s*[:#-]?\s*([A-Za-z0-9\-_\/]+)/i);
+      if (lotM) {
+        supplierLot = lotM[1].trim();
+        work = work.replace(lotM[0], ' ').trim();
+      }
+      const expM = work.match(/(?:cad(?:ucidad)?|f\.?\s*cad|exp|consumo)\s*[:#-]?\s*(\d{2,4}[\/\-]\d{1,2}[\/\-]\d{2,4})/i);
+      if (expM) {
+        let dStr = expM[1];
+        const dmy = dStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+        if (dmy) dStr = `${dmy[3]}-${dmy[2].padStart(2, '0')}-${dmy[1].padStart(2, '0')}`;
+        expiryDate = dStr;
+        work = work.replace(expM[0], ' ').trim();
+      }
+
+      const delim = work.includes(';') ? ';' : (work.includes('\t') ? '\t' : (work.includes('|') ? '|' : null));
+      if (delim) {
+        const cols = work.split(delim).map(c => c.trim()).filter(Boolean);
+        if (cols.length >= 2) {
+          const name = cols[0];
+          let qty = 1;
+          let unit = 'kg';
+          let price = 0;
+
+          if (cols.length >= 4 && !/\d/.test(cols[2]) && /^[a-zA-Z.º°\s]+$/.test(cols[2])) {
+            qty = parseFloat(String(cols[1]).replace(',', '.')) || 1;
+            unit = this._normalizeAlbaranUnit(cols[2]);
+            price = this._parsePriceValue(cols[3]);
+            if (!supplierLot && cols[4]) supplierLot = cols[4];
+          } else {
+            const qm = String(cols[1]).match(/(\d+(?:[.,]\d+)?)\s*([a-zA-Z]+)?/);
+            if (qm) {
+              qty = parseFloat(qm[1].replace(',', '.')) || 1;
+              if (qm[2]) unit = this._normalizeAlbaranUnit(qm[2]);
+            }
+            const hasPriceCol2 = /\d/.test(cols[2] || '');
+            price = this._parsePriceValue(hasPriceCol2 ? cols[2] : (cols[3] || 0));
+            if (!supplierLot && hasPriceCol2 && cols[3]) supplierLot = cols[3];
+            else if (!supplierLot && cols[4]) supplierLot = cols[4];
+          }
+          if (name) {
+            out.push({ id: 'albl-' + uid(), name, qty, unit, unitPrice: price, supplierLot, expiryDate, catalogId: '' });
+            continue;
+          }
+        }
+      }
+
+      // Free-text Spanish line: e.g. "Lomo atun rojo 5kg 36.50€/kg" or "Aceite oliva 10 L a 9,80"
+      work = work.replace(/\s+/g, ' ').trim();
+      const priceM = work.match(/(?:a\s+|@\s*)?(\d+(?:[.,]\d+)?)\s*(?:€|eur|\$|s\/\.?)?(?:\s*\/\s*(?:kg|kilo|l|litro|ud|uds|caja))?\s*$/i);
+      if (!priceM) continue;
+      const unitPrice = this._parsePriceValue(priceM[1]);
+      let beforePrice = work.slice(0, priceM.index).trim();
+      let qty = 1;
+      let unit = 'kg';
+      const qtyM = beforePrice.match(/(\d+(?:[.,]\d+)?)\s*(kg|kilos?|g|gr|l|litros?|ml|ud|uds|unidad(?:es)?|pz|pza|cajas?)?\s*$/i);
+      if (qtyM) {
+        qty = parseFloat(qtyM[1].replace(',', '.')) || 1;
+        if (qtyM[2]) unit = this._normalizeAlbaranUnit(qtyM[2]);
+        beforePrice = beforePrice.slice(0, qtyM.index).trim();
+      }
+      const cleanName = beforePrice.replace(/[-–:|,]+$/, '').trim();
+      if (cleanName) {
+        out.push({ id: 'albl-' + uid(), name: cleanName, qty, unit, unitPrice, supplierLot, expiryDate, catalogId: '' });
+      }
+    }
+    return out;
+  }
+
+  _isReceptionTempAlert(regime, tempVal) {
+    if (tempVal === '' || tempVal === null || tempVal === undefined || isNaN(Number(tempVal))) return false;
+    const t = Number(tempVal);
+    if (regime === 'protein') return t > 3;
+    if (regime === 'refrigerated') return t > 4;
+    if (regime === 'frozen') return t > -18;
+    if (regime === 'ambient') return t > 30;
+    return false;
+  }
+
+  _computeAlbaranLineAnalysis(line) {
+    if (!line) return null;
+    let catItem = null;
+    let matchType = 'new';
+    if (line.catalogId && line.catalogId !== '__new__') {
+      catItem = (this.db.catalog || []).find(c => c.id === line.catalogId) || null;
+      if (catItem) matchType = 'manual';
+    }
+    if (!catItem && line.catalogId !== '__new__' && line.name) {
+      const m = this._findCatalogMatch(line.name);
+      if (m) {
+        catItem = m.item;
+        matchType = m.type;
+      }
+    }
+
+    const oldPrice = catItem ? Number(catItem.price) || 0 : 0;
+    const newPrice = Number(line.unitPrice) || 0;
+    const variance = catItem ? this._calculatePriceVariance(oldPrice, newPrice) : null;
+    let alertLevel = 'new';
+    if (variance) {
+      if (variance.isIncrease && variance.pct >= 10) alertLevel = 'high';
+      else if (variance.isIncrease) alertLevel = 'up';
+      else if (variance.isDecrease) alertLevel = 'down';
+      else alertLevel = 'same';
+    }
+
+    const affectedDetails = [];
+    if (catItem && Math.abs(newPrice - oldPrice) > 0.001) {
+      const targetNorm = this._normalizeVendorName(catItem.name);
+      Object.values(this.db.recipes || {}).forEach(r => {
+        const ings = r.ingredients || [];
+        const uses = ings.some(ing => !ing.isSubRecipe && this._normalizeVendorName(ing.name) === targetNorm);
+        if (!uses) return;
+        const beforeP = this._getEffectivePricing(r, 1);
+        const simIngs = ings.map(ing => {
+          if (!ing.isSubRecipe && this._normalizeVendorName(ing.name) === targetNorm) {
+            const w = Math.min(99, Math.max(0, ing.waste || 0));
+            const gross = ing.gross || (ing.net / (1 - w / 100));
+            const simCost = (ing.unit === 'ud') ? (gross * newPrice) : ((gross / 1000) * newPrice);
+            return { ...ing, originalPrice: newPrice, cost: F2(simCost) };
+          }
+          return ing;
+        });
+        const afterP = this._getEffectivePricing({ ...r, ingredients: simIngs }, 1);
+        affectedDetails.push({
+          recipeId: r.id,
+          dishName: (r.config && r.config.dishName) || 'Sin nombre',
+          beforeFc: F1(beforeP.fcReal),
+          afterFc: F1(afterP.fcReal),
+          deltaCost: F2(afterP.unit - beforeP.unit),
+          fcGoal: afterP.fcGoal
+        });
+      });
+    }
+
+    const qtyBilling = (line.unit === 'g' || line.unit === 'ml') ? ((Number(line.qty) || 0) / 1000) : (Number(line.qty) || 0);
+    const lineTotal = F2(qtyBilling * newPrice);
+    return { catItem, matchType, oldPrice, newPrice, variance, alertLevel, affectedDetails, lineTotal };
+  }
+
+  _computeAlbaranHash(payloadObj) {
+    const canonical = JSON.stringify(payloadObj || {});
+    let h1 = 0x811c9dc5;
+    let h2 = 0x9e3779b9;
+    let h3 = 0x85ebca6b;
+    let h4 = 0xc2b2ae35;
+    for (let i = 0; i < canonical.length; i++) {
+      const ch = canonical.charCodeAt(i);
+      h1 = Math.imul(h1 ^ ch, 0x01000193) >>> 0;
+      h2 = Math.imul(h2 + ch + (i & 255), 0x85ebca6b) >>> 0;
+      h3 = Math.imul(h3 ^ (ch << (i % 7)), 0xc2b2ae35) >>> 0;
+      h4 = (h4 ^ (h1 + h2 + h3)) >>> 0;
+    }
+    const hex = [h1, h2, h3, h4].map(n => n.toString(16).padStart(8, '0')).join('').toUpperCase();
+    return `SEAL-${hex.slice(0, 24)}`;
+  }
+
+  _upgradeAlbaranHashCrypto(receiptId, canonicalStr) {
+    try {
+      if (typeof crypto !== 'undefined' && crypto.subtle && typeof crypto.subtle.digest === 'function' && typeof TextEncoder !== 'undefined') {
+        const bytes = new TextEncoder().encode(canonicalStr);
+        crypto.subtle.digest('SHA-256', bytes).then(buf => {
+          const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+          const rec = (this.db.albaranes || []).find(a => a.id === receiptId);
+          if (rec) {
+            rec.auditHash = `SHA256-${hex.slice(0, 24)}`;
+            this._autoSave();
+            this._renderAlbaranHistory();
+          }
+        }).catch(() => {});
+      }
+    } catch {}
+  }
+
+  _commitAlbaran(overrides = null) {
+    const draft = this._ensureAlbaranDraft();
+    const o = overrides || {};
+    const supEl = document.getElementById('alb-supplier');
+    const cifEl = document.getElementById('alb-supplier-cif');
+    const numEl = document.getElementById('alb-number');
+    const dateEl = document.getElementById('alb-date');
+    const regEl = document.getElementById('alb-temp-regime');
+    const tmpEl = document.getElementById('alb-temp-val');
+    const stEl = document.getElementById('alb-sanitary-status');
+    const chkInt = document.getElementById('alb-chk-integrity');
+    const chkVeh = document.getElementById('alb-chk-vehicle');
+    const noteEl = document.getElementById('alb-incident-note');
+    const chkUpd = document.getElementById('alb-opt-update-prices');
+    const chkAdd = document.getElementById('alb-opt-add-new');
+    const chkAppcc = document.getElementById('alb-opt-send-appcc');
+
+    const supplier = (o.supplier !== undefined ? o.supplier : (supEl ? supEl.value : draft.supplier)).trim();
+    const linesSrc = Array.isArray(o.lines) ? o.lines : draft.lines;
+    const validLines = (linesSrc || []).filter(l => l && String(l.name || '').trim());
+
+    if (!supplier) {
+      toast('Indica el nombre del proveedor del albarán', 'w');
+      return null;
+    }
+    if (validLines.length === 0) {
+      toast('Añade al menos un producto al albarán antes de guardar', 'w');
+      return null;
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const date = (o.date !== undefined ? o.date : (dateEl && dateEl.value ? dateEl.value : draft.date)) || today;
+    const supplierCif = (o.supplierCif !== undefined ? o.supplierCif : (cifEl ? cifEl.value : draft.supplierCif)).trim().toUpperCase();
+    const number = ((o.number !== undefined ? o.number : (numEl ? numEl.value : draft.number)) || `ALB-${date.replace(/-/g, '')}-${String((this.db.albaranes || []).length + 1).padStart(3, '0')}`).trim();
+    const tempRegime = (o.tempRegime !== undefined ? o.tempRegime : (regEl ? regEl.value : draft.tempRegime)) || 'refrigerated';
+    const rawTemp = o.tempVal !== undefined ? o.tempVal : (tmpEl ? tmpEl.value : draft.tempVal);
+    const tempVal = (rawTemp !== '' && rawTemp !== null && rawTemp !== undefined && !isNaN(Number(rawTemp))) ? Math.round(Number(rawTemp) * 10) / 10 : null;
+    const tempAlert = tempVal !== null ? this._isReceptionTempAlert(tempRegime, tempVal) : false;
+    let sanitaryStatus = (o.sanitaryStatus !== undefined ? o.sanitaryStatus : (stEl ? stEl.value : draft.sanitaryStatus)) || 'accepted';
+    if (tempAlert && sanitaryStatus === 'accepted') sanitaryStatus = 'incident';
+    const packagingOk = o.packagingOk !== undefined ? !!o.packagingOk : (chkInt ? !!chkInt.checked : draft.packagingOk);
+    const vehicleOk = o.vehicleOk !== undefined ? !!o.vehicleOk : (chkVeh ? !!chkVeh.checked : draft.vehicleOk);
+    const incidentNote = (o.incidentNote !== undefined ? o.incidentNote : (noteEl ? noteEl.value : draft.incidentNote)).trim();
+
+    const updatePrices = o.updatePrices !== undefined ? !!o.updatePrices : (chkUpd ? !!chkUpd.checked : true);
+    const addNewItems = o.addNewItems !== undefined ? !!o.addNewItems : (chkAdd ? !!chkAdd.checked : true);
+    const sendToAppcc = o.sendToAppcc !== undefined ? !!o.sendToAppcc : (chkAppcc ? !!chkAppcc.checked : true);
+
+    const appcc = this._ensureAppccData();
+    const resp = appcc.responsible || (this.db.brand && this.db.brand.chefName) || 'Jefe de Cocina';
+
+    let totalAmount = 0;
+    let spikesCount = 0;
+    const updatedCatalogNames = new Map(); // normName -> { price, id }
+    const analyzedLines = validLines.map(l => {
+      const an = this._computeAlbaranLineAnalysis(l);
+      totalAmount += an.lineTotal;
+      if (an.alertLevel === 'up' || an.alertLevel === 'high') spikesCount++;
+      return {
+        id: l.id || ('albl-' + uid()),
+        name: String(l.name).trim(),
+        qty: Math.max(0.01, parseFloat(l.qty) || 1),
+        unit: this._normalizeAlbaranUnit(l.unit),
+        unitPrice: Math.max(0, parseFloat(l.unitPrice) || 0),
+        lineTotal: an.lineTotal,
+        oldPrice: an.oldPrice,
+        variancePct: an.variance ? an.variance.pct : null,
+        alertLevel: an.alertLevel,
+        supplierLot: String(l.supplierLot || '').trim(),
+        expiryDate: String(l.expiryDate || '').trim(),
+        catalogId: an.catItem ? an.catItem.id : '',
+        catalogName: an.catItem ? an.catItem.name : '',
+        affectedCount: an.affectedDetails.length
+      };
+    });
+    totalAmount = F2(totalAmount);
+
+    const affectedRecipeIds = new Set();
+    const subRecipesToCascade = new Set();
+
+    // Update Master Catalog + Recipes ONLY when sanitaryStatus !== 'rejected' and updatePrices === true
+    if (updatePrices && sanitaryStatus !== 'rejected') {
+      analyzedLines.forEach(line => {
+        let catItem = line.catalogId ? (this.db.catalog || []).find(c => c.id === line.catalogId) : null;
+        if (catItem && line.unitPrice > 0) {
+          if (!Array.isArray(catItem.priceHistory)) catItem.priceHistory = [];
+          catItem.priceHistory.unshift({ date, price: line.unitPrice, supplier, albaranNumber: number });
+          if (catItem.priceHistory.length > 12) catItem.priceHistory = catItem.priceHistory.slice(0, 12);
+          catItem.lastSupplier = supplier;
+          if (Math.abs(catItem.price - line.unitPrice) > 0.001) {
+            catItem.price = line.unitPrice;
+          }
+          updatedCatalogNames.set(this._normalizeVendorName(catItem.name), catItem.price);
+        } else if (!catItem && addNewItems && line.unitPrice > 0) {
+          const catUnit = (line.unit === 'ud') ? 'ud' : (line.unit === 'L' || line.unit === 'ml' ? 'ml' : 'g');
+          const newCat = {
+            id: uid(),
+            name: line.name,
+            price: line.unitPrice,
+            category: 'other',
+            waste: 0,
+            unit: catUnit,
+            allergens: [],
+            lastSupplier: supplier,
+            priceHistory: [{ date, price: line.unitPrice, supplier, albaranNumber: number }]
+          };
+          this.db.catalog.push(newCat);
+          line.catalogId = newCat.id;
+          line.catalogName = newCat.name;
+          updatedCatalogNames.set(this._normalizeVendorName(newCat.name), newCat.price);
+        }
+      });
+
+      if (updatedCatalogNames.size > 0) {
+        Object.values(this.db.recipes || {}).forEach(recipe => {
+          let modified = false;
+          (recipe.ingredients || []).forEach(ing => {
+            if (!ing.isSubRecipe) {
+              const norm = this._normalizeVendorName(ing.name);
+              if (updatedCatalogNames.has(norm)) {
+                const np = updatedCatalogNames.get(norm);
+                if (Math.abs(ing.originalPrice - np) > 0.001) {
+                  ing.originalPrice = np;
+                  const w = Math.min(99, Math.max(0, ing.waste || 0));
+                  ing.gross = ing.net / (1 - w / 100);
+                  ing.cost = F2((ing.unit === 'ud') ? (ing.gross * np) : ((ing.gross / 1000) * np));
+                  modified = true;
+                }
+              }
+            }
+          });
+          if (modified) {
+            recipe.updatedAt = Date.now();
+            affectedRecipeIds.add(recipe.id);
+            if (recipe.config && recipe.config.isSubRecipe) subRecipesToCascade.add(recipe.id);
+          }
+        });
+        subRecipesToCascade.forEach(subId => {
+          this._recalculateCascade(subId);
+        });
+      }
+    }
+
+    // Register traceability lots in APPCC module cleanly (if not rejected)
+    if (sendToAppcc && sanitaryStatus !== 'rejected') {
+      const storageMap = {
+        protein: 'Carnes/Pescados 0°C - 3°C',
+        refrigerated: 'Refrigeración 0°C - 4°C',
+        frozen: 'Congelación ≤ -18°C',
+        ambient: 'Ambiente / Secos < 22°C'
+      };
+      const storageTxt = storageMap[tempRegime] || 'Refrigeración 0°C - 4°C';
+      const baseExp = new Date(date + 'T12:00:00');
+      baseExp.setDate(baseExp.getDate() + (tempRegime === 'frozen' ? 30 : tempRegime === 'ambient' ? 30 : 3));
+      const fallbackExp = baseExp.toISOString().slice(0, 10);
+
+      analyzedLines.forEach(line => {
+        const catObj = line.catalogId ? (this.db.catalog || []).find(c => c.id === line.catalogId) : null;
+        const seq = String((appcc.labels || []).length + 1).padStart(3, '0');
+        const batchCode = `LOT-${date.replace(/-/g, '')}-${seq}`;
+        appcc.labels.unshift({
+          id: 'lbl-' + uid(),
+          sourceType: catObj ? 'catalog' : 'custom',
+          recipeId: null,
+          catalogId: catObj ? catObj.id : null,
+          dishName: line.catalogName || line.name,
+          batchCode,
+          supplierLot: line.supplierLot || number,
+          prepDate: date,
+          expiryDate: line.expiryDate || fallbackExp,
+          storage: storageTxt,
+          quantity: `${line.qty} ${line.unit}`,
+          thermalFormat: appcc.thermalFormat || '60x40',
+          allergens: catObj && Array.isArray(catObj.allergens) ? [...catObj.allergens] : [],
+          responsible: resp,
+          status: 'active',
+          consumedAt: null,
+          createdAt: new Date().toISOString()
+        });
+      });
+      if (appcc.labels.length > 250) appcc.labels = appcc.labels.slice(0, 250);
+    }
+
+    // Log reception temperature into APPCC PCC temperature log whenever recorded
+    if (tempVal !== null) {
+      const limMap = { protein: 'Máx. 3°C', refrigerated: 'Máx. 4°C', frozen: 'Máx. -18°C', ambient: 'Máx. 30°C' };
+      appcc.tempLogs.unshift({
+        id: 'tmp-' + uid(),
+        chamberId: 'recepcion-albaran',
+        chamberName: `Recepción Mercancía (${supplier})`,
+        temp: tempVal,
+        isAlert: tempAlert || sanitaryStatus === 'rejected',
+        limitDesc: limMap[tempRegime] || 'Máx. 4°C',
+        correctiveAction: sanitaryStatus === 'rejected'
+          ? `🚫 RECHAZADO ALBARÁN ${number}: ${incidentNote || 'Fuera de norma sanitaria'}`
+          : tempAlert
+            ? `⚠️ DESVIACIÓN DESCARGA (${number}): ${incidentNote || 'Verificación / Reclamo proveedor'}`
+            : `✔ Albarán ${number} conforme en descarga`,
+        responsible: resp,
+        timestamp: new Date().toISOString()
+      });
+      if (appcc.tempLogs.length > 150) appcc.tempLogs = appcc.tempLogs.slice(0, 150);
+    }
+
+    const receivedAt = new Date().toISOString();
+    const sealSource = { supplier, supplierCif, number, date, totalAmount, sanitaryStatus, tempVal, lines: analyzedLines.map(x => [x.name, x.qty, x.unitPrice, x.supplierLot]), receivedAt };
+    const auditHash = this._computeAlbaranHash(sealSource);
+
+    const receipt = {
+      id: 'alb-' + uid(),
+      supplier,
+      supplierCif,
+      number,
+      date,
+      receivedAt,
+      responsible: resp,
+      tempRegime,
+      tempVal,
+      tempAlert,
+      sanitaryStatus,
+      packagingOk,
+      vehicleOk,
+      incidentNote,
+      lines: analyzedLines,
+      totalAmount,
+      spikesCount,
+      updatedRecipesCount: affectedRecipeIds.size,
+      auditHash,
+      attachmentThumb: o.attachmentThumb !== undefined ? o.attachmentThumb : (draft.attachmentThumb || ''),
+      attachmentName: o.attachmentName !== undefined ? o.attachmentName : (draft.attachmentName || '')
+    };
+
+    this._ensureAlbaranesData().unshift(receipt);
+    if (this.db.albaranes.length > 250) this.db.albaranes = this.db.albaranes.slice(0, 250);
+    appcc.updatedAt = Date.now();
+    this._save();
+    this._showSaveIndicator();
+    this._upgradeAlbaranHashCrypto(receipt.id, JSON.stringify(sealSource));
+
+    this._resetAlbaranDraft(false);
+    this._render();
+    this._renderCatalogTab();
+    this._renderAlbaranesTab();
+
+    if (sanitaryStatus === 'rejected') {
+      toast(`🚫 Albarán ${number} registrado como RECHAZADO (Catálogo y APPCC protegidos)`, 'w');
+    } else {
+      toast(`✅ Albarán ${number} guardado (${auditHash}) · ${affectedRecipeIds.size} escandallos recalculados`);
+    }
+    return receipt;
+  }
+
+  _resetAlbaranDraft(showMsg = true) {
+    this.albaranDraft = this._getEmptyAlbaranDraft();
+    this._syncAlbaranDraftInputs();
+    this._renderAlbaranDocPreview();
+    this._renderAlbaranDraftLines();
+    if (showMsg) toast('Borrador de albarán limpiado');
+  }
+
+  _syncAlbaranDraftInputs() {
+    const d = this._ensureAlbaranDraft();
+    const map = {
+      'alb-supplier': d.supplier, 'alb-supplier-cif': d.supplierCif, 'alb-number': d.number,
+      'alb-date': d.date, 'alb-temp-regime': d.tempRegime, 'alb-temp-val': d.tempVal,
+      'alb-sanitary-status': d.sanitaryStatus, 'alb-incident-note': d.incidentNote
+    };
+    Object.entries(map).forEach(([id, v]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = v ?? '';
+    });
+    const ci = document.getElementById('alb-chk-integrity');
+    if (ci) ci.checked = d.packagingOk !== false;
+    const cv = document.getElementById('alb-chk-vehicle');
+    if (cv) cv.checked = d.vehicleOk !== false;
+  }
+
+  _pruneOldAlbaranPhotos(days = 90) {
+    const albs = this._ensureAlbaranesData();
+    const cutoff = Date.now() - (days * 86400000);
+    let freed = 0;
+    albs.forEach(a => {
+      const ts = Date.parse(a.receivedAt || a.date || '');
+      if (a.attachmentThumb && !isNaN(ts) && ts < cutoff) {
+        a.attachmentThumb = '';
+        freed++;
+      }
+    });
+    this._save();
+    this._renderAlbaranesTab();
+    toast(freed > 0 ? `🧹 ${freed} fotos antiguas eliminadas conservando datos y sellos SHA-256` : 'No hay fotos antiguas pendientes de limpiar');
+    return freed;
+  }
+
+  _exportAlbaranesCSV() {
+    const albs = this._ensureAlbaranesData();
+    const csvCell = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const headers = ['Fecha', 'Nº Albarán', 'Proveedor', 'NIF/CIF', 'Producto', 'Cantidad', 'Unidad', 'Precio Unitario', 'Precio Anterior', 'Variación %', 'Total Línea', 'Lote Prov.', 'Temp °C', 'Estado Sanitario', 'Sello Integridad'];
+    const rows = [headers.map(csvCell).join(';')];
+    albs.forEach(a => {
+      (a.lines || []).forEach(l => {
+        rows.push([
+          a.date || '', a.number || '', a.supplier || '', a.supplierCif || '',
+          l.name || '', l.qty ?? 0, l.unit || '', F2(l.unitPrice || 0), F2(l.oldPrice || 0),
+          l.variancePct !== null && l.variancePct !== undefined ? `${l.variancePct}%` : 'Nuevo',
+          F2(l.lineTotal || 0), l.supplierLot || '',
+          a.tempVal !== null && a.tempVal !== undefined ? a.tempVal : '',
+          a.sanitaryStatus || 'accepted', a.auditHash || ''
+        ].map(csvCell).join(';'));
+      });
+    });
+    const csv = '\uFEFF' + rows.join('\r\n');
+    this._downloadBlob(csv, `Libro_Albaranes_${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv;charset=utf-8;');
+    toast(`📊 Libro de Albaranes CSV exportado (${albs.length} albaranes) ✓`);
+    return csv;
+  }
+
+  _buildAlbaranReceiptPDFHTML(receipt) {
+    if (!receipt) return '';
+    const brandName = (this.db.brand && this.db.brand.restaurantName) ? this.db.brand.restaurantName.trim() : 'GastroCost PRO';
+    const stText = receipt.sanitaryStatus === 'rejected' ? '🚫 RECHAZADO EN RECEPCIÓN' : receipt.sanitaryStatus === 'incident' ? '⚠️ ACEPTADO CON INCIDENCIA' : '✔ CONFORME / ACEPTADO';
+    const linesHtml = (receipt.lines || []).map(l => {
+      const varTxt = l.variancePct === null || l.variancePct === undefined ? 'Nuevo' : (l.variancePct > 0 ? `+${l.variancePct}%` : `${l.variancePct}%`);
+      return `<tr><td style="border:1px solid #d1d5db;padding:5px;"><strong>${escHtml(l.name)}</strong>${l.supplierLot ? `<br><small>Lote MP: ${escHtml(l.supplierLot)}</small>` : ''}</td><td style="border:1px solid #d1d5db;padding:5px;text-align:right;">${escHtml(l.qty)} ${escHtml(l.unit)}</td><td style="border:1px solid #d1d5db;padding:5px;text-align:right;">${F2(l.unitPrice)} €</td><td style="border:1px solid #d1d5db;padding:5px;text-align:right;">${escHtml(varTxt)}</td><td style="border:1px solid #d1d5db;padding:5px;text-align:right;font-weight:700;">${F2(l.lineTotal)} €</td></tr>`;
+    }).join('');
+    return `
+      <div style="max-width:715px;width:100%;margin:0 auto;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#111827;background:#ffffff;padding:16px;font-size:11px;line-height:1.4;">
+        <div style="border-bottom:3px solid #d4af37;padding-bottom:10px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;">
+          <div>
+            <div style="font-size:10px;text-transform:uppercase;color:#6b7280;font-weight:700;">Acta Digital de Recepción · Reg. CE 178/2002 &amp; APPCC</div>
+            <h1 style="margin:2px 0 0;font-size:17px;color:#0f172a;">ALBARÁN ${escHtml(receipt.number)} — ${escHtml(brandName)}</h1>
+          </div>
+          <div style="text-align:right;font-size:10px;">
+            <div><strong>Fecha:</strong> ${escHtml(receipt.date)}</div>
+            <div><strong>Sello:</strong> <span style="font-family:monospace;">${escHtml(receipt.auditHash)}</span></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:4px;">
+          <div><strong>Proveedor:</strong> ${escHtml(receipt.supplier)}${receipt.supplierCif ? ' · CIF: ' + escHtml(receipt.supplierCif) : ''}</div>
+          <div><strong>Responsable:</strong> ${escHtml(receipt.responsible)}</div>
+          <div><strong>Temp. Sonda PCC:</strong> ${receipt.tempVal !== null && receipt.tempVal !== undefined ? escHtml(receipt.tempVal) + '°C' : 'N/A'} (${escHtml(receipt.tempRegime)})</div>
+          <div><strong>Dictamen:</strong> <strong>${stText}</strong></div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:12px;">
+          <thead><tr style="background:#e5e7eb;"><th style="border:1px solid #d1d5db;padding:5px;width:38%;">Producto / Lote</th><th style="border:1px solid #d1d5db;padding:5px;width:14%;text-align:right;">Cantidad</th><th style="border:1px solid #d1d5db;padding:5px;width:16%;text-align:right;">Precio Ud</th><th style="border:1px solid #d1d5db;padding:5px;width:16%;text-align:right;">Var. Coste</th><th style="border:1px solid #d1d5db;padding:5px;width:16%;text-align:right;">Total</th></tr></thead>
+          <tbody>${linesHtml}</tbody>
+          <tfoot><tr style="background:#f3f4f6;"><td colspan="4" style="border:1px solid #d1d5db;padding:6px;text-align:right;font-weight:800;">IMPORTE TOTAL ALBARÁN:</td><td style="border:1px solid #d1d5db;padding:6px;text-align:right;font-weight:900;">${F2(receipt.totalAmount)} €</td></tr></tfoot>
+        </table>
+        <div style="font-size:9px;color:#4b5563;border-top:1px dashed #9ca3af;padding-top:8px;">
+          Documento operativo de control de compras y trazabilidad (Reg. CE 178/2002 y CE 852/2004). Conservar factura/albarán original fiscal durante 4 años según normativa AEAT/LGT.
+        </div>
+      </div>`;
+  }
+
+  async _exportAlbaranAuditPDF(receiptId) {
+    const receipt = (this.db.albaranes || []).find(a => a.id === receiptId);
+    if (!receipt) return;
+    const html = this._buildAlbaranReceiptPDFHTML(receipt);
+    const filename = `Acta_Albaran_${(receipt.number || 'REC').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
+    let loaded = false;
+    try { loaded = await this._ensureHTML2PDF(); } catch { loaded = false; }
+    const wrap = document.getElementById('pdf-scratch');
+    if (!loaded || !window.html2pdf || !wrap) {
+      const win = window.open('', '_blank', 'width=850,height=1000');
+      if (win) { win.document.write(`<!DOCTYPE html><html><body>${html}</body></html>`); win.document.close(); win.print(); }
+      return;
+    }
+    wrap.innerHTML = html;
+    wrap.style.position = 'fixed'; wrap.style.top = '0'; wrap.style.left = '0'; wrap.style.width = '750px'; wrap.style.zIndex = '999999'; wrap.style.background = '#fff'; wrap.style.display = 'block';
+    try {
+      await window.html2pdf().set({ margin: [10, 10, 10, 10], filename, image: { type: 'jpeg', quality: 0.95 }, pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(wrap.firstElementChild || wrap).save();
+      toast(`📄 Acta de Albarán ${receipt.number} generada ✓`);
+    } finally {
+      wrap.innerHTML = ''; wrap.style.display = 'none'; wrap.style.zIndex = '-1';
+    }
+  }
+
+  _renderAlbaranesTab() {
+    const albs = this._ensureAlbaranesData();
+    const curMonth = new Date().toISOString().slice(0, 7);
+    const monthSpend = albs.filter(a => a.sanitaryStatus !== 'rejected' && (a.date || '').startsWith(curMonth)).reduce((s, a) => s + (Number(a.totalAmount) || 0), 0);
+    const totalSpikes = albs.reduce((s, a) => s + (Number(a.spikesCount) || 0), 0);
+    const totalInc = albs.filter(a => a.sanitaryStatus !== 'accepted' || a.tempAlert).length;
+
+    const kCount = document.getElementById('alb-kpi-count');
+    const kSpend = document.getElementById('alb-kpi-spend');
+    const kSpikes = document.getElementById('alb-kpi-spikes');
+    const kInc = document.getElementById('alb-kpi-incidents');
+    if (kCount) kCount.textContent = String(albs.length);
+    if (kSpend) kSpend.textContent = EUR.format(monthSpend);
+    if (kSpikes) kSpikes.textContent = String(totalSpikes);
+    if (kInc) kInc.textContent = String(totalInc);
+
+    this._syncAlbaranDraftInputs();
+    this._renderAlbaranDocPreview();
+    this._renderAlbaranDraftLines();
+    this._renderAlbaranHistory();
+  }
+
+  _renderAlbaranDraftLines() {
+    const tbody = document.getElementById('alb-draft-lines-body');
+    const totalEl = document.getElementById('alb-draft-total');
+    const bannerEl = document.getElementById('alb-price-alert-banner');
+    const draft = this._ensureAlbaranDraft();
+    const catOpts = (this.db.catalog || []).map(c => ({ id: c.id, name: c.name, price: c.price }));
+
+    let total = 0;
+    const spikeWarnings = [];
+
+    if (tbody) {
+      if (draft.lines.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--t3);">Sin líneas todavía. Adjunta foto/PDF y pulsa Digitalizar con IA, usa Pegado Rápido Offline o añade líneas manuales.</td></tr>';
+      } else {
+        tbody.innerHTML = draft.lines.map(l => {
+          const an = this._computeAlbaranLineAnalysis(l);
+          total += an.lineTotal;
+          const selectedCatId = l.catalogId || (an.catItem ? an.catItem.id : '__new__');
+          let varBadge = '<span class="alb-badge-new">🆕 Nuevo</span>';
+          if (an.alertLevel === 'high' || an.alertLevel === 'up') {
+            varBadge = `<span class="alb-badge-up">▲ +${an.variance.pct}% (${F2(an.oldPrice)}→${F2(an.newPrice)})</span>`;
+            const impactNames = an.affectedDetails.map(d => `${d.dishName} (FC ${d.beforeFc}%→${d.afterFc}%)`).slice(0, 3).join(', ');
+            spikeWarnings.push(`<strong>${escHtml(an.catItem.name)}</strong> sube <strong>+${an.variance.pct}%</strong>${impactNames ? ' · Impacta: ' + escHtml(impactNames) : ''}`);
+          } else if (an.alertLevel === 'down') {
+            varBadge = `<span class="alb-badge-down">▼ ${an.variance.pct}% (${F2(an.oldPrice)}→${F2(an.newPrice)})</span>`;
+          } else if (an.alertLevel === 'same') {
+            varBadge = `<span style="color:#4ade80;font-weight:700;">✔ Igual (${F2(an.oldPrice)})</span>`;
+          }
+
+          const impactHtml = an.affectedDetails.length
+            ? an.affectedDetails.map(d => `<div style="font-size:0.72rem;white-space:nowrap;">${escHtml(d.dishName)}: <b>${d.beforeFc}%→${d.afterFc}%</b></div>`).join('')
+            : '<span style="font-size:0.72rem;color:var(--t3);">Sin impacto</span>';
+
+          const selectHtml = `<select class="fi" data-field="catalogId" style="min-height:42px;min-width:150px;font-size:0.76rem;"><option value="__new__">➕ Crear nuevo insumo</option>${catOpts.slice(0, 120).map(c => `<option value="${escHtml(c.id)}" ${c.id === selectedCatId ? 'selected' : ''}>${escHtml(c.name)} (${F2(c.price)})</option>`).join('')}</select>`;
+          const unitOpts = ['kg', 'L', 'ud', 'g', 'ml'].map(u => `<option value="${u}" ${l.unit === u ? 'selected' : ''}>${u}</option>`).join('');
+
+          return `
+            <tr data-line-id="${escHtml(l.id)}">
+              <td><input type="text" class="fi" data-field="name" value="${escHtml(l.name)}" placeholder="Producto" style="min-height:42px;min-width:140px;"></td>
+              <td>${selectHtml}</td>
+              <td><input type="number" step="0.01" min="0" class="fi" data-field="qty" value="${escHtml(l.qty)}" style="min-height:42px;width:72px;text-align:center;"></td>
+              <td><select class="fi" data-field="unit" style="min-height:42px;width:68px;">${unitOpts}</select></td>
+              <td><input type="number" step="0.01" min="0" class="fi" data-field="unitPrice" value="${escHtml(l.unitPrice)}" style="min-height:42px;width:84px;text-align:right;font-family:'JetBrains Mono',monospace;"></td>
+              <td>${varBadge}</td>
+              <td>${impactHtml}</td>
+              <td><input type="text" class="fi" data-field="supplierLot" value="${escHtml(l.supplierLot || '')}" placeholder="Lote MP" style="min-height:42px;width:96px;"></td>
+              <td><input type="date" class="fi" data-field="expiryDate" value="${escHtml(l.expiryDate || '')}" style="min-height:42px;width:130px;"></td>
+              <td><button type="button" class="btn btn-ghost alb-btn-del-line" data-line-id="${escHtml(l.id)}" style="min-height:42px;padding:4px 10px;color:#f87171;">✕</button></td>
+            </tr>`;
+        }).join('');
+      }
+    }
+
+    if (totalEl) totalEl.textContent = EUR.format(total);
+    if (bannerEl) {
+      if (spikeWarnings.length > 0) {
+        bannerEl.style.display = 'block';
+        bannerEl.innerHTML = `<div style="font-weight:800;margin-bottom:4px;">🚨 Detector de Subidas de Proveedor (${spikeWarnings.length}):</div>${spikeWarnings.map(w => `<div style="font-size:0.78rem;">• ${w}</div>`).join('')}`;
+      } else {
+        bannerEl.style.display = 'none';
+        bannerEl.innerHTML = '';
+      }
+    }
+  }
+
+  _renderAlbaranHistory() {
+    const tbody = document.getElementById('alb-history-body');
+    if (!tbody) return;
+    const albs = this._ensureAlbaranesData();
+    const q = (document.getElementById('alb-history-search')?.value || '').toLowerCase().trim();
+    const f = document.getElementById('alb-history-filter')?.value || 'all';
+
+    let list = [...albs];
+    if (q) {
+      list = list.filter(a =>
+        (a.supplier || '').toLowerCase().includes(q) ||
+        (a.supplierCif || '').toLowerCase().includes(q) ||
+        (a.number || '').toLowerCase().includes(q) ||
+        (a.lines || []).some(l => (l.name || '').toLowerCase().includes(q))
+      );
+    }
+    if (f === 'spikes') list = list.filter(a => (a.spikesCount || 0) > 0);
+    else if (f === 'incidents') list = list.filter(a => a.sanitaryStatus !== 'accepted' || a.tempAlert);
+    else if (f === 'rejected') list = list.filter(a => a.sanitaryStatus === 'rejected');
+
+    if (list.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--t3);">Sin albaranes digitalizados todavía.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = list.slice(0, 60).map(a => {
+      const stBadge = a.sanitaryStatus === 'rejected'
+        ? '<span style="color:#f87171;font-weight:800;">🚫 Rechazado</span>'
+        : (a.sanitaryStatus === 'incident' || a.tempAlert)
+          ? '<span style="color:#fbbf24;font-weight:800;">⚠️ Incidencia</span>'
+          : '<span style="color:#4ade80;font-weight:700;">✔ Conforme</span>';
+      const tempTxt = a.tempVal !== null && a.tempVal !== undefined ? `${a.tempVal}°C` : 'N/A';
+      return `
+        <tr>
+          <td><strong>${escHtml(a.date)}</strong><div style="font-size:0.72rem;color:var(--cyan);font-family:'JetBrains Mono',monospace;">${escHtml(a.number)}</div></td>
+          <td><strong>${escHtml(a.supplier)}</strong>${a.supplierCif ? `<div style="font-size:0.7rem;color:var(--t3);">${escHtml(a.supplierCif)}</div>` : ''}</td>
+          <td style="font-family:'JetBrains Mono',monospace;font-weight:700;">${EUR.format(a.totalAmount || 0)}</td>
+          <td>${stBadge}<div style="font-size:0.72rem;color:var(--t3);">Temp: ${escHtml(tempTxt)}</div></td>
+          <td>${a.spikesCount > 0 ? `<span class="alb-badge-up">▲ ${a.spikesCount} subidas</span>` : '<span style="color:#4ade80;">Estable</span>'}<div style="font-size:0.7rem;color:var(--t3);margin-top:2px;">${a.updatedRecipesCount || 0} escandallos act.</div></td>
+          <td><span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--gold);">${escHtml(a.auditHash)}</span></td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button type="button" class="btn btn-ghost alb-btn-pdf" data-alb-id="${escHtml(a.id)}" style="min-height:42px;padding:4px 10px;font-size:0.74rem;">📄 Acta PDF</button>
+              <button type="button" class="btn btn-ghost alb-btn-del-hist" data-alb-id="${escHtml(a.id)}" style="min-height:42px;padding:4px 10px;font-size:0.74rem;color:#f87171;">✕</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
   }
 }
 

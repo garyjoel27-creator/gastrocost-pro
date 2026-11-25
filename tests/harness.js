@@ -217,6 +217,12 @@ function createSandbox(initialStorage = {}, initialIdb = null) {
     'appcc-label-allergens', 'appcc-thermal-preview', 'appcc-trace-search', 'appcc-trace-filter',
     'appcc-kpi-temps', 'appcc-kpi-temps-sub', 'appcc-kpi-labels', 'appcc-kpi-labels-sub',
     'appcc-kpi-ld', 'appcc-kpi-ld-sub', 'appcc-sticker-print',
+    'tab-albaranes', 'tab-btn-albaranes', 'alb-supplier', 'alb-supplier-cif', 'alb-number', 'alb-date',
+    'alb-temp-regime', 'alb-temp-val', 'alb-sanitary-status', 'alb-chk-integrity', 'alb-chk-vehicle',
+    'alb-incident-note', 'alb-paste-text', 'alb-draft-lines-body', 'alb-draft-total', 'alb-price-alert-banner',
+    'alb-opt-update-prices', 'alb-opt-add-new', 'alb-opt-send-appcc', 'alb-history-search',
+    'alb-history-filter', 'alb-history-body', 'alb-kpi-count', 'alb-kpi-spend',
+    'alb-kpi-spikes', 'alb-kpi-incidents', 'alb-doc-preview',
     'bcg-table-body', 'bcg-total-revenue', 'bcg-total-profit', 'bcg-avg-popularity', 'bcg-avg-margin',
     'cfg-brand-restaurant', 'cfg-brand-chef', 'legal-modal', 'hdr-shield-label'
   ];
@@ -262,14 +268,14 @@ function createSandbox(initialStorage = {}, initialIdb = null) {
         });
       }
       if (sel === '.tab-btn') {
-        return ['tab-escandallo', 'tab-cocina', 'tab-finanzas', 'tab-catalogo', 'tab-appcc'].map(t => {
+        return ['tab-escandallo', 'tab-cocina', 'tab-finanzas', 'tab-catalogo', 'tab-albaranes', 'tab-appcc'].map(t => {
           const btn = getOrCreateElement('btn-' + t, 'button', 'tab-btn');
           btn.dataset.tab = t;
           return btn;
         });
       }
       if (sel === '.tab-content') {
-        return ['tab-escandallo', 'tab-cocina', 'tab-finanzas', 'tab-catalogo', 'tab-appcc'].map(t => getOrCreateElement(t, 'div', 'tab-content'));
+        return ['tab-escandallo', 'tab-cocina', 'tab-finanzas', 'tab-catalogo', 'tab-albaranes', 'tab-appcc'].map(t => getOrCreateElement(t, 'div', 'tab-content'));
       }
       if (sel.includes('checkbox')) {
         return [];

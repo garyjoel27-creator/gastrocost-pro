@@ -1697,7 +1697,7 @@ function runTier1Tests(registerTest) {
     assert(html.includes('id="legal-modal"') && html.includes('id="btn-arsopol-wipe"'), 'Must include RGPD/ARSOPOL legal tools');
     assert(fs.existsSync(path.join(rootDir, 'icon.svg')), 'icon.svg must exist');
     assert.strictEqual(manifest.display, 'standalone', 'manifest.json must configure standalone PWA mode');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v18.1-cache'"), 'sw.js must bump cache version to v18.1');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.0-cache'"), 'sw.js must bump cache version to v19.0');
   });
 
   registerTest('T1.R10.6: Mobile & Tablet scroll architecture unblocks end-of-strip buttons and modals', () => {
@@ -1808,7 +1808,208 @@ function runTier1Tests(registerTest) {
 
     const sw = getServiceWorkerJs();
     assert(sw.includes("const CACHE_NAME = 'gastrocost-v16.8-cache'"), 'sw.js baseline comment must remain intact');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v18.1-cache'"), 'sw.js cache version must be v18.1');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.0-cache'"), 'sw.js cache version must be v19.0');
+  });
+
+  registerTest('T1.R11.1: Albaranes Parser handles natural Spanish delivery notes, CSV & sanitary lots', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    const parsed = app._parseAlbaranText([
+      'Producto;Cantidad;Unidad;Precio',
+      'Atún Rojo Salvaje 5kg 34.50€/kg Lote ATR-99 Cad 15/12/2026',
+      'Aceite Oliva Virgen Extra;12;L;10,25',
+      'Bandeja Microbrotes 4 ud a 3.20€ Lot: MB-04'
+    ].join('\n'));
+
+    assert.strictEqual(parsed.length, 3, 'Must ignore header row and parse 3 delivery lines');
+    assert.strictEqual(parsed[0].name, 'Atún Rojo Salvaje');
+    assert.strictEqual(parsed[0].qty, 5);
+    assert.strictEqual(parsed[0].unit, 'kg');
+    assert.strictEqual(parsed[0].unitPrice, 34.5);
+    assert.strictEqual(parsed[0].supplierLot, 'ATR-99');
+    assert.strictEqual(parsed[0].expiryDate, '2026-12-15', 'Must normalize DD/MM/YYYY expiry to ISO YYYY-MM-DD');
+
+    assert.strictEqual(parsed[1].unit, 'L');
+    assert.strictEqual(parsed[1].unitPrice, 10.25);
+
+    assert.strictEqual(parsed[2].unit, 'ud');
+    assert.strictEqual(parsed[2].supplierLot, 'MB-04');
+  });
+
+  registerTest('T1.R11.2: Albaranes Price-Spike Simulator detects inflation and Food Cost delta non-mutatingly', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    const catItem = { id: 'cat-r11-sol', name: 'Solomillo Test R11', price: 20.00, category: 'meat', unit: 'g', waste: 0, allergens: [] };
+    app.db.catalog.push(catItem);
+    app.db.recipes['dish-r11-sim'] = {
+      id: 'dish-r11-sim',
+      config: { dishName: 'Solomillo a la Brasa Test', portions: 2, fcGoal: 30, taxRate: 10, customPVP: 25 },
+      ingredients: [
+        { id: 'ing-sim-1', name: 'Solomillo Test R11', net: 400, waste: 0, gross: 400, originalPrice: 20.00, cost: 8.00, unit: 'g', allergens: [] }
+      ]
+    };
+
+    const beforePrice = catItem.price;
+    const beforeIngCost = app.db.recipes['dish-r11-sim'].ingredients[0].cost;
+
+    const analysis = app._computeAlbaranLineAnalysis({
+      name: 'Solomillo Test R11',
+      qty: 6,
+      unit: 'kg',
+      unitPrice: 25.00,
+      catalogId: 'cat-r11-sol'
+    });
+
+    assert.strictEqual(analysis.alertLevel, 'high', '25% increase (20 -> 25) must flag high alert');
+    assert(analysis.variance && analysis.variance.isIncrease && Math.abs(analysis.variance.pct - 25) < 0.1, 'Variance must equal +25%');
+    assert.strictEqual(analysis.lineTotal, 150.00, '6 kg x 25.00 EUR must equal 150.00 EUR');
+    assert.strictEqual(analysis.affectedDetails.length, 1, 'Must identify affected dish');
+    assert(analysis.affectedDetails[0].afterFc > analysis.affectedDetails[0].beforeFc, 'Simulated Food Cost % must increase after price spike');
+    assert(analysis.affectedDetails[0].deltaCost > 0, 'Simulated unit deltaCost must be positive');
+
+    assert.strictEqual(catItem.price, beforePrice, 'Preview analysis must NOT mutate catalog price');
+    assert.strictEqual(app.db.recipes['dish-r11-sim'].ingredients[0].cost, beforeIngCost, 'Preview analysis must NOT mutate recipe cost');
+  });
+
+  registerTest('T1.R11.3: Albaranes Commit cascades catalog + sub-recipe + APPCC lots + seal with reload persistence', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    app.db.catalog.push({ id: 'cat-r11-fondo', name: 'Hueso Rodilla Test', price: 4.00, category: 'meat', unit: 'g', waste: 0, allergens: [] });
+    const subId = 'sub-r11-caldo';
+    app.db.recipes[subId] = {
+      id: subId,
+      config: { dishName: 'Caldo Base R11', portions: 1, isSubRecipe: true, yieldQty: 2, yieldUnit: 'L' },
+      ingredients: [
+        { id: 's1', name: 'Hueso Rodilla Test', net: 2000, waste: 0, gross: 2000, originalPrice: 4.00, cost: 8.00, unit: 'g', allergens: [] }
+      ]
+    };
+    const mainId = 'dish-r11-arroz';
+    app.db.recipes[mainId] = {
+      id: mainId,
+      config: { dishName: 'Arroz Meloso R11', portions: 2, fcGoal: 28, taxRate: 10 },
+      ingredients: [
+        { id: 'm1', name: 'Caldo Base R11', subRecipeId: subId, net: 500, waste: 0, gross: 500, originalPrice: 4.00, cost: 2.00, unit: 'g', allergens: [] }
+      ]
+    };
+
+    const receipt = app._commitAlbaran({
+      supplier: 'Cárnicas Norte SL',
+      supplierCif: 'B12345678',
+      number: 'ALB-2026-0091',
+      date: '2026-11-25',
+      tempRegime: 'protein',
+      tempVal: 2.4,
+      sanitaryStatus: 'accepted',
+      updatePrices: true,
+      addNewItems: true,
+      sendToAppcc: true,
+      lines: [
+        { name: 'Hueso Rodilla Test', qty: 10, unit: 'kg', unitPrice: 6.00, supplierLot: 'LOT-CAR-77', expiryDate: '2026-11-30', catalogId: 'cat-r11-fondo' }
+      ]
+    });
+
+    assert(receipt && receipt.id, 'Commit must return saved receipt');
+    assert(/^(SEAL|SHA256)-/.test(receipt.auditHash), `Receipt must include tamper-evident hash, got ${receipt.auditHash}`);
+    assert.strictEqual(receipt.sanitaryStatus, 'accepted');
+    assert.strictEqual(receipt.tempAlert, false);
+
+    const catAfter = app.db.catalog.find(c => c.id === 'cat-r11-fondo');
+    assert.strictEqual(catAfter.price, 6.00, 'Catalog price must update to 6.00');
+    assert.strictEqual(catAfter.lastSupplier, 'Cárnicas Norte SL');
+    assert(catAfter.priceHistory && catAfter.priceHistory.length >= 1, 'Catalog item must record supplier price history');
+
+    assert.strictEqual(app.db.recipes[subId].ingredients[0].cost, 12.00, 'Sub-recipe ingredient cost must update (2kg * 6.00 = 12.00)');
+    const mainSubIng = app.db.recipes[mainId].ingredients[0];
+    assert.strictEqual(mainSubIng.originalPrice, 6.00, 'Parent dish must cascade sub-recipe unit price (12/2 = 6.00)');
+    assert.strictEqual(mainSubIng.cost, 3.00, 'Parent dish ingredient cost must cascade to (500/1000)*6 = 3.00');
+
+    const appcc = app._ensureAppccData();
+    assert(appcc.labels.some(l => l.supplierLot === 'LOT-CAR-77'), 'APPCC traceability labels must receive supplier lot');
+    assert(appcc.tempLogs.some(t => t.chamberId === 'recepcion-albaran' && t.temp === 2.4 && t.isAlert === false), 'APPCC temp log must record compliant reception temp');
+
+    // Persistence verification across full reload
+    const persistedRaw = window.localStorage.getItem('gc_v11');
+    const reloadedEnv = loadGastroCostApp({ initialStorage: { gc_v11: persistedRaw } });
+    const appReloaded = new reloadedEnv.GC();
+    const persisted = (appReloaded.db.albaranes || []).find(a => a.number === 'ALB-2026-0091');
+    assert(persisted && persisted.auditHash === receipt.auditHash, 'Albaran and seal must persist across full reload');
+  });
+
+  registerTest('T1.R11.4: Sanitary Reception PCC threshold alert & Rejected delivery guard + APPCC Audit Section 4', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    assert.strictEqual(app._isReceptionTempAlert('protein', 5.2), true, 'Protein > 3°C must trigger alert');
+    assert.strictEqual(app._isReceptionTempAlert('protein', 2.8), false, 'Protein <= 3°C must pass');
+    assert.strictEqual(app._isReceptionTempAlert('frozen', -12), true, 'Frozen > -18°C must trigger alert');
+    assert.strictEqual(app._isReceptionTempAlert('frozen', -19), false, 'Frozen <= -18°C must pass');
+
+    app.db.catalog.push({ id: 'cat-r11-rej', name: 'Merluza Pincho Test', price: 14.00, category: 'fish', unit: 'g', waste: 0, allergens: ['fish'] });
+    const labelsBefore = (app._ensureAppccData().labels || []).length;
+
+    const rej = app._commitAlbaran({
+      supplier: 'Pescados Bahía',
+      number: 'ALB-REJ-404',
+      date: '2026-11-25',
+      tempRegime: 'protein',
+      tempVal: 8.6,
+      sanitaryStatus: 'rejected',
+      incidentNote: 'Rotura cadena de frío (+8.6°C)',
+      updatePrices: true,
+      sendToAppcc: true,
+      lines: [
+        { name: 'Merluza Pincho Test', qty: 8, unit: 'kg', unitPrice: 22.00, supplierLot: 'LOT-BAD', catalogId: 'cat-r11-rej' }
+      ]
+    });
+
+    assert.strictEqual(rej.sanitaryStatus, 'rejected');
+    assert.strictEqual(rej.tempAlert, true);
+    assert.strictEqual(app.db.catalog.find(c => c.id === 'cat-r11-rej').price, 14.00, 'Rejected delivery MUST NOT overwrite catalog price');
+    assert.strictEqual((app._ensureAppccData().labels || []).length, labelsBefore, 'Rejected delivery MUST NOT add APPCC traceability labels');
+    assert(app._ensureAppccData().tempLogs.some(t => t.chamberId === 'recepcion-albaran' && t.isAlert === true && t.correctiveAction.includes('RECHAZADO')), 'Rejected delivery must log sanitary PCC alert');
+
+    const appccHtml = app._buildAppccAuditHTML();
+    assert(appccHtml.includes('4. Registro de Recepción de Mercancías y Albaranes') && appccHtml.includes('ALB-REJ-404'), 'APPCC Audit PDF must include Section 4 with receipt record');
+  });
+
+  registerTest('T1.R11.5: Albaranes Legal PDF/CSV Export, CE 178/2002 + AEAT compliance & SW v19.0', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const rootDir = path.join(__dirname, '..');
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    app.db.brand = { restaurantName: 'Bistró Atlántico', chefName: 'Chef Martín' };
+    const rec = app._commitAlbaran({
+      supplier: 'Bodegas Sur SL',
+      supplierCif: 'B99887766',
+      number: 'ALB-LEGAL-19',
+      date: '2026-11-25',
+      tempRegime: 'refrigerated',
+      tempVal: 3.1,
+      sanitaryStatus: 'accepted',
+      lines: [{ name: 'Crema Fresca Artesana', qty: 4, unit: 'L', unitPrice: 6.50, supplierLot: 'CF-2026' }]
+    });
+
+    const csv = app._exportAlbaranesCSV();
+    assert(csv.includes('Nº Albarán') && csv.includes('ALB-LEGAL-19') && csv.includes('B99887766') && csv.includes(rec.auditHash), 'CSV export must contain headers, CIF, number and seal');
+
+    const pdfHtml = app._buildAlbaranReceiptPDFHTML(rec);
+    assert(pdfHtml.includes('max-width:715px'), 'PDF layout must stay within 715px A4 frame');
+    assert(pdfHtml.includes('Reg. CE 178/2002') && pdfHtml.includes('AEAT') && pdfHtml.includes(rec.auditHash), 'PDF receipt must show CE 178/2002, AEAT retention notice and integrity seal');
+
+    const indexStat = fs.statSync(path.join(rootDir, 'index.html'));
+    assert(indexStat.size < 1100 * 1024, `index.html size (${indexStat.size} B) must stay under 1.1 MB`);
+    const sw = getServiceWorkerJs();
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.0-cache'"), 'sw.js must run v19.0 cache');
   });
 }
 
