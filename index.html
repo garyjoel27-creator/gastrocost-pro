@@ -3709,6 +3709,12 @@ body.theme-pearl-bronze #btn-open-export {
 @media (max-width: 600px) {
   .fin-be-grid, .fin-be-kpis, .fg2-resp { grid-template-columns: 1fr !important; }
 }
+/* V20.0 Venue Label Presets & APPCC Daily Closures / Auto-Archive */
+.appcc-presets-panel { margin-top:12px; padding:12px; border-radius:10px; border:1px solid rgba(212,175,55,0.35); background:rgba(212,175,55,0.04); min-width:0; max-width:100%; box-sizing:border-box; }
+.appcc-presets-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap:8px; margin-top:8px; }
+.appcc-preset-card { background:rgba(6,9,17,0.75); border:1px solid var(--b2); border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:6px; min-width:0; max-width:100%; }
+.appcc-archive-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap:10px; margin-bottom:12px; }
+.appcc-archive-pill { padding:10px 12px; border-radius:8px; border:1px solid var(--b1); background:rgba(255,255,255,0.02); display:flex; flex-direction:column; gap:6px; min-width:0; max-width:100%; }
 @media print {
   body.printing-appcc-sticker #hdr,
   body.printing-appcc-sticker .sidebar,
@@ -3738,7 +3744,7 @@ body.theme-pearl-bronze #btn-open-export {
     <div class="hdr-left">
       <div class="logo">
         <span class="logo-mark"><em>Gastro</em>Cost PRO</span>
-        <span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V19.0 COMMERCIAL SUITE</span>
+        <span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V20.0 COMMERCIAL SUITE</span>
       </div>
       <span class="save-ind" id="save-ind">
         <span class="save-dot"></span> Guardado
@@ -4951,7 +4957,19 @@ body.theme-pearl-bronze #btn-open-export {
             <button type="button" id="btn-appcc-print-x1" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">🖨️ Pegatina x1</button>
             <button type="button" id="btn-appcc-print-x2" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">🖨️ Doble x2</button>
             <button type="button" id="btn-appcc-export-label-pdf" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📄 PDF Térmico</button>
+            <button type="button" id="btn-appcc-save-preset" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(251,191,36,0.55);color:#fbbf24;">⭐ Guardar Plantilla del Local</button>
           </div>
+        </div>
+
+        <div class="appcc-presets-panel" id="appcc-presets-panel">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <div>
+              <strong style="font-size:0.84rem;color:var(--gold);">⭐ Etiquetas Favoritas / del Día (<span id="appcc-presets-venue">Local</span>)</strong>
+              <div style="font-size:0.72rem;color:var(--t3);">Guarda tus elaboraciones habituales una sola vez: 1 toque crea un lote NUEVO con la fecha de HOY y caducidad automática.</div>
+            </div>
+            <button type="button" id="btn-appcc-print-all-presets" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);font-size:0.76rem;">🖨️ Pack Apertura (Todas)</button>
+          </div>
+          <div id="appcc-presets-grid" class="appcc-presets-grid"></div>
         </div>
 
         <div id="appcc-thermal-preview" class="appcc-thermal-preview-wrap" aria-live="polite">
@@ -5044,6 +5062,100 @@ body.theme-pearl-bronze #btn-open-export {
             <button type="button" id="btn-appcc-add-task" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">Añadir Zona</button>
           </div>
         </details>
+      </section>
+
+      <!-- SUB-BLOQUE 4: CIERRE DIARIO APPCC, CARPETA AUTOMÁTICA Y ARCHIVO EN NUBE (V20.0) -->
+      <section class="appcc-section-card" id="appcc-closures-card" aria-label="Cierres Diarios APPCC y Auto-Archivo">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <div>
+            <h3 style="margin:0 0 4px;font-size:0.95rem;color:var(--t1);font-weight:800;">🔒 4. Cierres Diarios APPCC, Carpeta Automática y Google Drive</h3>
+            <p style="margin:0;font-size:0.75rem;color:var(--t3);">Sella cada cierre de turno/día con Hash SHA-256 sin exportar a mano. Guárdalo en tu histórico offline (IndexedDB), en una carpeta fija del PC o automáticamente en Google Drive.</p>
+          </div>
+          <span id="appcc-outbox-badge" style="font-size:0.72rem;padding:4px 9px;border-radius:999px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#4ade80;font-weight:700;">Cola Nube: 0 pendientes</span>
+        </div>
+
+        <div class="appcc-archive-grid">
+          <div class="appcc-archive-pill">
+            <div style="font-size:0.74rem;font-weight:800;color:var(--cyan);">📂 Destino 1: Carpeta Automática del PC (Chrome/Edge)</div>
+            <div id="appcc-folder-status" style="font-size:0.74rem;color:var(--t2);">Sin carpeta vinculada (archivo seguro en IndexedDB del navegador)</div>
+            <button type="button" id="btn-appcc-link-folder" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📂 Vincular Carpeta Local / OneDrive</button>
+          </div>
+          <div class="appcc-archive-pill">
+            <div style="font-size:0.74rem;font-weight:800;color:var(--gold);">☁️ Destino 2: Google Drive / Apps Script (Multi-dispositivo)</div>
+            <div id="appcc-cloud-status" style="font-size:0.74rem;color:var(--t2);">Sin Webhook configurado (actívalo abajo si usas iPad/móvil)</div>
+            <button type="button" id="btn-appcc-flush-outbox" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">☁️ Sincronizar Cola Offline</button>
+          </div>
+        </div>
+
+        <div style="padding:12px;border-radius:8px;border:1px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.05);margin-bottom:12px;">
+          <div class="alb-grid" style="margin-bottom:8px;">
+            <div>
+              <label for="appcc-closure-shift" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Turno de Cierre</label>
+              <select id="appcc-closure-shift" class="fi" style="min-height:48px;width:100%;">
+                <option value="Día Completo">Día Completo (Cierre Total)</option>
+                <option value="Mañana / Comida">Turno Mañana / Comida</option>
+                <option value="Tarde / Cena">Turno Tarde / Cena</option>
+              </select>
+            </div>
+            <div>
+              <label for="appcc-closure-notes" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Observaciones de Cierre / Incidencias</label>
+              <input type="text" id="appcc-closure-notes" class="fi" placeholder="Ej. Cámaras OK, mermas retiradas, limpieza verificada" style="min-height:48px;width:100%;">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button type="button" id="btn-appcc-close-day" class="btn btn-primary appcc-touch-btn" style="flex:1;min-width:min(240px,100%);background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,0.5);">🔒 Cerrar y Archivar Turno APPCC (Sello SHA-256)</button>
+            <label style="display:inline-flex;align-items:center;gap:6px;font-size:0.76rem;color:var(--t2);cursor:pointer;min-height:36px;">
+              <input type="checkbox" id="appcc-closure-reset-ld"> Reiniciar L+D diario tras cerrar
+            </label>
+          </div>
+        </div>
+
+        <details id="appcc-gas-panel" style="margin-bottom:12px;border:1px solid var(--b1);border-radius:8px;padding:10px 12px;background:rgba(255,255,255,0.02);">
+          <summary style="cursor:pointer;font-size:0.8rem;font-weight:700;color:var(--gold);">☁️ Configurar Auto-Guardado en tu Google Drive (Webhook + Script Listo para Copiar)</summary>
+          <div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="url" id="appcc-archive-webhook" class="fi" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;min-width:min(220px,100%);min-height:48px;">
+              <button type="button" id="btn-appcc-save-webhook" class="btn btn-primary appcc-touch-btn">💾 Guardar URL</button>
+              <button type="button" id="btn-appcc-copy-gas" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📋 Copiar Script Google Drive (Code.gs)</button>
+            </div>
+            <div style="font-size:0.72rem;color:var(--t3);line-height:1.45;">
+              1) Ve a <strong>script.google.com</strong> → Nuevo proyecto → Pega este código.<br>
+              2) Pulsa <strong>Implementar → Nueva implementación → Aplicación web</strong> (acceso: <em>Cualquier usuario</em>) y pega la URL arriba.<br>
+              3) Cada cierre y albarán se guardará solo en Google Drive dentro de <code>GastroCost_APPCC/&lt;Local&gt;/&lt;Mes&gt;/</code> y registrará auditoría en <code>Shadow_Log</code>.
+            </div>
+            <pre id="appcc-gas-code" style="max-height:140px;overflow:auto;background:#060911;color:#cbd5e1;padding:10px;border-radius:6px;font-size:0.68rem;border:1px solid var(--b1);margin:0;white-space:pre-wrap;word-break:break-word;"></pre>
+          </div>
+        </details>
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;">
+          <div>
+            <label for="appcc-closure-from" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:3px;">Desde</label>
+            <input type="date" id="appcc-closure-from" class="fi" style="min-height:44px;">
+          </div>
+          <div>
+            <label for="appcc-closure-to" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:3px;">Hasta</label>
+            <input type="date" id="appcc-closure-to" class="fi" style="min-height:44px;">
+          </div>
+          <button type="button" id="btn-appcc-export-range-pdf" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">📄 PDF Consolidado (Inspección)</button>
+          <button type="button" id="btn-appcc-export-closures-csv" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(34,197,94,0.45);color:#4ade80;">📊 CSV Histórico Cierres</button>
+        </div>
+
+        <div class="appcc-table-scroll">
+          <table class="appcc-ld-table" style="table-layout:auto;">
+            <thead>
+              <tr>
+                <th>Fecha / Turno</th>
+                <th>Local / Responsable</th>
+                <th>Frío PCC</th>
+                <th>Trazabilidad</th>
+                <th>L+D</th>
+                <th>Archivo &amp; Sello</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="appcc-closures-body"></tbody>
+          </table>
+        </div>
       </section>
     </div>
     </main>
@@ -6631,6 +6743,9 @@ class GC {
       ],
       tempLogs: [],
       labels: [],
+      labelPresets: [],
+      dailyClosures: [],
+      outboxQueue: [],
       thermalFormat: '60x40',
       cleaningTasks: [
         { id: 'ld-tablas', frequencyGroup: 'daily', frequencyLabel: 'Cada Turno / Cambio alimento', zone: 'Tablas de corte codificadas y cuchillos de servicio', protocol: 'Fregado con agua caliente (>50°C), detergente desengrasante neutro y desinfectante bactericida/fungicida Registro HA (UNE-EN 13697). Aclarado total y secado al aire en bastidor vertical.', done: false, verifiedAt: null, verifiedBy: '' },
@@ -12701,6 +12816,9 @@ class GC {
       if (!Array.isArray(data.appcc.chambers) || data.appcc.chambers.length === 0) data.appcc.chambers = defAppcc.chambers;
       if (!Array.isArray(data.appcc.tempLogs)) data.appcc.tempLogs = [];
       if (!Array.isArray(data.appcc.labels)) data.appcc.labels = [];
+      if (!Array.isArray(data.appcc.labelPresets)) data.appcc.labelPresets = [];
+      if (!Array.isArray(data.appcc.dailyClosures)) data.appcc.dailyClosures = [];
+      if (!Array.isArray(data.appcc.outboxQueue)) data.appcc.outboxQueue = [];
       if (!data.appcc.thermalFormat) data.appcc.thermalFormat = '60x40';
       if (!Array.isArray(data.appcc.cleaningTasks) || data.appcc.cleaningTasks.length === 0) data.appcc.cleaningTasks = defAppcc.cleaningTasks;
       if (!data.appcc.lastTurnDate) data.appcc.lastTurnDate = defAppcc.lastTurnDate;
@@ -16193,6 +16311,8 @@ ${ingsStr}`;
         if (pEl) pEl.value = '';
       });
     }
+
+    this._bindAppccV20Events();
   }
 
   _isTempOutOfRange(chamber, tempVal) {
@@ -16576,7 +16696,7 @@ ${ingsStr}`;
       createdAt: new Date().toISOString()
     };
     appcc.labels.unshift(label);
-    if (appcc.labels.length > 250) appcc.labels = appcc.labels.slice(0, 250);
+    if (appcc.labels.length > 500) appcc.labels = appcc.labels.slice(0, 500);
     appcc.updatedAt = Date.now();
     this._save();
     this._showSaveIndicator();
@@ -16958,8 +17078,10 @@ ${ingsStr}`;
       }
     }
 
-    // Render Traceability Labels
+    // Render Traceability Labels & Venue Quick Presets + Daily Closures
+    this._renderAppccPresetsGrid();
     this._renderAppccLabelsTable();
+    this._renderAppccClosuresSection();
 
     // Render L+D Plan (Daily vs Periodic, 4 full columns with word-break:break-word, never truncated)
     const renderLdRows = (tasks) => tasks.map(t => {
@@ -18126,6 +18248,680 @@ ${ingsStr}`;
         </tr>`;
     }).join('');
   }
+
+  /* ═══════════════════════════════════════════════
+     V20.0 ETIQUETAS POR LOCAL, CIERRES APPCC Y AUTO-ARCHIVO
+     ═══════════════════════════════════════════════ */
+  _ensureAppccV20(appcc) {
+    const a = appcc || this._ensureAppccData();
+    if (!Array.isArray(a.labelPresets)) a.labelPresets = [];
+    if (!Array.isArray(a.dailyClosures)) a.dailyClosures = [];
+    if (!Array.isArray(a.outboxQueue)) a.outboxQueue = [];
+    return a;
+  }
+
+  _bindAppccV20Events() {
+    const btnSavePre = document.getElementById('btn-appcc-save-preset');
+    if (btnSavePre) btnSavePre.addEventListener('click', () => this._saveAppccLabelPreset());
+
+    const btnPrintAllPre = document.getElementById('btn-appcc-print-all-presets');
+    if (btnPrintAllPre) btnPrintAllPre.addEventListener('click', () => this._printAllAppccPresets());
+
+    const preGrid = document.getElementById('appcc-presets-grid');
+    if (preGrid) {
+      preGrid.addEventListener('click', e => {
+        const runBtn = e.target.closest('.appcc-btn-run-preset');
+        if (runBtn) { this._triggerAppccLabelPreset(runBtn.dataset.presetId, true); return; }
+        const loadBtn = e.target.closest('.appcc-btn-load-preset');
+        if (loadBtn) { this._triggerAppccLabelPreset(loadBtn.dataset.presetId, false); return; }
+        const delBtn = e.target.closest('.appcc-btn-del-preset');
+        if (delBtn) { this._deleteAppccLabelPreset(delBtn.dataset.presetId); }
+      });
+    }
+
+    const btnFolder = document.getElementById('btn-appcc-link-folder');
+    if (btnFolder) btnFolder.addEventListener('click', () => this._linkAppccLocalFolder());
+
+    const btnFlush = document.getElementById('btn-appcc-flush-outbox');
+    if (btnFlush) btnFlush.addEventListener('click', () => this._flushAppccOutbox());
+
+    const btnCloseDay = document.getElementById('btn-appcc-close-day');
+    if (btnCloseDay) btnCloseDay.addEventListener('click', () => this._commitAppccDailyClosure());
+
+    const btnSaveHook = document.getElementById('btn-appcc-save-webhook');
+    const hookInp = document.getElementById('appcc-archive-webhook');
+    if (btnSaveHook && hookInp) {
+      btnSaveHook.addEventListener('click', () => {
+        const url = hookInp.value.trim();
+        if (typeof localStorage !== 'undefined') localStorage.setItem('gc_cloud_sync_url', url);
+        const sInp = document.getElementById('settings-cfg-cloud-url');
+        if (sInp) sInp.value = url;
+        this._renderAppccClosuresSection();
+        toast(url ? '☁️ URL de Auto-Archivo Google Drive guardada ✓' : 'URL Cloud eliminada');
+      });
+    }
+
+    const btnCopyGas = document.getElementById('btn-appcc-copy-gas');
+    if (btnCopyGas) {
+      btnCopyGas.addEventListener('click', async () => {
+        const code = this._getGoogleAppsScriptCode();
+        try {
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            await navigator.clipboard.writeText(code);
+            toast('📋 Código Google Apps Script copiado al portapapeles ✓');
+            return;
+          }
+        } catch {}
+        toast('Selecciona y copia el código mostrado en el cuadro', 'w');
+      });
+    }
+
+    const btnRangePdf = document.getElementById('btn-appcc-export-range-pdf');
+    if (btnRangePdf) btnRangePdf.addEventListener('click', () => this._exportAppccClosuresRangePDF());
+
+    const btnClosCsv = document.getElementById('btn-appcc-export-closures-csv');
+    if (btnClosCsv) btnClosCsv.addEventListener('click', () => this._exportAppccClosuresCSV());
+
+    const closBody = document.getElementById('appcc-closures-body');
+    if (closBody) {
+      closBody.addEventListener('click', e => {
+        const pdfBtn = e.target.closest('.appcc-btn-closure-pdf');
+        if (pdfBtn) {
+          const cid = pdfBtn.dataset.closureId;
+          const cl = (this._ensureAppccData().dailyClosures || []).find(c => c.id === cid);
+          if (cl) this._exportAppccClosuresRangePDF(cl.date, cl.date, cl);
+        }
+      });
+    }
+
+    const gasPre = document.getElementById('appcc-gas-code');
+    if (gasPre) gasPre.textContent = this._getGoogleAppsScriptCode();
+    const fromEl = document.getElementById('appcc-closure-from');
+    const toEl = document.getElementById('appcc-closure-to');
+    const today = new Date().toISOString().slice(0, 10);
+    if (fromEl && !fromEl.value) fromEl.value = today.slice(0, 8) + '01';
+    if (toEl && !toEl.value) toEl.value = today;
+  }
+
+  _getCurrentVenueName() {
+    return (this.db.brand && this.db.brand.restaurantName && this.db.brand.restaurantName.trim()) || 'Local Principal';
+  }
+
+  _saveAppccLabelPreset(overrides = null) {
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
+    const draft = this._getCurrentLabelDraft();
+    const o = overrides || {};
+    const dishName = String(o.dishName !== undefined ? o.dishName : draft.dishName || '').trim();
+    if (!dishName) {
+      toast('Indica un nombre para guardar la plantilla de etiqueta', 'w');
+      return null;
+    }
+
+    let shelfLifeDays = parseInt(o.shelfLifeDays, 10);
+    if (isNaN(shelfLifeDays) || shelfLifeDays < 1) {
+      const pMs = Date.parse((draft.prepDate || new Date().toISOString().slice(0, 10)) + 'T12:00:00');
+      const eMs = Date.parse((draft.expiryDate || '') + 'T12:00:00');
+      shelfLifeDays = (!isNaN(pMs) && !isNaN(eMs) && eMs > pMs) ? Math.max(1, Math.round((eMs - pMs) / 86400000)) : 2;
+    }
+
+    const venue = String(o.venue || this._getCurrentVenueName()).trim();
+    const normDish = this._normalizeVendorName(dishName);
+    const existing = appcc.labelPresets.find(p => (p.venue || 'Local Principal') === venue && this._normalizeVendorName(p.dishName) === normDish);
+    const rawCopies = o.copies !== undefined ? o.copies : (existing && existing.copies !== undefined ? existing.copies : (document.getElementById('appcc-label-copies')?.value || '1'));
+    const copies = Math.min(20, Math.max(1, parseInt(rawCopies, 10) || 1));
+    const presetData = {
+      id: existing ? existing.id : ('pre-' + uid()),
+      venue,
+      sourceType: o.sourceType || (existing && existing.sourceType) || draft.sourceType || 'custom',
+      recipeId: o.recipeId !== undefined ? o.recipeId : (existing ? existing.recipeId : (draft.recipeId || null)),
+      catalogId: o.catalogId !== undefined ? o.catalogId : (existing ? existing.catalogId : (draft.catalogId || null)),
+      dishName,
+      shelfLifeDays,
+      storage: o.storage || (existing && existing.storage) || draft.storage || 'Refrigeración 0°C - 4°C',
+      quantity: o.quantity !== undefined ? o.quantity : (existing ? existing.quantity : (draft.quantity || '')),
+      thermalFormat: o.thermalFormat || (existing && existing.thermalFormat) || draft.thermalFormat || appcc.thermalFormat || '60x40',
+      copies,
+      allergens: Array.isArray(o.allergens) ? [...o.allergens] : (existing && Array.isArray(existing.allergens) ? [...existing.allergens] : [...(draft.allergens || [])]),
+      updatedAt: new Date().toISOString()
+    };
+
+    if (existing) Object.assign(existing, presetData);
+    else {
+      appcc.labelPresets.unshift(presetData);
+      if (appcc.labelPresets.length > 120) appcc.labelPresets = appcc.labelPresets.slice(0, 120);
+    }
+    appcc.updatedAt = Date.now();
+    this._save();
+    this._showSaveIndicator();
+    this._renderAppccPresetsGrid();
+    toast(`⭐ Plantilla "${dishName}" (+${shelfLifeDays}d) guardada para ${venue} ✓`);
+    return presetData;
+  }
+
+  _triggerAppccLabelPreset(presetId, printNow = true) {
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
+    const preset = appcc.labelPresets.find(p => p.id === presetId);
+    if (!preset) return null;
+
+    const today = new Date().toISOString().slice(0, 10);
+    const expDate = new Date(today + 'T12:00:00');
+    expDate.setDate(expDate.getDate() + Math.max(1, Number(preset.shelfLifeDays) || 2));
+    const expiryDate = expDate.toISOString().slice(0, 10);
+
+    // Sync editor inputs cleanly when loaded
+    const nameEl = document.getElementById('appcc-label-custom-name');
+    const prepEl = document.getElementById('appcc-label-prep-date');
+    const expEl = document.getElementById('appcc-label-expiry');
+    const stEl = document.getElementById('appcc-label-storage');
+    const qtyEl = document.getElementById('appcc-label-qty');
+    const fmtEl = document.getElementById('appcc-label-format');
+    const cpEl = document.getElementById('appcc-label-copies');
+    if (nameEl) nameEl.value = preset.dishName;
+    if (prepEl) prepEl.value = today;
+    if (expEl) expEl.value = expiryDate;
+    if (stEl) stEl.value = preset.storage || 'Refrigeración 0°C - 4°C';
+    if (qtyEl) qtyEl.value = preset.quantity || '';
+    if (fmtEl) fmtEl.value = preset.thermalFormat || appcc.thermalFormat || '60x40';
+    if (cpEl) cpEl.value = preset.copies || 1;
+
+    if (!printNow) {
+      this._renderThermalPreview();
+      toast(`✏️ Plantilla "${preset.dishName}" cargada con fecha de hoy`);
+      return preset;
+    }
+
+    return this._createAppccLabel(preset.copies || 1, {
+      recipeId: preset.recipeId,
+      catalogId: preset.catalogId,
+      dishName: preset.dishName,
+      prepDate: today,
+      expiryDate,
+      storage: preset.storage,
+      quantity: preset.quantity,
+      thermalFormat: preset.thermalFormat,
+      allergens: preset.allergens,
+      batchCode: this._getAppccBatchCode()
+    });
+  }
+
+  _printAllAppccPresets() {
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
+    const venue = this._getCurrentVenueName();
+    let list = appcc.labelPresets.filter(p => !p.venue || p.venue === venue);
+    if (list.length === 0) list = [...appcc.labelPresets];
+    if (list.length === 0) {
+      toast('Primero guarda tus etiquetas habituales con "⭐ Guardar Plantilla del Local"', 'w');
+      return [];
+    }
+
+    const created = [];
+    const today = new Date().toISOString().slice(0, 10);
+    const fmt = appcc.thermalFormat || '60x40';
+    list.forEach(p => {
+      const exp = new Date(today + 'T12:00:00');
+      exp.setDate(exp.getDate() + Math.max(1, Number(p.shelfLifeDays) || 2));
+      const lbl = this._createAppccLabel(0, {
+        recipeId: p.recipeId,
+        catalogId: p.catalogId,
+        dishName: p.dishName,
+        prepDate: today,
+        expiryDate: exp.toISOString().slice(0, 10),
+        storage: p.storage,
+        quantity: p.quantity,
+        thermalFormat: p.thermalFormat || fmt,
+        allergens: p.allergens,
+        batchCode: this._getAppccBatchCode()
+      });
+      if (lbl) {
+        const copies = Math.max(1, parseInt(p.copies, 10) || 1);
+        for (let i = 0; i < copies; i++) created.push(lbl);
+      }
+    });
+
+    const printContainer = document.getElementById('appcc-sticker-print');
+    if (printContainer && created.length > 0) {
+      const spec = this._getThermalFormatSpec(fmt);
+      if (document.head) {
+        let pageStyle = document.getElementById('appcc-thermal-page-style');
+        if (!pageStyle) {
+          pageStyle = document.createElement('style');
+          pageStyle.id = 'appcc-thermal-page-style';
+          document.head.appendChild(pageStyle);
+        }
+        pageStyle.textContent = `@media print { @page { size: ${spec.pageCss}; margin: 0; } }`;
+      }
+      printContainer.dataset.thermalFormat = spec.key;
+      printContainer.innerHTML = created.map(lbl => this._buildThermalStickerHTML(lbl, lbl.thermalFormat || spec.key)).join('');
+      document.body.classList.add('printing-appcc-sticker');
+      if (typeof window.print === 'function') window.print();
+      setTimeout(() => document.body.classList.remove('printing-appcc-sticker'), 800);
+    }
+    toast(`🖨️ Pack Apertura generado: ${created.length} etiquetas de HOY listas ✓`);
+    return created;
+  }
+
+  _deleteAppccLabelPreset(presetId) {
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
+    appcc.labelPresets = appcc.labelPresets.filter(p => p.id !== presetId);
+    appcc.updatedAt = Date.now();
+    this._save();
+    this._renderAppccPresetsGrid();
+  }
+
+  _renderAppccPresetsGrid() {
+    const grid = document.getElementById('appcc-presets-grid');
+    const vLbl = document.getElementById('appcc-presets-venue');
+    const venue = this._getCurrentVenueName();
+    if (vLbl) vLbl.textContent = venue;
+    if (!grid) return;
+
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
+    const list = appcc.labelPresets;
+    if (list.length === 0) {
+      grid.innerHTML = '<div style="font-size:0.75rem;color:var(--t3);grid-column:1/-1;">Sin plantillas guardadas todavía. Configura un producto arriba y pulsa <strong>"⭐ Guardar Plantilla del Local"</strong> para imprimirlo cada día en 1 toque.</div>';
+      return;
+    }
+
+    grid.innerHTML = list.map(p => `
+      <div class="appcc-preset-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+          <strong style="font-size:0.82rem;color:var(--t1);word-break:break-word;">${escHtml(p.dishName)}</strong>
+          <button type="button" class="appcc-btn-del-preset" data-preset-id="${escHtml(p.id)}" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:0.8rem;" title="Eliminar plantilla">✕</button>
+        </div>
+        <div style="font-size:0.7rem;color:var(--t3);">+${p.shelfLifeDays || 2}d · ${escHtml(p.storage || 'Refrig.')}${p.quantity ? ' · ' + escHtml(p.quantity) : ''} · ${escHtml(p.thermalFormat || '60x40')} (×${p.copies || 1})</div>
+        <div style="display:flex;gap:6px;margin-top:auto;">
+          <button type="button" class="btn btn-primary appcc-btn-run-preset" data-preset-id="${escHtml(p.id)}" style="flex:1;min-height:40px;font-size:0.74rem;padding:4px 8px;">🖨️ HOY (+${p.shelfLifeDays || 2}d)</button>
+          <button type="button" class="btn btn-ghost appcc-btn-load-preset" data-preset-id="${escHtml(p.id)}" style="min-height:40px;font-size:0.74rem;padding:4px 8px;" title="Editar antes de imprimir">✏️</button>
+        </div>
+      </div>`).join('');
+  }
+
+  _getGoogleAppsScriptCode() {
+    return `// GastroCost PRO — Auto-Archivo APPCC & Albaranes en Google Drive + Shadow_Log
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(15000);
+    var p = JSON.parse(e.postData.contents || '{}');
+    var rootName = 'GastroCost_APPCC';
+    var rootIt = DriveApp.getFoldersByName(rootName);
+    var root = rootIt.hasNext() ? rootIt.next() : DriveApp.createFolder(rootName);
+    var venueName = (p.venue || 'Local_Principal').replace(/[\\\\/:*?"<>|]/g, '_');
+    var vIt = root.getFoldersByName(venueName);
+    var vDir = vIt.hasNext() ? vIt.next() : root.createFolder(venueName);
+    var month = (p.date || new Date().toISOString().slice(0,10)).slice(0, 7);
+    var mIt = vDir.getFoldersByName(month);
+    var mDir = mIt.hasNext() ? mIt.next() : vDir.createFolder(month);
+    var base = 'Cierre_APPCC_' + (p.date || '') + '_' + (p.id || Date.now());
+    if (p.htmlAudit) mDir.createFile(base + '.html', p.htmlAudit, 'text/html');
+    mDir.createFile(base + '.json', JSON.stringify(p.closure || p, null, 2), 'application/json');
+    var ssIt = vDir.getFilesByName('APPCC_Shadow_Log');
+    var ss = ssIt.hasNext() ? SpreadsheetApp.open(ssIt.next()) : SpreadsheetApp.create('APPCC_Shadow_Log');
+    if (!ssIt.hasNext()) DriveApp.getFileById(ss.getId()).moveTo(vDir);
+    var sh = ss.getSheetByName('Shadow_Log') || ss.insertSheet('Shadow_Log');
+    if (sh.getLastRow() === 0) sh.appendRow(['Timestamp','Local','Fecha','Turno','Lotes','Alertas_PCC','L_D_Pct','Hash','Responsable']);
+    var c = p.closure || {};
+    sh.appendRow([new Date().toISOString(), venueName, p.date || '', c.shift || '', c.labelsCreatedToday || 0, c.tempsAlerts || 0, c.ldPct || 0, c.auditHash || '', p.responsible || '']);
+    return ContentService.createTextOutput(JSON.stringify({ ok: true, id: base })).setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({ ok: false, error: err.toString() })).setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
+  }
+}`;
+  }
+
+  _getAppccArchiveWebhook() {
+    const inp = document.getElementById('appcc-archive-webhook');
+    if (inp && inp.value.trim()) return inp.value.trim();
+    if (typeof localStorage !== 'undefined') return (localStorage.getItem('gc_cloud_sync_url') || '').trim();
+    return '';
+  }
+
+  async _linkAppccLocalFolder() {
+    if (typeof window === 'undefined' || typeof window.showDirectoryPicker !== 'function') {
+      toast('Tu navegador móvil no permite acceso directo a carpetas locales; activa abajo Google Drive o usa el Histórico Interno', 'w');
+      const det = document.getElementById('appcc-gas-panel');
+      if (det) det.open = true;
+      return null;
+    }
+    try {
+      const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+      this._appccDirHandle = handle;
+      this._renderAppccClosuresSection();
+      toast(`📂 Carpeta "${handle.name}" vinculada para cierres automáticos ✓`);
+      return handle;
+    } catch (err) {
+      if (err && err.name !== 'AbortError') toast('No se pudo vincular la carpeta: ' + err.message, 'w');
+      return null;
+    }
+  }
+
+  async _writeClosureToLocalFolder(closure, htmlAudit) {
+    if (!this._appccDirHandle || !closure) return false;
+    try {
+      const monthDirName = `APPCC_${(closure.date || new Date().toISOString().slice(0, 10)).slice(0, 7)}`;
+      const subDir = await this._appccDirHandle.getDirectoryHandle(monthDirName, { create: true });
+      const safeId = (closure.id || 'rec').replace(/[^a-zA-Z0-9_-]/g, '');
+      const base = `Cierre_APPCC_${closure.date}_${safeId}`;
+
+      const fhHtml = await subDir.getFileHandle(`${base}.html`, { create: true });
+      const wHtml = await fhHtml.createWritable();
+      await wHtml.write(`<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><title>${base}</title></head><body>${htmlAudit}</body></html>`);
+      await wHtml.close();
+
+      const fhJson = await subDir.getFileHandle(`${base}.json`, { create: true });
+      const wJson = await fhJson.createWritable();
+      await wJson.write(JSON.stringify(closure, null, 2));
+      await wJson.close();
+
+      closure.archivedLocal = true;
+      this._save();
+      this._renderAppccClosuresSection();
+      return true;
+    } catch (err) {
+      console.warn('Local folder archive error:', err);
+      return false;
+    }
+  }
+
+  _commitAppccDailyClosure(overrides = null) {
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
+    const o = overrides || {};
+    const date = o.date || new Date().toISOString().slice(0, 10);
+    const shiftEl = document.getElementById('appcc-closure-shift');
+    const notesEl = document.getElementById('appcc-closure-notes');
+    const resetEl = document.getElementById('appcc-closure-reset-ld');
+    const respEl = document.getElementById('appcc-responsible');
+
+    const shift = String(o.shift || (shiftEl ? shiftEl.value : 'Día Completo') || 'Día Completo');
+    const notes = String(o.notes !== undefined ? o.notes : (notesEl ? notesEl.value : '')).trim();
+    const responsible = String(o.responsible || (respEl && respEl.value.trim()) || appcc.responsible || (this.db.brand && this.db.brand.chefName) || 'Chef Ejecutivo').trim();
+    const venue = this._getCurrentVenueName();
+
+    const dayTempLogs = (appcc.tempLogs || []).filter(t => (t.timestamp || '').startsWith(date));
+    const tempsForSnapshot = dayTempLogs.length ? dayTempLogs : (appcc.tempLogs || []).slice(0, (appcc.chambers || []).length || 6);
+    const tempsAlerts = dayTempLogs.filter(t => t.isAlert).length;
+
+    const dayLabels = (appcc.labels || []).filter(l => l.prepDate === date || (l.createdAt || '').startsWith(date));
+    const activeLabels = (appcc.labels || []).filter(l => l.status !== 'consumed');
+
+    const ldTasks = (appcc.cleaningTasks || []).map(t => ({
+      id: t.id, zone: t.zone, frequencyGroup: t.frequencyGroup,
+      done: !!t.done, verifiedAt: t.verifiedAt || null, verifiedBy: t.verifiedBy || ''
+    }));
+    const ldDone = ldTasks.filter(t => t.done).length;
+    const ldTotal = ldTasks.length || 1;
+    const ldPct = Math.round((ldDone / ldTotal) * 100);
+
+    const dayAlbaranes = (this._ensureAlbaranesData() || [])
+      .filter(a => a.date === date)
+      .map(a => ({ id: a.id, number: a.number, supplier: a.supplier, totalAmount: a.totalAmount, sanitaryStatus: a.sanitaryStatus, auditHash: a.auditHash }));
+
+    const closedAt = new Date().toISOString();
+    const sealPayload = { date, shift, venue, responsible, tempsAlerts, ldDone, ldTotal, dayLabelsCount: dayLabels.length, dayAlbCount: dayAlbaranes.length, closedAt };
+    const baseSeal = this._computeAlbaranHash(sealPayload).replace('SEAL-', '');
+    const auditHash = `CLS-${baseSeal}`;
+
+    const closure = {
+      id: 'cls-' + uid(),
+      date,
+      shift,
+      venue,
+      responsible,
+      notes,
+      closedAt,
+      auditHash,
+      tempsTotal: dayTempLogs.length,
+      tempsAlerts,
+      tempLogs: tempsForSnapshot.slice(0, 40),
+      labelsCreatedToday: dayLabels.length,
+      labelsActiveTotal: activeLabels.length,
+      labels: dayLabels.slice(0, 40),
+      ldDone,
+      ldTotal,
+      ldPct,
+      cleaningTasks: ldTasks,
+      albaranesCount: dayAlbaranes.length,
+      albaranes: dayAlbaranes,
+      archivedLocal: false,
+      archivedCloud: false
+    };
+
+    appcc.dailyClosures.unshift(closure);
+    if (appcc.dailyClosures.length > 400) appcc.dailyClosures = appcc.dailyClosures.slice(0, 400);
+
+    const shouldResetLd = o.resetLd !== undefined ? !!o.resetLd : !!(resetEl && resetEl.checked);
+    if (shouldResetLd) {
+      (appcc.cleaningTasks || []).filter(t => t.frequencyGroup === 'daily').forEach(t => {
+        t.done = false; t.verifiedAt = null; t.verifiedBy = '';
+      });
+    }
+
+    const htmlAudit = this._buildAppccRangeAuditHTML(date, date, closure);
+    const webhookUrl = this._getAppccArchiveWebhook();
+    if (webhookUrl) {
+      appcc.outboxQueue.push({
+        id: 'ob-' + uid(),
+        closureId: closure.id,
+        type: 'appcc_closure',
+        date,
+        queuedAt: closedAt,
+        payload: { action: 'save_audit', id: closure.id, date, venue, responsible, closure, htmlAudit }
+      });
+      if (appcc.outboxQueue.length > 100) appcc.outboxQueue = appcc.outboxQueue.slice(-100);
+    }
+
+    appcc.updatedAt = Date.now();
+    if (notesEl) notesEl.value = '';
+    this._save();
+    this._showSaveIndicator();
+
+    // Async local directory write + WebCrypto SHA-256 upgrade + Cloud Outbox flush
+    if (this._appccDirHandle) this._writeClosureToLocalFolder(closure, htmlAudit);
+    if (typeof crypto !== 'undefined' && crypto.subtle && typeof TextEncoder !== 'undefined') {
+      try {
+        crypto.subtle.digest('SHA-256', new TextEncoder().encode(JSON.stringify(sealPayload))).then(buf => {
+          const hex = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('').toUpperCase();
+          closure.auditHash = `SHA256-${hex.slice(0, 24)}`;
+          this._autoSave();
+          this._renderAppccClosuresSection();
+        }).catch(() => {});
+      } catch {}
+    }
+    if (webhookUrl && (typeof navigator === 'undefined' || navigator.onLine !== false)) {
+      this._flushAppccOutbox();
+    }
+
+    this._renderAppccTab();
+    toast(`🔒 Cierre APPCC ${date} (${shift}) archivado (${auditHash}) ✓`);
+    return closure;
+  }
+
+  async _flushAppccOutbox() {
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
+    const webhookUrl = this._getAppccArchiveWebhook();
+    if (!appcc.outboxQueue.length) {
+      this._renderAppccClosuresSection();
+      return 0;
+    }
+    if (!webhookUrl) {
+      toast('Configura primero la URL Webhook de Google Drive / Apps Script', 'w');
+      return 0;
+    }
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      toast('Sin conexión: los cierres permanecen seguros en Cola Offline y se subirán al reconectar', 'w');
+      return 0;
+    }
+
+    const fetchFn = (typeof window !== 'undefined' && typeof window.fetch === 'function')
+      ? window.fetch.bind(window)
+      : (typeof fetch === 'function' ? fetch : null);
+    if (!fetchFn) return 0;
+
+    let synced = 0;
+    const remaining = [];
+    for (const item of appcc.outboxQueue) {
+      try {
+        const res = await fetchFn(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(item.payload)
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        synced++;
+        const cl = appcc.dailyClosures.find(c => c.id === item.closureId);
+        if (cl) cl.archivedCloud = true;
+      } catch {
+        remaining.push(item);
+      }
+    }
+    appcc.outboxQueue = remaining;
+    this._save();
+    this._renderAppccClosuresSection();
+    if (synced > 0) toast(`☁️ ${synced} cierre(s) APPCC sincronizado(s) con la nube ✓`);
+    return synced;
+  }
+
+  _buildAppccRangeAuditHTML(fromDate = '', toDate = '', singleClosure = null) {
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
+    const today = new Date().toISOString().slice(0, 10);
+    const brandName = this._getCurrentVenueName();
+    const closures = singleClosure
+      ? [singleClosure]
+      : appcc.dailyClosures.filter(c => (!fromDate || c.date >= fromDate) && (!toDate || c.date <= toDate));
+
+    if (!closures.length) return this._buildAppccAuditHTML();
+
+    const rows = closures.map(c => `
+      <tr>
+        <td><strong>${escHtml(c.date)}</strong><br><small>${escHtml(c.shift)}</small></td>
+        <td>${escHtml(c.venue || brandName)}<br><small>${escHtml(c.responsible)}</small></td>
+        <td>${c.tempsAlerts > 0 ? `<strong style="color:#dc2626;">⚠️ ${c.tempsAlerts} alert.</strong>` : '✔ OK'} (${c.tempsTotal} lect.)</td>
+        <td>${c.labelsCreatedToday} hoy / ${c.labelsActiveTotal} act.</td>
+        <td><strong>${c.ldPct}%</strong> (${c.ldDone}/${c.ldTotal})</td>
+        <td style="font-family:monospace;font-size:9px;">${escHtml(c.auditHash)}</td>
+      </tr>`).join('');
+
+    const notesHtml = closures.filter(c => c.notes).map(c => `<li><strong>${escHtml(c.date)} (${escHtml(c.shift)}):</strong> ${escHtml(c.notes)}</li>`).join('');
+    return `
+      <div style="max-width:715px;width:100%;margin:0 auto;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#111827;background:#ffffff;padding:16px;font-size:11px;line-height:1.4;">
+        <div style="border-bottom:3px solid #d4af37;padding-bottom:10px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;">
+          <div>
+            <div style="font-size:10px;text-transform:uppercase;color:#6b7280;font-weight:700;">Libro Oficial de Cierres APPCC · Reg. CE 852/2004 &amp; CE 178/2002</div>
+            <h1 style="margin:2px 0 0;font-size:17px;color:#0f172a;">HISTÓRICO CONSOLIDADO APPCC — ${escHtml(brandName)}</h1>
+          </div>
+          <div style="text-align:right;font-size:10px;">
+            <div><strong>Periodo:</strong> ${escHtml(fromDate || closures[closures.length - 1].date)} → ${escHtml(toDate || closures[0].date)}</div>
+            <div><strong>Emisión:</strong> ${escHtml(today)} · <strong>Cierres:</strong> ${closures.length}</div>
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:12px;">
+          <thead><tr style="background:#e5e7eb;"><th style="border:1px solid #d1d5db;padding:5px;width:18%;">Fecha / Turno</th><th style="border:1px solid #d1d5db;padding:5px;width:22%;">Local / Resp.</th><th style="border:1px solid #d1d5db;padding:5px;width:16%;">Frío PCC</th><th style="border:1px solid #d1d5db;padding:5px;width:14%;">Lotes</th><th style="border:1px solid #d1d5db;padding:5px;width:12%;">L+D</th><th style="border:1px solid #d1d5db;padding:5px;width:18%;">Sello Hash</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+        ${notesHtml ? `<div style="margin-bottom:12px;"><strong>Observaciones / Acciones Correctivas de Cierre:</strong><ul style="margin:4px 0 0 18px;">${notesHtml}</ul></div>` : ''}
+        <div style="border-top:1px dashed #9ca3af;padding-top:8px;font-size:9px;color:#4b5563;display:flex;justify-content:space-between;">
+          <span>Registros sellados cronológicamente para inspección sanitaria oficial</span>
+          <span>Visto Bueno Dirección: _______________________</span>
+        </div>
+      </div>`;
+  }
+
+  async _exportAppccClosuresRangePDF(fromOverride = null, toOverride = null, singleClosure = null) {
+    const fromDate = fromOverride !== null ? fromOverride : (document.getElementById('appcc-closure-from')?.value || '');
+    const toDate = toOverride !== null ? toOverride : (document.getElementById('appcc-closure-to')?.value || '');
+    const html = this._buildAppccRangeAuditHTML(fromDate, toDate, singleClosure);
+    const filename = singleClosure ? `Cierre_APPCC_${singleClosure.date}.pdf` : `Historico_APPCC_${fromDate || 'todo'}_${toDate || 'hoy'}.pdf`;
+    let loaded = false;
+    try { loaded = await this._ensureHTML2PDF(); } catch { loaded = false; }
+    const wrap = document.getElementById('pdf-scratch');
+    if (!loaded || !window.html2pdf || !wrap) {
+      const win = window.open('', '_blank', 'width=850,height=1000');
+      if (win) { win.document.write(`<!DOCTYPE html><html><body>${html}</body></html>`); win.document.close(); win.print(); }
+      return;
+    }
+    wrap.innerHTML = html;
+    wrap.style.position = 'fixed'; wrap.style.top = '0'; wrap.style.left = '0'; wrap.style.width = '750px'; wrap.style.zIndex = '999999'; wrap.style.background = '#fff'; wrap.style.display = 'block';
+    try {
+      await window.html2pdf().set({ margin: [10, 10, 10, 10], filename, image: { type: 'jpeg', quality: 0.95 }, pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(wrap.firstElementChild || wrap).save();
+      toast('📄 PDF Consolidado de Cierres APPCC generado ✓');
+    } finally {
+      wrap.innerHTML = ''; wrap.style.display = 'none'; wrap.style.zIndex = '-1';
+    }
+  }
+
+  _exportAppccClosuresCSV() {
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
+    const csvCell = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const headers = ['Fecha', 'Turno', 'Local', 'Responsable', 'Lecturas Frío', 'Alertas PCC', 'Lotes Hoy', 'Lotes Activos', 'Plan L+D %', 'Albaranes Hoy', 'Archivo Local', 'Archivo Nube', 'Sello Integridad', 'Notas'];
+    const rows = [headers.map(csvCell).join(';')];
+    appcc.dailyClosures.forEach(c => {
+      rows.push([
+        c.date, c.shift, c.venue, c.responsible, c.tempsTotal, c.tempsAlerts,
+        c.labelsCreatedToday, c.labelsActiveTotal, `${c.ldPct}%`, c.albaranesCount,
+        c.archivedLocal ? 'Sí' : 'No', c.archivedCloud ? 'Sí' : 'No', c.auditHash, c.notes || ''
+      ].map(csvCell).join(';'));
+    });
+    const csv = '\uFEFF' + rows.join('\r\n');
+    this._downloadBlob(csv, `Historico_Cierres_APPCC_${new Date().toISOString().slice(0, 10)}.csv`, 'text/csv;charset=utf-8;');
+    toast(`📊 Histórico CSV de Cierres exportado (${appcc.dailyClosures.length} actas) ✓`);
+    return csv;
+  }
+
+  _renderAppccClosuresSection() {
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
+    const outBadge = document.getElementById('appcc-outbox-badge');
+    const qLen = appcc.outboxQueue.length;
+    if (outBadge) {
+      outBadge.textContent = `Cola Nube: ${qLen} pendiente${qLen === 1 ? '' : 's'}`;
+      outBadge.style.color = qLen > 0 ? '#fbbf24' : '#4ade80';
+      outBadge.style.borderColor = qLen > 0 ? 'rgba(245,158,11,0.45)' : 'rgba(34,197,94,0.35)';
+    }
+
+    const folderSt = document.getElementById('appcc-folder-status');
+    if (folderSt) {
+      folderSt.textContent = this._appccDirHandle
+        ? `✔ Carpeta vinculada: ${this._appccDirHandle.name} (auto-guarda cada cierre en /APPCC_AAAA-MM/)`
+        : 'Sin carpeta vinculada (histórico protegido localmente en IndexedDB del navegador)';
+    }
+
+    const hook = this._getAppccArchiveWebhook();
+    const hookInp = document.getElementById('appcc-archive-webhook');
+    if (hookInp && !hookInp.value && hook) hookInp.value = hook;
+    const cloudSt = document.getElementById('appcc-cloud-status');
+    if (cloudSt) {
+      cloudSt.textContent = hook
+        ? `✔ Google Drive / Webhook activo (${qLen > 0 ? qLen + ' en cola offline' : 'al día'})`
+        : 'Sin Webhook configurado (actívalo abajo si usas iPad/móvil o varios locales)';
+    }
+
+    const tbody = document.getElementById('appcc-closures-body');
+    if (!tbody) return;
+    if (!appcc.dailyClosures.length) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--t3);">Sin cierres diarios archivados todavía. Al terminar el servicio pulsa <strong>"🔒 Cerrar y Archivar Turno APPCC"</strong>.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = appcc.dailyClosures.slice(0, 60).map(c => {
+      const pccTxt = c.tempsAlerts > 0 ? `<span style="color:#f87171;font-weight:800;">⚠️ ${c.tempsAlerts} alert.</span>` : '<span style="color:#4ade80;font-weight:700;">✔ OK</span>';
+      const syncTags = [
+        '<span style="color:#22d3ee;">IDB</span>',
+        c.archivedLocal ? '<span style="color:#4ade80;">📂 PC</span>' : '',
+        c.archivedCloud ? '<span style="color:#fbbf24;">☁️ Drive</span>' : ''
+      ].filter(Boolean).join(' · ');
+      return `
+        <tr>
+          <td><strong>${escHtml(c.date)}</strong><div style="font-size:0.72rem;color:var(--t3);">${escHtml(c.shift)}</div></td>
+          <td><strong>${escHtml(c.venue)}</strong><div style="font-size:0.72rem;color:var(--t3);">${escHtml(c.responsible)}</div></td>
+          <td>${pccTxt}<div style="font-size:0.7rem;color:var(--t3);">${c.tempsTotal} lect.</div></td>
+          <td>${c.labelsCreatedToday} hoy / ${c.labelsActiveTotal} act.</td>
+          <td><strong>${c.ldPct}%</strong> (${c.ldDone}/${c.ldTotal})</td>
+          <td><div>${syncTags}</div><div style="font-size:0.68rem;font-family:'JetBrains Mono',monospace;color:var(--gold);">${escHtml(c.auditHash)}</div></td>
+          <td><button type="button" class="btn btn-ghost appcc-btn-closure-pdf" data-closure-id="${escHtml(c.id)}" style="min-height:40px;padding:4px 10px;font-size:0.74rem;">📄 PDF</button></td>
+        </tr>`;
+    }).join('');
+  }
 }
 
 /* ═══════════════════════════════════════════════
@@ -18157,7 +18953,14 @@ if ('serviceWorker' in navigator && window.location.protocol.startsWith('http'))
   });
 }
 if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
-  const syncNetBadge = () => { if (window.gc) window.gc._updatePersistenceStatus(window.gc._isIdbPersisted || window.gc._isStoragePersisted); };
+  const syncNetBadge = () => {
+    if (window.gc) {
+      window.gc._updatePersistenceStatus(window.gc._isIdbPersisted || window.gc._isStoragePersisted);
+      if (typeof navigator !== 'undefined' && navigator.onLine && typeof window.gc._flushAppccOutbox === 'function') {
+        window.gc._flushAppccOutbox();
+      }
+    }
+  };
   window.addEventListener('online', syncNetBadge);
   window.addEventListener('offline', syncNetBadge);
 }

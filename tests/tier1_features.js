@@ -1697,7 +1697,7 @@ function runTier1Tests(registerTest) {
     assert(html.includes('id="legal-modal"') && html.includes('id="btn-arsopol-wipe"'), 'Must include RGPD/ARSOPOL legal tools');
     assert(fs.existsSync(path.join(rootDir, 'icon.svg')), 'icon.svg must exist');
     assert.strictEqual(manifest.display, 'standalone', 'manifest.json must configure standalone PWA mode');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.1-cache'"), 'sw.js must bump cache version to v19.1');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v20.0-cache'"), 'sw.js must bump cache version to v20.0');
   });
 
   registerTest('T1.R10.6: Mobile & Tablet scroll architecture unblocks end-of-strip buttons and modals', () => {
@@ -1808,7 +1808,7 @@ function runTier1Tests(registerTest) {
 
     const sw = getServiceWorkerJs();
     assert(sw.includes("const CACHE_NAME = 'gastrocost-v16.8-cache'"), 'sw.js baseline comment must remain intact');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.1-cache'"), 'sw.js cache version must be v19.1');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v20.0-cache'"), 'sw.js cache version must be v20.0');
   });
 
   registerTest('T1.R11.1: Albaranes Parser handles natural Spanish delivery notes, CSV & sanitary lots', () => {
@@ -2009,7 +2009,7 @@ function runTier1Tests(registerTest) {
     const indexStat = fs.statSync(path.join(rootDir, 'index.html'));
     assert(indexStat.size < 1100 * 1024, `index.html size (${indexStat.size} B) must stay under 1.1 MB`);
     const sw = getServiceWorkerJs();
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v19.1-cache'"), 'sw.js must run v19.1 cache');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v20.0-cache'"), 'sw.js must run v20.1/v20.0 cache');
   });
 
   registerTest('T1.R11.6: Full-Viewport Responsive & Anti-Overflow Engine adapts from 360px mobile to desktop', () => {
@@ -2019,6 +2019,144 @@ function runTier1Tests(registerTest) {
     assert(html.includes('grid-template-columns: repeat(2, minmax(0, 1fr))'), 'Forms on medium screens must not force 5 overflowing columns');
     assert(html.includes('.fin-be-grid') && html.includes('.fg2-resp'), 'Financial and Settings 2-col grids must use responsive collapse classes');
     assert(html.includes('white-space: normal !important'), 'Long mobile action buttons must wrap gracefully without expanding viewport');
+  });
+
+  registerTest('T1.R12.1: Venue Label Presets allow 1-tap Today printing with auto-recalculated expiry & reload persistence', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+    app.db.brand = { restaurantName: 'Taberna del Puerto', chefName: 'Chef Sara' };
+
+    const p1 = app._saveAppccLabelPreset({
+      dishName: 'Salsa Brava Casa',
+      shelfLifeDays: 4,
+      storage: 'Refrigeración 0°C - 4°C',
+      quantity: '2 GN 1/3',
+      thermalFormat: '60x40',
+      copies: 2,
+      allergens: ['mustard']
+    });
+    assert(p1 && p1.id && p1.venue === 'Taberna del Puerto' && p1.shelfLifeDays === 4, 'Preset must save venue & shelfLifeDays');
+
+    // Upsert update same venue+dish must overwrite instead of duplicating
+    app._saveAppccLabelPreset({ dishName: 'Salsa Brava Casa', shelfLifeDays: 5, copies: 1 });
+    assert.strictEqual(app._ensureAppccData().labelPresets.length, 1, 'Saving same preset name for same venue must upsert');
+    assert.strictEqual(app._ensureAppccData().labelPresets[0].shelfLifeDays, 5);
+
+    const lblToday = app._triggerAppccLabelPreset(p1.id, true);
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const expObj = new Date(todayStr + 'T12:00:00');
+    expObj.setDate(expObj.getDate() + 5);
+    assert.strictEqual(lblToday.prepDate, todayStr, '1-tap preset trigger must stamp today prepDate');
+    assert.strictEqual(lblToday.expiryDate, expObj.toISOString().slice(0, 10), '1-tap preset trigger must auto-add shelfLifeDays');
+    assert(lblToday.allergens.includes('mustard'), 'Preset must inherit saved allergens');
+
+    // Pack apertura prints all venue presets in batch
+    app._saveAppccLabelPreset({ dishName: 'Caldo Pescado Base', shelfLifeDays: 2, copies: 2 });
+    const packCreated = app._printAllAppccPresets();
+    assert.strictEqual(packCreated.length, 3, 'Pack Apertura must print sum of preset copies (1 + 2 = 3)');
+
+    // Reload persistence check
+    const raw = window.localStorage.getItem('gc_v11');
+    const env2 = loadGastroCostApp({ initialStorage: { gc_v11: raw } });
+    const app2 = new env2.GC();
+    assert.strictEqual(app2._ensureAppccData().labelPresets.length, 2, 'Venue label presets must persist across reload');
+  });
+
+  registerTest('T1.R12.2: APPCC Daily Closure archives sealed snapshot, optionally resets L+D, and builds consolidated PDF/CSV', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+    app.db.brand = { restaurantName: 'Asador Central', chefName: 'Chef Diego' };
+
+    const today = new Date().toISOString().slice(0, 10);
+    app._logAllOptimalTemps();
+    app._createAppccLabel(0, { dishName: 'Croquetas Jamón', prepDate: today, expiryDate: today });
+    app._toggleCleaningTask(app._ensureAppccData().cleaningTasks[0].id);
+
+    const closure = app._commitAppccDailyClosure({
+      date: today,
+      shift: 'Tarde / Cena',
+      notes: 'Todo en orden al cierre',
+      resetLd: true
+    });
+
+    assert(closure && /^CLS-/.test(closure.auditHash), `Daily closure must generate CLS seal, got ${closure && closure.auditHash}`);
+    assert.strictEqual(closure.venue, 'Asador Central');
+    assert(closure.tempsTotal >= 4 && closure.labelsCreatedToday >= 1 && closure.ldDone >= 1, 'Closure must snapshot temps, labels and L+D count');
+    assert.strictEqual(app._ensureAppccData().cleaningTasks[0].done, false, 'resetLd option must clear daily L+D checks for next shift cleanly');
+    assert.strictEqual(closure.cleaningTasks[0].done, true, 'Archived closure snapshot must retain verified L+D state');
+
+    const rangeHtml = app._buildAppccRangeAuditHTML(today, today);
+    assert(rangeHtml.includes('max-width:715px') && rangeHtml.includes('Asador Central') && rangeHtml.includes(closure.auditHash), 'Consolidated inspection PDF HTML must fit 715px and include seal');
+
+    const csv = app._exportAppccClosuresCSV();
+    assert(csv.includes('Sello Integridad') && csv.includes('Tarde / Cena') && csv.includes(closure.auditHash), 'Closures CSV export must contain closure metadata & seal');
+  });
+
+  registerTest('T1.R12.3: Resilient APPCC Cloud Outbox queues closures offline and flushes FIFO when back online', async () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    window.localStorage.setItem('gc_cloud_sync_url', 'https://script.google.com/macros/s/test-deploy/exec');
+    window.navigator.onLine = false;
+    const cl = app._commitAppccDailyClosure({ date: '2026-11-25', shift: 'Día Completo' });
+    assert.strictEqual(app._ensureAppccData().outboxQueue.length, 1, 'Offline closure must queue payload in outboxQueue');
+    assert.strictEqual(cl.archivedCloud, false);
+
+    // Come back online with mocked successful fetch
+    window.navigator.onLine = true;
+    const posted = [];
+    window.fetch = async (url, opts) => {
+      posted.push({ url, body: JSON.parse(opts.body) });
+      return { ok: true, status: 200, json: async () => ({ ok: true }) };
+    };
+
+    const synced = await app._flushAppccOutbox();
+    assert.strictEqual(synced, 1, 'Outbox flush must deliver 1 queued closure');
+    assert.strictEqual(app._ensureAppccData().outboxQueue.length, 0, 'Confirmed items must be cleared from outboxQueue');
+    assert.strictEqual(app._ensureAppccData().dailyClosures[0].archivedCloud, true, 'Closure must mark archivedCloud = true after sync');
+    assert.strictEqual(posted[0].body.action, 'save_audit');
+  });
+
+  registerTest('T1.R12.4: Google Apps Script Drive Archiver, Local Folder Writer & SW v20.0 compliance', async () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    const gas = app._getGoogleAppsScriptCode();
+    assert(gas.includes('LockService.getScriptLock') && gas.includes('DriveApp') && gas.includes('Shadow_Log'), 'Apps Script template must follow LockService + DriveApp + Shadow_Log');
+
+    // Mock FileSystemDirectoryHandle write
+    const writtenFiles = {};
+    app._appccDirHandle = {
+      name: 'APPCC_Restaurante',
+      async getDirectoryHandle(sub) {
+        return {
+          async getFileHandle(fname) {
+            return {
+              async createWritable() {
+                return {
+                  async write(content) { writtenFiles[`${sub}/${fname}`] = content; },
+                  async close() {}
+                };
+              }
+            };
+          }
+        };
+      }
+    };
+
+    const cl = app._commitAppccDailyClosure({ date: '2026-11-25', shift: 'Mañana / Comida' });
+    // _writeClosureToLocalFolder is async fire-and-forget inside commit, wait microtasks
+    await new Promise(r => setTimeout(r, 20));
+    const keys = Object.keys(writtenFiles);
+    assert(keys.some(k => k.startsWith('APPCC_2026-11/') && k.endsWith('.html')) && keys.some(k => k.endsWith('.json')), 'Linked local folder must receive monthly .html and .json closure files');
+    assert.strictEqual(cl.archivedLocal, true, 'Closure must mark archivedLocal = true after folder write');
+
+    const sw = getServiceWorkerJs();
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v20.0-cache'"), 'sw.js must run v20.0 cache');
   });
 }
 
