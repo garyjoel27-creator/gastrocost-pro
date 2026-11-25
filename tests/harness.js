@@ -228,6 +228,9 @@ function createSandbox(initialStorage = {}, initialIdb = null) {
     'alb-history-filter', 'alb-history-body', 'alb-kpi-count', 'alb-kpi-spend',
     'alb-kpi-spikes', 'alb-kpi-incidents', 'alb-doc-preview',
     'bcg-table-body', 'bcg-total-revenue', 'bcg-total-profit', 'bcg-avg-popularity', 'bcg-avg-margin',
+    'weekly-radar-card', 'rad-quick-paste-wrap', 'fin-quick-prices-text', 'rad-kpi-count',
+    'rad-kpi-monthly-loss', 'rad-kpi-top-ing', 'rad-kpi-health', 'rad-dishes-body',
+    'briefing-section', 'briefing-cocina-box', 'briefing-sala-box',
     'cfg-brand-restaurant', 'cfg-brand-chef', 'legal-modal', 'hdr-shield-label'
   ];
   standardIds.forEach(id => getOrCreateElement(id));

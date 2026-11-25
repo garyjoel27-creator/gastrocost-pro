@@ -1697,7 +1697,7 @@ function runTier1Tests(registerTest) {
     assert(html.includes('id="legal-modal"') && html.includes('id="btn-arsopol-wipe"'), 'Must include RGPD/ARSOPOL legal tools');
     assert(fs.existsSync(path.join(rootDir, 'icon.svg')), 'icon.svg must exist');
     assert.strictEqual(manifest.display, 'standalone', 'manifest.json must configure standalone PWA mode');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v20.0-cache'"), 'sw.js must bump cache version to v20.0');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.0-cache'"), 'sw.js must bump cache version to v21.0');
   });
 
   registerTest('T1.R10.6: Mobile & Tablet scroll architecture unblocks end-of-strip buttons and modals', () => {
@@ -1808,7 +1808,7 @@ function runTier1Tests(registerTest) {
 
     const sw = getServiceWorkerJs();
     assert(sw.includes("const CACHE_NAME = 'gastrocost-v16.8-cache'"), 'sw.js baseline comment must remain intact');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v20.0-cache'"), 'sw.js cache version must be v20.0');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.0-cache'"), 'sw.js cache version must be v21.0');
   });
 
   registerTest('T1.R11.1: Albaranes Parser handles natural Spanish delivery notes, CSV & sanitary lots', () => {
@@ -2009,7 +2009,7 @@ function runTier1Tests(registerTest) {
     const indexStat = fs.statSync(path.join(rootDir, 'index.html'));
     assert(indexStat.size < 1100 * 1024, `index.html size (${indexStat.size} B) must stay under 1.1 MB`);
     const sw = getServiceWorkerJs();
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v20.0-cache'"), 'sw.js must run v20.1/v20.0 cache');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.0-cache'"), 'sw.js must run v21.0 cache');
   });
 
   registerTest('T1.R11.6: Full-Viewport Responsive & Anti-Overflow Engine adapts from 360px mobile to desktop', () => {
@@ -2156,7 +2156,118 @@ function runTier1Tests(registerTest) {
     assert.strictEqual(cl.archivedLocal, true, 'Closure must mark archivedLocal = true after folder write');
 
     const sw = getServiceWorkerJs();
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v20.0-cache'"), 'sw.js must run v20.0 cache');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.0-cache'"), 'sw.js must run v21.0 cache');
+  });
+
+  registerTest('T1.R13.1: Quick Weekly Price Paste records purchase-to-purchase history & cascades recipes', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    app.db.catalog.push({ id: 'cat-v21-salm', name: 'Salmón Noruego V21', price: 14.00, category: 'protein', unit: 'g', waste: 10, allergens: ['fish'] });
+    app.db.recipes['dish-v21-salm'] = {
+      id: 'dish-v21-salm',
+      config: { dishName: 'Salmón Glaseado V21', portions: 2, fcGoal: 28, taxRate: 10, customPVP: 18.00, monthlySales: 100 },
+      ingredients: [
+        { id: 'i1', name: 'Salmón Noruego V21', net: 400, waste: 10, gross: 444.44, originalPrice: 14.00, cost: 6.22, unit: 'g', allergens: ['fish'] }
+      ]
+    };
+
+    const res = app._applyQuickWeeklyPrices('Salmón Noruego V21 5kg 19.60');
+    assert.strictEqual(res.updatedCount, 1, 'Quick paste must update matching catalog item');
+    assert(res.affectedRecipesCount >= 1, 'Dependent recipe must recalculate');
+
+    const cat = app.db.catalog.find(c => c.id === 'cat-v21-salm');
+    assert.strictEqual(cat.price, 19.60);
+    assert(Array.isArray(cat.priceHistory) && cat.priceHistory.length >= 2, 'First price hike must seed previous baseline in priceHistory[1]');
+    assert.strictEqual(cat.priceHistory[0].price, 19.60);
+    assert.strictEqual(cat.priceHistory[1].price, 14.00);
+  });
+
+  registerTest('T1.R13.2: Weekly Impact Radar ranks dishes by monthly EUR loss, rounds PVP (,00/,50) & applies in 1 click', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    app.db.catalog.push({
+      id: 'cat-v21-lub',
+      name: 'Lubina Salvaje V21',
+      price: 26.00,
+      priceHistory: [{ date: '2026-11-25', price: 26.00, supplier: 'PescaSur' }, { date: '2026-11-18', price: 18.00, supplier: 'PescaSur' }],
+      category: 'protein', unit: 'g', waste: 0, allergens: ['fish']
+    });
+    app.db.recipes['dish-v21-low'] = {
+      id: 'dish-v21-low',
+      config: { dishName: 'Aperitivo Lubina', portions: 2, fcGoal: 28, taxRate: 10, customPVP: 14.00, monthlySales: 10 },
+      ingredients: [{ id: 'a1', name: 'Lubina Salvaje V21', net: 200, waste: 0, gross: 200, originalPrice: 26.00, cost: 5.20, unit: 'g', allergens: ['fish'] }]
+    };
+    app.db.recipes['dish-v21-high'] = {
+      id: 'dish-v21-high',
+      config: { dishName: 'Lomo Lubina Brasa', portions: 2, fcGoal: 28, taxRate: 10, customPVP: 18.00, monthlySales: 120 },
+      ingredients: [{ id: 'b1', name: 'Lubina Salvaje V21', net: 500, waste: 0, gross: 500, originalPrice: 26.00, cost: 13.00, unit: 'g', allergens: ['fish'] }]
+    };
+
+    const radar = app._analyzeWeeklyPriceImpact();
+    assert(radar.rows.length >= 2, 'Radar must surface affected dishes');
+    assert.strictEqual(radar.rows[0].recipeId, 'dish-v21-high', 'Dishes must rank descending by monthly EUR loss');
+    assert(radar.rows[0].monthlyLoss > 100, `High-sales dish monthlyLoss must reflect volume (${radar.rows[0].monthlyLoss})`);
+    assert.strictEqual(radar.rows[0].suggestedPvp % 0.5, 0, 'Suggested PVP must round to .00 or .50 menu tier');
+    assert(radar.rows[0].kitchenTip.includes('Lubina') && radar.rows[0].purchaseTip.includes('PescaSur'), 'Radar must provide concrete Kitchen & Purchase action levers');
+
+    assert.strictEqual(app._roundMenuPrice(18.12), 18.5);
+    assert.strictEqual(app._roundMenuPrice(18.60), 19.0);
+
+    app._applySuggestedDishPvp('dish-v21-high', radar.rows[0].suggestedPvp);
+    assert.strictEqual(app.db.recipes['dish-v21-high'].config.customPVP, radar.rows[0].suggestedPvp, '1-click apply PVP must update recipe customPVP');
+  });
+
+  registerTest('T1.R13.3: Role-Separated Cocina & Sala Briefings protect owner margins & export cleanly', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    app.db.catalog.push({
+      id: 'cat-v21-sol',
+      name: 'Solomillo V21',
+      price: 38.00,
+      priceHistory: [{ date: '2026-11-25', price: 38.00, supplier: 'Cárnicas' }, { date: '2026-11-18', price: 28.00, supplier: 'Cárnicas' }],
+      category: 'protein', unit: 'g', waste: 5, allergens: []
+    });
+    app.db.recipes['dish-v21-sol'] = {
+      id: 'dish-v21-sol',
+      config: { dishName: 'Solomillo V21', portions: 2, fcGoal: 28, taxRate: 10, customPVP: 24.00, monthlySales: 90 },
+      ingredients: [{ id: 's1', name: 'Solomillo V21', net: 400, waste: 5, gross: 421.05, originalPrice: 38.00, cost: 16.00, unit: 'g', allergens: [] }]
+    };
+
+    const br = app._buildServiceBriefingData();
+    assert(br.kitchenLines.some(l => l.includes('Solomillo')), 'Kitchen briefing must call out weight/waste discipline on risen dish');
+    assert(!br.kitchenLines.join(' ').includes('€/mes'), 'Kitchen briefing must NOT leak owner monthly EUR figures');
+    assert(br.salaLines.some(l => l.includes('PRIORIDAD') || l.includes('NO EMPUJAR')), 'Sala briefing must prioritize high-margin stars & flag pressured dishes');
+    assert(!br.salaLines.join(' ').includes('Cárnicas'), 'Sala briefing must NOT leak private supplier names or raw ingredient costs');
+
+    const waKitchen = app._getBriefingWhatsAppText('kitchen');
+    const waSala = app._getBriefingWhatsAppText('sala');
+    assert(waKitchen.includes('BRIEFING COCINA') && !waKitchen.includes('BRIEFING SALA'));
+    assert(waSala.includes('BRIEFING SALA') && !waSala.includes('BRIEFING COCINA'));
+
+    const pdfHtml = app._buildBriefingPDFHTML();
+    assert(pdfHtml.includes('max-width:715px') && pdfHtml.includes('COCINA') && pdfHtml.includes('SALA'), 'Briefing PDF must fit 715px A4 width with both team sections');
+  });
+
+  registerTest('T1.R13.4: Visual Typography, Light/Dark Adaptive Theme Surfaces, Size < 1.1MB & SW v21.0', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const rootDir = path.join(__dirname, '..');
+    const html = getIndexHtml();
+    const indexStat = fs.statSync(path.join(rootDir, 'index.html'));
+
+    assert(html.includes('--t3: #a8b8d6') && html.includes('--t4: #899ab8'), 'High-contrast muted text tokens must be applied');
+    assert(html.includes('clamp(14.5px'), 'Fluid readable root typography clamp must exist');
+    assert(html.includes('V21.0 Visual Legibility'), 'Visual legibility floor stylesheet must be present');
+    assert(html.includes('.appcc-section-card { background:var(--s1)'), 'APPCC cards must use theme surface var(--s1) to avoid dark-on-dark in light themes');
+    assert(indexStat.size < 1100 * 1024, `index.html (${indexStat.size} B) must stay under 1.1 MB`);
+    const sw = getServiceWorkerJs();
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.0-cache'"), 'sw.js must run v21.0 cache');
   });
 }
 
