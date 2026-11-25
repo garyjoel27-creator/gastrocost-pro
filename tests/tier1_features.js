@@ -1697,7 +1697,118 @@ function runTier1Tests(registerTest) {
     assert(html.includes('id="legal-modal"') && html.includes('id="btn-arsopol-wipe"'), 'Must include RGPD/ARSOPOL legal tools');
     assert(fs.existsSync(path.join(rootDir, 'icon.svg')), 'icon.svg must exist');
     assert.strictEqual(manifest.display, 'standalone', 'manifest.json must configure standalone PWA mode');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v18.0-cache'"), 'sw.js must bump cache version to v18.0');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v18.1-cache'"), 'sw.js must bump cache version to v18.1');
+  });
+
+  registerTest('T1.R10.6: Mobile & Tablet scroll architecture unblocks end-of-strip buttons and modals', () => {
+    const html = getIndexHtml();
+    assert(html.includes('@media (max-width: 1180px)'), 'Tablet breakpoint (<=1180px) horizontal tabs scroll rule must exist');
+    assert(html.includes('.tabs-nav::after'), 'Right-end flex spacer must prevent last tab clipping on mobile/tablet');
+    assert(html.includes('flex: 0 0 auto !important'), 'Tab buttons must not shrink/clip inside horizontal scroll strip');
+    assert(html.includes('.appcc-table-scroll'), 'APPCC tables must be wrapped in scrollable containers');
+    assert(html.includes('scrollIntoView'), 'setTab must center active tab cleanly in scroll viewport');
+
+    // Verify modal card inside <=768px uses overflow-y: auto instead of global overflow: hidden lock
+    const mobileModalStart = html.indexOf('@media (max-width: 768px)');
+    assert(mobileModalStart !== -1, 'Mobile modal media query must exist');
+    const mobileModalSlice = html.slice(mobileModalStart, mobileModalStart + 2200);
+    assert(mobileModalSlice.includes('overflow-y: auto !important'), 'General .export-modal-card must scroll vertically on mobile/tablet');
+    assert(mobileModalSlice.includes('padding-bottom: calc(44px'), 'Scroll modal bodies must reserve bottom padding above safe area');
+  });
+
+  registerTest('T1.R10.7: Complete Thermal Traceability Pack from Recipes & Master Catalog Items', () => {
+    const { GC, window, document } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+    app.setTab('tab-appcc');
+
+    const selectHtml = document.getElementById('appcc-label-recipe').innerHTML;
+    assert(selectHtml.includes('cat:'), 'Product selector must expose Master Catalog items via cat:<id>');
+    assert(selectHtml.includes('optgroup'), 'Product selector must group Dishes, Sub-recipes, and Catalog');
+
+    // Pick a catalog item with allergens (e.g., Lomo de Atun or Langostino or Soy or Butter)
+    const fishItem = app.db.catalog.find(c => Array.isArray(c.allergens) && c.allergens.length > 0);
+    assert(fishItem, 'Catalog must contain allergen-bearing item for traceability test');
+
+    const lbl = app._createAppccLabel(0, {
+      catalogId: fishItem.id,
+      prepDate: '2026-11-24',
+      expiryDate: '2026-11-27',
+      supplierLot: 'PROV-CAT-77',
+      storage: 'Carnes/Pescados 0°C - 3°C',
+      quantity: '2 GN 1/3 · 3 kg',
+      thermalFormat: '58mm'
+    });
+    assert(lbl && lbl.sourceType === 'catalog', 'Catalog label must record sourceType="catalog"');
+    assert.strictEqual(lbl.catalogId, fishItem.id, 'Label must link to catalogId');
+    assert.strictEqual(lbl.status, 'active', 'New label starts with status="active"');
+    assert(fishItem.allergens.every(a => lbl.allergens.includes(a)), 'Catalog allergens must automatically inherit onto label');
+
+    // Toggle status -> consumed (keeps full traceability history without deleting)
+    app._toggleAppccLabelStatus(lbl.id);
+    assert.strictEqual(app.db.appcc.labels[0].status, 'consumed', 'Label status toggles cleanly to consumed');
+
+    // Verify full reload persistence
+    const persisted = window.localStorage.getItem('gc_v11');
+    const reboot = loadGastroCostApp({ initialStorage: { gc_v11: persisted } });
+    const rebootApp = new reboot.GC();
+    assert.strictEqual(rebootApp.db.appcc.labels[0].supplierLot, 'PROV-CAT-77');
+    assert.strictEqual(rebootApp.db.appcc.labels[0].status, 'consumed');
+    assert.strictEqual(rebootApp.db.appcc.labels[0].thermalFormat, '58mm');
+  });
+
+  registerTest('T1.R10.8: Thermal Formats (58mm/60x40/62x29/80mm/A4), Code-39 SVG Barcode & Live Preview', () => {
+    const { GC, window, document } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+    app.db.brand = { restaurantName: 'Restaurante Mirador', chefName: 'Chef Ana' };
+    app.setTab('tab-appcc');
+
+    const svg = app._buildCode39SVG('LOT-20261124-001');
+    assert(svg.startsWith('<svg') && svg.includes('<rect') && svg.includes('</svg>'), 'Code-39 SVG barcode must render valid vector bars');
+
+    const livePreview = document.getElementById('appcc-thermal-preview').innerHTML;
+    assert(livePreview.includes('appcc-thermal-ticket') && livePreview.includes('<svg'), 'Live thermal preview must render monochrome sticker + barcode');
+
+    ['58mm', '60x40', '62x29', '80mm', 'a4'].forEach(fmt => {
+      const html = app._buildThermalStickerHTML({
+        dishName: 'Lubina Salvaje',
+        batchCode: 'LOT-20261124-099',
+        prepDate: '2026-11-24',
+        expiryDate: '2026-11-26',
+        storage: 'Carnes/Pescados 0°C - 3°C',
+        allergens: ['fish'],
+        responsible: 'Chef Ana'
+      }, fmt);
+      assert(html.includes(`data-format="${fmt}"`) && html.includes('Restaurante Mirador') && html.includes('PESCADO'), `Thermal sticker format ${fmt} must render valid ticket markup`);
+    });
+
+    app._printAppccStickers(app._getCurrentLabelDraft(), 3, '58mm');
+    const printEl = document.getElementById('appcc-sticker-print');
+    assert.strictEqual(printEl.dataset.thermalFormat, '58mm', 'Print container must record selected thermal format');
+    assert.strictEqual((printEl.innerHTML.match(/appcc-sticker-box/g) || []).length, 3, 'Print pack must render requested 3 sticker copies');
+  });
+
+  registerTest('T1.R10.9: Full Traceability CSV Export & SW v18.1 Upgrade', () => {
+    const { GC, window } = loadGastroCostApp();
+    const app = new GC();
+    window.gc = app;
+
+    app._createAppccLabel(0, {
+      recipeId: 'template-tataki',
+      prepDate: '2026-11-24',
+      expiryDate: '2026-11-26',
+      supplierLot: 'PROV-CSV-88',
+      storage: 'Refrigeración 0°C - 4°C',
+      quantity: '4 rac.'
+    });
+
+    const csv = app._exportAppccTraceabilityCSV();
+    assert(csv.includes('Lote Interno') && csv.includes('PROV-CSV-88') && csv.includes('Tataki'), 'CSV traceability export must include headers, supplier lot and dish name');
+
+    const sw = getServiceWorkerJs();
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v16.8-cache'"), 'sw.js baseline comment must remain intact');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v18.1-cache'"), 'sw.js cache version must be v18.1');
   });
 }
 

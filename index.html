@@ -2205,7 +2205,11 @@ body:has(.modal-overlay.open) {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
 }
 .modal-overlay.open .export-modal-card {
   transform: scale(1);
@@ -2227,7 +2231,7 @@ body:has(.modal-overlay.open) {
   touch-action: pan-y !important;
   overscroll-behavior-y: contain;
   padding-right: 6px;
-  padding-bottom: 20px;
+  padding-bottom: calc(44px + env(safe-area-inset-bottom, 12px));
 }
 .modal-scroll-body::-webkit-scrollbar {
   width: 6px;
@@ -2336,35 +2340,41 @@ body:has(.modal-overlay.open) {
     width: 100%;
     max-height: 92vh !important;
     max-height: 92dvh !important;
-    overflow: hidden !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-y !important;
+    overscroll-behavior-y: contain;
     transform: translateY(100%);
     transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
     margin: 0;
     border-bottom: none;
     border-left: none;
     border-right: none;
-    padding: 20px 18px calc(24px + env(safe-area-inset-bottom, 0px)) 18px;
+    padding: 20px 18px calc(32px + env(safe-area-inset-bottom, 16px)) 18px !important;
   }
   .modal-overlay.open .export-modal-card {
     transform: translateY(0);
   }
   .export-modal-card.has-scroll-body,
-  #export-modal .export-modal-card {
+  #export-modal .export-modal-card,
+  #new-recipe-modal .export-modal-card {
     display: flex !important;
     flex-direction: column !important;
     overflow: hidden !important;
     max-height: 92vh !important;
     max-height: 92dvh !important;
-    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px)) !important;
   }
   .export-modal-card.has-scroll-body .modal-scroll-body,
-  #export-modal .modal-scroll-body {
+  #export-modal .modal-scroll-body,
+  #new-recipe-modal .modal-body-scroll {
     flex: 1 1 auto !important;
     min-height: 0 !important;
     overflow-y: auto !important;
     -webkit-overflow-scrolling: touch !important;
     touch-action: pan-y !important;
-    padding-bottom: 24px;
+    padding-bottom: calc(44px + env(safe-area-inset-bottom, 12px)) !important;
   }
   .export-options-grid {
     grid-template-columns: 1fr !important;
@@ -3597,10 +3607,52 @@ body.theme-pearl-bronze #btn-open-export {
 .appcc-preset-btn { min-height:48px; padding:8px 12px; border-radius:8px; border:1px solid rgba(6,182,212,0.35); background:rgba(6,182,212,0.08); color:var(--cyan); font-weight:700; font-size:0.76rem; cursor:pointer; }
 .appcc-preset-btn:hover { background:rgba(6,182,212,0.2); }
 #appcc-sticker-print { display:none; }
+.appcc-table-scroll { width:100%; overflow-x:auto; -webkit-overflow-scrolling:touch; touch-action:pan-x pan-y; padding-bottom:8px; }
+.tabs-nav { overflow-x:auto; overflow-y:hidden; -webkit-overflow-scrolling:touch; scroll-behavior:smooth; scrollbar-width:thin; }
+@media (max-width: 1180px) {
+  .tabs-nav {
+    display: flex !important;
+    justify-content: flex-start !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+    touch-action: pan-x !important;
+    padding: 6px 12px 8px 6px !important;
+    gap: 6px !important;
+    scroll-padding-inline: 12px;
+  }
+  .tabs-nav::after {
+    content: '';
+    flex: 0 0 18px;
+  }
+  .tabs-nav .tab-btn {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    min-height: 48px !important;
+    padding: 10px 14px !important;
+  }
+  .hdr { flex-wrap: wrap; gap: 8px; }
+  .hdr-btns { max-width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; flex-wrap: wrap; }
+}
+@media (max-width: 768px) {
+  .appcc-table-scroll .appcc-ld-table { min-width: 640px; }
+}
 .esc-mobile-shortcuts { display:none; }
 @media (max-width: 900px) {
   .esc-mobile-shortcuts { display:flex; gap:8px; width:100%; margin-top:4px; }
+  main, .tab-content {
+    padding-bottom: calc(140px + env(safe-area-inset-bottom, 24px)) !important;
+  }
+  .ai-chat-trigger {
+    bottom: calc(78px + env(safe-area-inset-bottom, 12px)) !important;
+    right: 12px !important;
+    width: 46px !important;
+    height: 46px !important;
+  }
 }
+.appcc-thermal-preview-wrap { background:#f8fafc; color:#000; border-radius:10px; border:2px dashed #94a3b8; padding:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; margin-top:12px; }
+.appcc-thermal-ticket { background:#ffffff; color:#000000; border:2px solid #000000; border-radius:4px; padding:8px 10px; font-family:Arial,Helvetica,sans-serif; box-sizing:border-box; width:100%; }
 @media print {
   body.printing-appcc-sticker #hdr,
   body.printing-appcc-sticker .sidebar,
@@ -3608,11 +3660,15 @@ body.theme-pearl-bronze #btn-open-export {
   body.printing-appcc-sticker .tab-content,
   body.printing-appcc-sticker .bottom-nav,
   body.printing-appcc-sticker .modal-overlay,
-  body.printing-appcc-sticker .ai-drawer,
+  body.printing-appcc-sticker .ai-chat-trigger,
+  body.printing-appcc-sticker .ai-chat-drawer,
   body.printing-appcc-sticker .toast-box,
+  body.printing-appcc-sticker #toasts,
   body.printing-appcc-sticker .toast { display:none !important; }
-  body.printing-appcc-sticker #appcc-sticker-print { display:flex !important; flex-wrap:wrap; gap:14px; padding:10px; background:#fff; color:#000; }
-  .appcc-sticker-box { width:310px; border:2px solid #000; border-radius:6px; padding:12px; font-family:Arial, sans-serif; color:#000; page-break-inside:avoid; box-sizing:border-box; }
+  body.printing-appcc-sticker,
+  body.printing-appcc-sticker .shell { display:block !important; background:#fff !important; margin:0 !important; padding:0 !important; }
+  body.printing-appcc-sticker #appcc-sticker-print { display:flex !important; flex-wrap:wrap; align-items:flex-start; gap:8px; padding:4px; background:#fff; color:#000; }
+  .appcc-sticker-box { border:2px solid #000; border-radius:4px; padding:8px; font-family:Arial, sans-serif; color:#000; background:#fff; page-break-inside:avoid; break-inside:avoid; box-sizing:border-box; }
 }
 
 </style>
@@ -3626,7 +3682,7 @@ body.theme-pearl-bronze #btn-open-export {
     <div class="hdr-left">
       <div class="logo">
         <span class="logo-mark"><em>Gastro</em>Cost PRO</span>
-        <span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V18.0 COMMERCIAL SUITE</span>
+        <span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V18.1 COMMERCIAL SUITE</span>
       </div>
       <span class="save-ind" id="save-ind">
         <span class="save-dot"></span> Guardado
@@ -4553,28 +4609,38 @@ body.theme-pearl-bronze #btn-open-export {
         </div>
       </section>
 
-      <!-- SUB-BLOQUE 2: ETIQUETADO DE TRAZABILIDAD Y CADUCIDAD SECUNDARIA -->
+      <!-- SUB-BLOQUE 2: ETIQUETADO DE TRAZABILIDAD Y PACK TÉRMICO -->
       <section class="appcc-section-card" aria-label="Etiquetado de Trazabilidad y Caducidad Secundaria">
-        <h3 style="margin:0 0 4px;font-size:0.95rem;color:var(--t1);font-weight:800;">🏷️ 2. Trazabilidad y Etiquetado de Vida Útil Secundaria</h3>
-        <p style="margin:0 0 14px;font-size:0.75rem;color:var(--t3);">Genera lotes vinculados a tus escandallos con herencia automática de alérgenos (UE 1169/2011) e impresión rápida de pegatinas x1 / x2.</p>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+          <div>
+            <h3 style="margin:0 0 4px;font-size:0.95rem;color:var(--t1);font-weight:800;">🏷️ 2. Pack Completo de Trazabilidad &amp; Etiquetas Térmicas</h3>
+            <p style="margin:0;font-size:0.75rem;color:var(--t3);">Genera e imprime pegatinas térmicas (58mm / 80mm / 60×40mm / A4) con código de barras Code-39 desde tus platos, bases o catálogo maestro, con historial completo de trazabilidad.</p>
+          </div>
+          <button type="button" id="btn-appcc-export-trace-csv" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(34,197,94,0.45);color:#4ade80;font-size:0.78rem;">📊 Exportar Trazabilidad CSV</button>
+        </div>
+
+        <div style="margin-bottom:10px;">
+          <label for="appcc-label-search" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Buscar en Recetas, Bases y Catálogo Maestro</label>
+          <input type="search" id="appcc-label-search" class="fi" placeholder="🔍 Filtrar plato, elaboración base o ingrediente del catálogo..." style="min-height:48px;width:100%;">
+        </div>
 
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:12px;">
           <div>
-            <label for="appcc-label-recipe" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Elaboración / Escandallo</label>
+            <label for="appcc-label-recipe" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Producto / Escandallo de Origen</label>
             <select id="appcc-label-recipe" class="fi" style="min-height:48px;width:100%;">
-              <option value="__custom__">— Elaboración Libre / Semielaborado —</option>
+              <option value="__custom__">— Producto / Elaboración Libre —</option>
             </select>
           </div>
           <div>
-            <label for="appcc-label-custom-name" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Nombre en Etiqueta</label>
+            <label for="appcc-label-custom-name" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Nombre Impreso en Etiqueta</label>
             <input type="text" id="appcc-label-custom-name" class="fi" placeholder="Ej. Fondo Oscuro de Ternera" style="min-height:48px;width:100%;">
           </div>
           <div>
-            <label for="appcc-label-batch" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Código Lote Interno</label>
+            <label for="appcc-label-batch" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Código Lote Interno (Barcode)</label>
             <input type="text" id="appcc-label-batch" class="fi" style="min-height:48px;width:100%;font-family:'JetBrains Mono',monospace;">
           </div>
           <div>
-            <label for="appcc-label-supplier-lot" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Lote Proveedor (Opcional)</label>
+            <label for="appcc-label-supplier-lot" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Lote Proveedor / Origen MP</label>
             <input type="text" id="appcc-label-supplier-lot" class="fi" placeholder="Ej. PROV-8821" style="min-height:48px;width:100%;">
           </div>
           <div>
@@ -4584,6 +4650,34 @@ body.theme-pearl-bronze #btn-open-export {
           <div>
             <label for="appcc-label-expiry" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Fecha de Caducidad Secundaria</label>
             <input type="date" id="appcc-label-expiry" class="fi" style="min-height:48px;width:100%;">
+          </div>
+          <div>
+            <label for="appcc-label-storage" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Conservación Sanitaria</label>
+            <select id="appcc-label-storage" class="fi" style="min-height:48px;width:100%;">
+              <option value="Refrigeración 0°C - 4°C">Refrigeración 0°C - 4°C</option>
+              <option value="Carnes/Pescados 0°C - 3°C">Carnes/Pescados 0°C - 3°C</option>
+              <option value="Congelación ≤ -18°C">Congelación ≤ -18°C</option>
+              <option value="Abatido / Vacío 0°C - 3°C">Abatido / Vacío 0°C - 3°C</option>
+              <option value="Ambiente / Secos < 22°C">Ambiente / Secos &lt; 22°C</option>
+            </select>
+          </div>
+          <div>
+            <label for="appcc-label-qty" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Envase / Cantidad (Opcional)</label>
+            <input type="text" id="appcc-label-qty" class="fi" placeholder="Ej. 2 GN 1/3 · 1.5 kg" style="min-height:48px;width:100%;">
+          </div>
+          <div>
+            <label for="appcc-label-format" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Formato Impresora Térmica</label>
+            <select id="appcc-label-format" class="fi" style="min-height:48px;width:100%;">
+              <option value="60x40">Térmica Estándar 60×40 mm (Cocina)</option>
+              <option value="58mm">Rollo Térmico 58 mm (Ticket / Pegatina)</option>
+              <option value="62x29">Brother QL 62×29 mm (Compacta)</option>
+              <option value="80mm">Rollo Térmico Ancho 80 mm</option>
+              <option value="a4">Hoja A4 Adhesivos (Multi-etiqueta)</option>
+            </select>
+          </div>
+          <div>
+            <label for="appcc-label-copies" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Copias a Imprimir</label>
+            <input type="number" id="appcc-label-copies" class="fi" min="1" max="20" value="1" style="min-height:48px;width:100%;font-family:'JetBrains Mono',monospace;text-align:center;font-weight:700;">
           </div>
         </div>
 
@@ -4599,24 +4693,40 @@ body.theme-pearl-bronze #btn-open-export {
         </div>
 
         <div style="margin-top:12px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-          <div>
+          <div style="flex:1;min-width:220px;">
             <span style="font-size:0.72rem;color:var(--t3);font-weight:700;display:block;margin-bottom:4px;">Alérgenos Heredados en Etiqueta (Obligatorio RD 126/2015):</span>
             <div id="appcc-label-allergens" style="display:flex;flex-wrap:wrap;gap:6px;font-size:0.76rem;color:var(--t2);">Sin alérgenos declarados</div>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button type="button" id="btn-appcc-save-label" class="btn btn-primary appcc-touch-btn">🏷️ Guardar Lote</button>
+            <button type="button" id="btn-appcc-print-pack" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">🖨️ Imprimir Pack Térmico</button>
             <button type="button" id="btn-appcc-print-x1" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">🖨️ Pegatina x1</button>
             <button type="button" id="btn-appcc-print-x2" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">🖨️ Doble x2</button>
+            <button type="button" id="btn-appcc-export-label-pdf" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📄 PDF Térmico</button>
           </div>
         </div>
 
-        <div style="margin-top:14px;overflow-x:auto;">
+        <div id="appcc-thermal-preview" class="appcc-thermal-preview-wrap" aria-live="polite">
+          <div style="font-size:0.74rem;color:#475569;font-weight:700;">Vista previa en vivo de etiqueta térmica</div>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+          <input type="search" id="appcc-trace-search" class="fi" placeholder="🔍 Buscar en trazabilidad (lote, producto o proveedor)..." style="flex:1;min-width:220px;min-height:48px;">
+          <select id="appcc-trace-filter" class="fi" style="min-width:190px;min-height:48px;">
+            <option value="all">Todos los Lotes</option>
+            <option value="active">Activos en Cámara</option>
+            <option value="expiring">Caducan Hoy / Caducados</option>
+            <option value="consumed">Consumidos / Cerrados</option>
+          </select>
+        </div>
+
+        <div class="appcc-table-scroll" style="margin-top:10px;">
           <table class="appcc-ld-table" style="table-layout:auto;">
             <thead>
               <tr>
                 <th>Lote y Producto</th>
                 <th>Fecha Elab.</th>
-                <th>Caducidad</th>
+                <th>Caducidad / Conserv.</th>
                 <th>Alérgenos</th>
                 <th>Acciones</th>
               </tr>
@@ -4636,30 +4746,34 @@ body.theme-pearl-bronze #btn-open-export {
         </div>
 
         <h4 style="margin:12px 0 6px;font-size:0.84rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.04em;">A) Puntos Críticos Diarios (Por Turno)</h4>
-        <table class="appcc-ld-table">
-          <thead>
-            <tr>
-              <th style="width:24%;">Elemento / Zona</th>
-              <th style="width:14%;">Frecuencia</th>
-              <th style="width:42%;">Protocolo POES y Químicos Autorizados (Registro HA)</th>
-              <th style="width:20%;">Verificación</th>
-            </tr>
-          </thead>
-          <tbody id="appcc-ld-daily-body"></tbody>
-        </table>
+        <div class="appcc-table-scroll">
+          <table class="appcc-ld-table">
+            <thead>
+              <tr>
+                <th style="width:24%;">Elemento / Zona</th>
+                <th style="width:14%;">Frecuencia</th>
+                <th style="width:42%;">Protocolo POES y Químicos Autorizados (Registro HA)</th>
+                <th style="width:20%;">Verificación</th>
+              </tr>
+            </thead>
+            <tbody id="appcc-ld-daily-body"></tbody>
+          </table>
+        </div>
 
         <h4 style="margin:18px 0 6px;font-size:0.84rem;color:var(--cyan);text-transform:uppercase;letter-spacing:0.04em;">B) Zonas Periódicas (48h / Semanal / Mensual)</h4>
-        <table class="appcc-ld-table">
-          <thead>
-            <tr>
-              <th style="width:24%;">Elemento / Zona</th>
-              <th style="width:14%;">Frecuencia</th>
-              <th style="width:42%;">Protocolo POES y Químicos Autorizados (Registro HA)</th>
-              <th style="width:20%;">Verificación</th>
-            </tr>
-          </thead>
-          <tbody id="appcc-ld-periodic-body"></tbody>
-        </table>
+        <div class="appcc-table-scroll">
+          <table class="appcc-ld-table">
+            <thead>
+              <tr>
+                <th style="width:24%;">Elemento / Zona</th>
+                <th style="width:14%;">Frecuencia</th>
+                <th style="width:42%;">Protocolo POES y Químicos Autorizados (Registro HA)</th>
+                <th style="width:20%;">Verificación</th>
+              </tr>
+            </thead>
+            <tbody id="appcc-ld-periodic-body"></tbody>
+          </table>
+        </div>
 
         <details style="margin-top:14px;border-top:1px solid var(--b1);padding-top:10px;">
           <summary style="cursor:pointer;font-size:0.78rem;color:var(--cyan);font-weight:700;">➕ Añadir Zona Personalizada al Plan L+D</summary>
@@ -6268,6 +6382,7 @@ class GC {
       ],
       tempLogs: [],
       labels: [],
+      thermalFormat: '60x40',
       cleaningTasks: [
         { id: 'ld-tablas', frequencyGroup: 'daily', frequencyLabel: 'Cada Turno / Cambio alimento', zone: 'Tablas de corte codificadas y cuchillos de servicio', protocol: 'Fregado con agua caliente (>50°C), detergente desengrasante neutro y desinfectante bactericida/fungicida Registro HA (UNE-EN 13697). Aclarado total y secado al aire en bastidor vertical.', done: false, verifiedAt: null, verifiedBy: '' },
         { id: 'ld-mesas', frequencyGroup: 'daily', frequencyLabel: 'Fin de cada Servicio', zone: 'Mesas de trabajo acero inox., fregaderos y grifería', protocol: 'Retirada de residuos orgánicos, aplicación de desengrasante alcalino alimentario, enjuague y pulverización de desinfectante HA homologado (tiempo de contacto 5 minutos) + papel de un solo uso.', done: false, verifiedAt: null, verifiedBy: '' },
@@ -7704,6 +7819,9 @@ class GC {
         btn.classList.add('active');
         const targetTab = document.getElementById(btn.dataset.tab);
         if (targetTab) targetTab.classList.add('active');
+        if (typeof btn.scrollIntoView === 'function') {
+          try { btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch {}
+        }
         
         window.scrollTo({ left: 0, top: 0, behavior: 'instant' });
         this._renderActiveTab();
@@ -9724,10 +9842,14 @@ class GC {
      V13 CATALOG OPERATIONS
      ═══════════════════════════════════════════════ */
   setTab(tabId) {
+    let activeBtn = null;
     document.querySelectorAll('.tab-btn').forEach(b => {
-      if (b.dataset.tab === tabId) b.classList.add('active');
+      if (b.dataset.tab === tabId) { b.classList.add('active'); activeBtn = b; }
       else b.classList.remove('active');
     });
+    if (activeBtn && typeof activeBtn.scrollIntoView === 'function') {
+      try { activeBtn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch {}
+    }
     document.querySelectorAll('.tab-content').forEach(c => {
       if (c.id === tabId) c.classList.add('active');
       else c.classList.remove('active');
@@ -12325,6 +12447,7 @@ class GC {
       if (!Array.isArray(data.appcc.chambers) || data.appcc.chambers.length === 0) data.appcc.chambers = defAppcc.chambers;
       if (!Array.isArray(data.appcc.tempLogs)) data.appcc.tempLogs = [];
       if (!Array.isArray(data.appcc.labels)) data.appcc.labels = [];
+      if (!data.appcc.thermalFormat) data.appcc.thermalFormat = '60x40';
       if (!Array.isArray(data.appcc.cleaningTasks) || data.appcc.cleaningTasks.length === 0) data.appcc.cleaningTasks = defAppcc.cleaningTasks;
       if (!data.appcc.lastTurnDate) data.appcc.lastTurnDate = defAppcc.lastTurnDate;
     }
@@ -15632,14 +15755,47 @@ ${ingsStr}`;
       });
     }
 
+    const labelSearchInp = document.getElementById('appcc-label-search');
+    if (labelSearchInp) {
+      labelSearchInp.addEventListener('input', () => {
+        this._populateAppccProductSelect();
+        this._updateAppccLabelAllergens();
+        this._renderThermalPreview();
+      });
+    }
+
     const recSel = document.getElementById('appcc-label-recipe');
     const customNameInp = document.getElementById('appcc-label-custom-name');
     if (recSel) {
       recSel.addEventListener('change', () => {
-        if (recSel.value !== '__custom__' && this.db.recipes[recSel.value]) {
-          if (customNameInp) customNameInp.value = this.db.recipes[recSel.value].config.dishName || '';
+        const meta = this._resolveLabelProductMeta(recSel.value);
+        if (meta.sourceType !== 'custom' && meta.name && customNameInp) {
+          customNameInp.value = meta.name;
+        }
+        const stEl = document.getElementById('appcc-label-storage');
+        if (stEl && (meta.allergens.includes('fish') || meta.allergens.includes('crustacean') || meta.allergens.includes('molluscs'))) {
+          stEl.value = 'Carnes/Pescados 0°C - 3°C';
         }
         this._updateAppccLabelAllergens();
+        this._renderThermalPreview();
+      });
+    }
+
+    ['appcc-label-custom-name', 'appcc-label-batch', 'appcc-label-supplier-lot', 'appcc-label-prep-date', 'appcc-label-expiry', 'appcc-label-storage', 'appcc-label-qty', 'appcc-responsible'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        const evName = el.tagName === 'SELECT' ? 'change' : 'input';
+        el.addEventListener(evName, () => this._renderThermalPreview());
+      }
+    });
+
+    const fmtSel = document.getElementById('appcc-label-format');
+    if (fmtSel) {
+      fmtSel.addEventListener('change', () => {
+        const appcc = this._ensureAppccData();
+        appcc.thermalFormat = fmtSel.value || '60x40';
+        this._autoSave();
+        this._renderThermalPreview();
       });
     }
 
@@ -15653,15 +15809,33 @@ ${ingsStr}`;
         const base = new Date(baseStr + 'T12:00:00');
         base.setDate(base.getDate() + days);
         if (expEl) expEl.value = base.toISOString().slice(0, 10);
+        this._renderThermalPreview();
       });
     });
 
     const btnSaveLabel = document.getElementById('btn-appcc-save-label');
     if (btnSaveLabel) btnSaveLabel.addEventListener('click', () => this._createAppccLabel(0));
+    const btnPrintPack = document.getElementById('btn-appcc-print-pack');
+    if (btnPrintPack) {
+      btnPrintPack.addEventListener('click', () => {
+        const copEl = document.getElementById('appcc-label-copies');
+        const copies = Math.max(1, Math.min(20, parseInt(copEl ? copEl.value : '1', 10) || 1));
+        this._createAppccLabel(copies);
+      });
+    }
     const btnPrintX1 = document.getElementById('btn-appcc-print-x1');
     if (btnPrintX1) btnPrintX1.addEventListener('click', () => this._createAppccLabel(1));
     const btnPrintX2 = document.getElementById('btn-appcc-print-x2');
     if (btnPrintX2) btnPrintX2.addEventListener('click', () => this._createAppccLabel(2));
+    const btnLabelPdf = document.getElementById('btn-appcc-export-label-pdf');
+    if (btnLabelPdf) btnLabelPdf.addEventListener('click', () => this._exportAppccThermalPDF());
+    const btnTraceCsv = document.getElementById('btn-appcc-export-trace-csv');
+    if (btnTraceCsv) btnTraceCsv.addEventListener('click', () => this._exportAppccTraceabilityCSV());
+
+    const traceSearchInp = document.getElementById('appcc-trace-search');
+    if (traceSearchInp) traceSearchInp.addEventListener('input', () => this._renderAppccLabelsTable());
+    const traceFilterSel = document.getElementById('appcc-trace-filter');
+    if (traceFilterSel) traceFilterSel.addEventListener('change', () => this._renderAppccLabelsTable());
 
     const labelsBody = document.getElementById('appcc-labels-body');
     if (labelsBody) {
@@ -15676,6 +15850,11 @@ ${ingsStr}`;
         if (p2) {
           const lbl = this._ensureAppccData().labels.find(l => l.id === p2.dataset.labelId);
           if (lbl) this._printAppccStickers(lbl, 2);
+          return;
+        }
+        const togStatus = e.target.closest('.appcc-btn-toggle-label-status');
+        if (togStatus) {
+          this._toggleAppccLabelStatus(togStatus.dataset.labelId);
           return;
         }
         const del = e.target.closest('.appcc-btn-del-label');
@@ -15834,15 +16013,72 @@ ${ingsStr}`;
     return `LOT-${today}-${seq}`;
   }
 
+  _resolveLabelProductMeta(selVal) {
+    if (!selVal || selVal === '__custom__') {
+      return { sourceType: 'custom', recipeId: null, catalogId: null, name: '', allergens: [] };
+    }
+    if (typeof selVal === 'string' && selVal.startsWith('cat:')) {
+      const catId = selVal.slice(4);
+      const item = (this.db.catalog || []).find(c => c.id === catId);
+      if (item) {
+        return {
+          sourceType: 'catalog',
+          recipeId: null,
+          catalogId: item.id,
+          name: item.name || '',
+          allergens: Array.isArray(item.allergens) ? [...item.allergens] : []
+        };
+      }
+      return { sourceType: 'catalog', recipeId: null, catalogId: catId, name: '', allergens: [] };
+    }
+    const rec = (this.db.recipes || {})[selVal];
+    if (rec) {
+      return {
+        sourceType: rec.config && rec.config.isSubRecipe ? 'subrecipe' : 'recipe',
+        recipeId: rec.id,
+        catalogId: null,
+        name: (rec.config && rec.config.dishName) || '',
+        allergens: this._getSubRecipeAllergens(rec)
+      };
+    }
+    return { sourceType: 'custom', recipeId: null, catalogId: null, name: '', allergens: [] };
+  }
+
+  _populateAppccProductSelect() {
+    const recSel = document.getElementById('appcc-label-recipe');
+    if (!recSel) return;
+    const prevVal = recSel.value || '__custom__';
+    const searchEl = document.getElementById('appcc-label-search');
+    const q = (searchEl && searchEl.value ? searchEl.value : '').toLowerCase().trim();
+
+    const allRecipes = Object.values(this.db.recipes || {});
+    const dishes = allRecipes.filter(r => !(r.config && r.config.isSubRecipe)).filter(r => !q || ((r.config && r.config.dishName) || '').toLowerCase().includes(q));
+    const bases = allRecipes.filter(r => !!(r.config && r.config.isSubRecipe)).filter(r => !q || ((r.config && r.config.dishName) || '').toLowerCase().includes(q));
+    const catItems = (this.db.catalog || []).filter(c => !q || (c.name || '').toLowerCase().includes(q) || (c.category || '').toLowerCase().includes(q));
+
+    const parts = ['<option value="__custom__">— Producto / Elaboración Libre —</option>'];
+    if (dishes.length) {
+      parts.push('<optgroup label="🍽️ Platos / Escandallos">' + dishes.map(r => `<option value="${escHtml(r.id)}">${escHtml((r.config && r.config.dishName) || 'Sin nombre')}</option>`).join('') + '</optgroup>');
+    }
+    if (bases.length) {
+      parts.push('<optgroup label="🥘 Elaboraciones Base / Sub-recetas">' + bases.map(r => `<option value="${escHtml(r.id)}">${escHtml((r.config && r.config.dishName) || 'Sin nombre')} (Base)</option>`).join('') + '</optgroup>');
+    }
+    if (catItems.length) {
+      parts.push('<optgroup label="📦 Productos del Catálogo Maestro">' + catItems.slice(0, 150).map(c => `<option value="cat:${escHtml(c.id)}">${escHtml(c.name)} (${escHtml(c.unit || 'g')})</option>`).join('') + '</optgroup>');
+    }
+    recSel.innerHTML = parts.join('');
+
+    if (prevVal === '__custom__' || (prevVal.startsWith('cat:') && (this.db.catalog || []).some(c => 'cat:' + c.id === prevVal)) || (this.db.recipes || {})[prevVal]) {
+      recSel.value = prevVal;
+    }
+  }
+
   _updateAppccLabelAllergens() {
     const previewEl = document.getElementById('appcc-label-allergens');
     const recSel = document.getElementById('appcc-label-recipe');
     if (!previewEl) return [];
-    const recId = recSel ? recSel.value : '__custom__';
-    let keys = [];
-    if (recId && recId !== '__custom__' && this.db.recipes[recId]) {
-      keys = this._getSubRecipeAllergens(this.db.recipes[recId]);
-    }
+    const meta = this._resolveLabelProductMeta(recSel ? recSel.value : '__custom__');
+    const keys = meta.allergens || [];
     if (keys.length === 0) {
       previewEl.innerHTML = '<span style="color:var(--green);font-weight:600;">Sin alérgenos mayores declarados</span>';
     } else {
@@ -15854,6 +16090,133 @@ ${ingsStr}`;
     return keys;
   }
 
+  _buildCode39SVG(rawCode) {
+    const MAP = {
+      '0': '000110100', '1': '100100001', '2': '001100001', '3': '101100000', '4': '000110001',
+      '5': '100110000', '6': '001110000', '7': '000100101', '8': '100100100', '9': '001100100',
+      'A': '100001001', 'B': '001001001', 'C': '101001000', 'D': '000011001', 'E': '100011000',
+      'F': '001011000', 'G': '000001101', 'H': '100001100', 'I': '001001100', 'J': '000011100',
+      'K': '100000011', 'L': '001000011', 'M': '101000010', 'N': '000010011', 'O': '100010010',
+      'P': '001010010', 'Q': '000000111', 'R': '100000110', 'S': '001000110', 'T': '000010110',
+      'U': '110000001', 'V': '011000001', 'W': '111000000', 'X': '010010001', 'Y': '110010000',
+      'Z': '011010000', '-': '010000101', '.': '110000100', ' ': '011000100', '$': '010101000',
+      '/': '010100010', '+': '010001010', '%': '000101010', '*': '010010100'
+    };
+    const clean = String(rawCode || 'LOT-001').toUpperCase().replace(/[^0-9A-Z\-. $/+%]/g, '-').slice(0, 24) || 'LOT-001';
+    const full = `*${clean}*`;
+    const narrow = 1.6;
+    const wide = 4.2;
+    let x = 6;
+    const rects = [];
+    for (let c = 0; c < full.length; c++) {
+      const pattern = MAP[full[c]] || MAP['-'];
+      for (let i = 0; i < 9; i++) {
+        const w = pattern[i] === '1' ? wide : narrow;
+        if (i % 2 === 0) {
+          rects.push(`<rect x="${x.toFixed(1)}" y="0" width="${w.toFixed(1)}" height="22" fill="#000"/>`);
+        }
+        x += w;
+      }
+      x += narrow;
+    }
+    const totalW = Math.ceil(x + 6);
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalW} 22" style="width:100%;max-width:220px;height:24px;display:block;margin:2px auto;background:#fff;" role="img" aria-label="Código de barras ${escHtml(clean)}">${rects.join('')}</svg>`;
+  }
+
+  _getThermalFormatSpec(fmt) {
+    const specs = {
+      '60x40': { key: '60x40', label: 'Térmica Estándar 60×40 mm', widthMm: 60, heightMm: 40, boxWidth: '60mm', minHeight: '38mm', fontScale: '9.5px', pageCss: '60mm 40mm', pdfFormat: [60, 40] },
+      '58mm': { key: '58mm', label: 'Rollo Térmico 58 mm', widthMm: 58, heightMm: 50, boxWidth: '54mm', minHeight: '42mm', fontScale: '9px', pageCss: '58mm auto', pdfFormat: [58, 60] },
+      '62x29': { key: '62x29', label: 'Brother QL 62×29 mm', widthMm: 62, heightMm: 29, boxWidth: '60mm', minHeight: '27mm', fontScale: '8px', pageCss: '62mm 29mm', pdfFormat: [62, 29] },
+      '80mm': { key: '80mm', label: 'Rollo Térmico 80 mm', widthMm: 80, heightMm: 55, boxWidth: '76mm', minHeight: '48mm', fontScale: '10.5px', pageCss: '80mm auto', pdfFormat: [80, 62] },
+      'a4': { key: 'a4', label: 'Hoja A4 Adhesivos', widthMm: 95, heightMm: 52, boxWidth: '88mm', minHeight: '46mm', fontScale: '11px', pageCss: 'A4 portrait', pdfFormat: 'a4' }
+    };
+    return specs[fmt] || specs['60x40'];
+  }
+
+  _buildThermalStickerHTML(label, formatKey = null) {
+    if (!label) return '';
+    const appcc = this._ensureAppccData();
+    const spec = this._getThermalFormatSpec(formatKey || label.thermalFormat || appcc.thermalFormat || '60x40');
+    const brandName = (this.db.brand && this.db.brand.restaurantName) ? this.db.brand.restaurantName.trim() : 'GastroCost PRO';
+    const allergenNames = (label.allergens || []).map(k => (ALLERGENS[k] ? ALLERGENS[k].name.toUpperCase() : k.toUpperCase()));
+    const allergenLine = allergenNames.length > 0 ? allergenNames.join(', ') : 'NINGUNO DECLARADO';
+    const storageText = label.storage || 'Refrigeración 0°C - 4°C';
+    const barcodeSvg = this._buildCode39SVG(label.batchCode);
+
+    return `
+      <div class="appcc-sticker-box appcc-thermal-ticket" data-format="${escHtml(spec.key)}" style="width:${spec.boxWidth};min-height:${spec.minHeight};font-size:${spec.fontScale};padding:6px 8px;border:2px solid #000;background:#fff;color:#000;box-sizing:border-box;">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid #000;padding-bottom:2px;margin-bottom:4px;font-weight:800;font-size:0.85em;">
+          <span>${escHtml(brandName)}</span>
+          <span style="font-family:monospace;">${escHtml(label.batchCode)}</span>
+        </div>
+        <div style="font-size:1.22em;font-weight:900;margin-bottom:4px;line-height:1.15;word-break:break-word;">${escHtml(label.dishName)}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:4px;font-size:0.9em;">
+          <div style="border:1px solid #000;padding:2px 4px;"><strong>ELAB:</strong> ${escHtml(label.prepDate)}</div>
+          <div style="border:1.5px solid #000;padding:2px 4px;background:#e5e7eb;"><strong>CAD:</strong> ${escHtml(label.expiryDate)}</div>
+        </div>
+        ${(label.supplierLot || label.quantity) ? `<div style="font-size:0.82em;margin-bottom:3px;display:flex;justify-content:space-between;gap:6px;flex-wrap:wrap;">${label.supplierLot ? `<span><strong>Lote MP:</strong> ${escHtml(label.supplierLot)}</span>` : ''}${label.quantity ? `<span><strong>Cant.:</strong> ${escHtml(label.quantity)}</span>` : ''}</div>` : ''}
+        <div style="font-size:0.8em;padding:3px 4px;background:#f3f4f6;border:1px solid #000;margin-bottom:3px;word-break:break-word;"><strong>ALÉRGENOS:</strong> ${escHtml(allergenLine)}</div>
+        ${barcodeSvg}
+        <div style="font-size:0.78em;display:flex;justify-content:space-between;gap:4px;border-top:1px solid #000;padding-top:2px;margin-top:2px;">
+          <span>${escHtml(storageText)}</span>
+          <span>Resp: ${escHtml(label.responsible || 'Cocina')}</span>
+        </div>
+      </div>`;
+  }
+
+  _getCurrentLabelDraft() {
+    const appcc = this._ensureAppccData();
+    const recSel = document.getElementById('appcc-label-recipe');
+    const nameEl = document.getElementById('appcc-label-custom-name');
+    const batchEl = document.getElementById('appcc-label-batch');
+    const supEl = document.getElementById('appcc-label-supplier-lot');
+    const prepEl = document.getElementById('appcc-label-prep-date');
+    const expEl = document.getElementById('appcc-label-expiry');
+    const storageEl = document.getElementById('appcc-label-storage');
+    const qtyEl = document.getElementById('appcc-label-qty');
+    const fmtEl = document.getElementById('appcc-label-format');
+    const respInp = document.getElementById('appcc-responsible');
+
+    const meta = this._resolveLabelProductMeta(recSel ? recSel.value : '__custom__');
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const prepDate = (prepEl && prepEl.value) || todayStr;
+    let expiryDate = (expEl && expEl.value) || '';
+    if (!expiryDate) {
+      const d = new Date(prepDate + 'T12:00:00');
+      d.setDate(d.getDate() + 2);
+      expiryDate = d.toISOString().slice(0, 10);
+    }
+    return {
+      id: 'draft',
+      sourceType: meta.sourceType,
+      recipeId: meta.recipeId,
+      catalogId: meta.catalogId,
+      dishName: (nameEl && nameEl.value.trim()) || meta.name || 'Elaboración de Cocina',
+      batchCode: (batchEl && batchEl.value.trim()) || this._getAppccBatchCode(),
+      supplierLot: (supEl && supEl.value.trim()) || '',
+      prepDate,
+      expiryDate,
+      storage: (storageEl && storageEl.value) || 'Refrigeración 0°C - 4°C',
+      quantity: (qtyEl && qtyEl.value.trim()) || '',
+      thermalFormat: (fmtEl && fmtEl.value) || appcc.thermalFormat || '60x40',
+      allergens: meta.allergens,
+      responsible: (respInp && respInp.value.trim()) || appcc.responsible || (this.db.brand && this.db.brand.chefName) || 'Cocina'
+    };
+  }
+
+  _renderThermalPreview() {
+    const previewWrap = document.getElementById('appcc-thermal-preview');
+    if (!previewWrap) return;
+    const draft = this._getCurrentLabelDraft();
+    const spec = this._getThermalFormatSpec(draft.thermalFormat);
+    previewWrap.innerHTML = `
+      <div style="font-size:0.72rem;color:#334155;font-weight:800;text-transform:uppercase;letter-spacing:0.04em;">Vista Previa Etiqueta Térmica · ${escHtml(spec.label)}</div>
+      <div style="overflow-x:auto;max-width:100%;display:flex;justify-content:center;padding:4px 0;">
+        ${this._buildThermalStickerHTML(draft, spec.key)}
+      </div>`;
+  }
+
   _createAppccLabel(printCopies = 0, overrides = null) {
     const appcc = this._ensureAppccData();
     const recSel = document.getElementById('appcc-label-recipe');
@@ -15862,13 +16225,20 @@ ${ingsStr}`;
     const supEl = document.getElementById('appcc-label-supplier-lot');
     const prepEl = document.getElementById('appcc-label-prep-date');
     const expEl = document.getElementById('appcc-label-expiry');
+    const storageEl = document.getElementById('appcc-label-storage');
+    const qtyEl = document.getElementById('appcc-label-qty');
+    const fmtEl = document.getElementById('appcc-label-format');
     const respInp = document.getElementById('appcc-responsible');
 
-    const recipeId = (overrides && overrides.recipeId) || (recSel ? recSel.value : '__custom__');
-    const rec = (recipeId && recipeId !== '__custom__') ? this.db.recipes[recipeId] : null;
-    const dishName = ((overrides && overrides.dishName) || (nameEl ? nameEl.value.trim() : '') || (rec && rec.config && rec.config.dishName) || '').trim();
+    let selVal = '__custom__';
+    if (overrides && overrides.catalogId) selVal = 'cat:' + overrides.catalogId;
+    else if (overrides && overrides.recipeId) selVal = overrides.recipeId;
+    else if (recSel) selVal = recSel.value;
+
+    const meta = this._resolveLabelProductMeta(selVal);
+    const dishName = ((overrides && overrides.dishName) || (nameEl ? nameEl.value.trim() : '') || meta.name || '').trim();
     if (!dishName) {
-      toast('Selecciona un plato o escribe el nombre de la elaboración', 'w');
+      toast('Selecciona un producto/receta o escribe el nombre en etiqueta', 'w');
       return null;
     }
 
@@ -15882,23 +16252,33 @@ ${ingsStr}`;
     }
     const batchCode = ((overrides && overrides.batchCode) || (batchEl ? batchEl.value.trim() : '') || this._getAppccBatchCode()).trim();
     const supplierLot = ((overrides && overrides.supplierLot) || (supEl ? supEl.value.trim() : '')).trim();
-    const allergens = (overrides && Array.isArray(overrides.allergens)) ? [...overrides.allergens] : (rec ? this._getSubRecipeAllergens(rec) : []);
+    const storage = ((overrides && overrides.storage) || (storageEl && storageEl.value) || 'Refrigeración 0°C - 4°C').trim();
+    const quantity = ((overrides && overrides.quantity) || (qtyEl && qtyEl.value.trim()) || '').trim();
+    const thermalFormat = (overrides && overrides.thermalFormat) || (fmtEl && fmtEl.value) || appcc.thermalFormat || '60x40';
+    const allergens = (overrides && Array.isArray(overrides.allergens)) ? [...overrides.allergens] : meta.allergens;
     const responsible = (respInp && respInp.value.trim()) || appcc.responsible || (this.db.brand && this.db.brand.chefName) || 'Cocina';
 
     const label = {
       id: 'lbl-' + uid(),
-      recipeId: rec ? rec.id : null,
+      sourceType: meta.sourceType,
+      recipeId: meta.recipeId,
+      catalogId: meta.catalogId,
       dishName,
       batchCode,
       supplierLot,
       prepDate,
       expiryDate,
+      storage,
+      quantity,
+      thermalFormat,
       allergens,
       responsible,
+      status: 'active',
+      consumedAt: null,
       createdAt: new Date().toISOString()
     };
     appcc.labels.unshift(label);
-    if (appcc.labels.length > 200) appcc.labels = appcc.labels.slice(0, 200);
+    if (appcc.labels.length > 250) appcc.labels = appcc.labels.slice(0, 250);
     appcc.updatedAt = Date.now();
     this._save();
     this._showSaveIndicator();
@@ -15908,9 +16288,25 @@ ${ingsStr}`;
     toast(`🏷️ Lote "${batchCode}" guardado (${dishName})`);
     this._renderAppccTab();
 
-    if (printCopies === 1 || printCopies === 2) {
-      this._printAppccStickers(label, printCopies);
+    const copiesNum = parseInt(printCopies, 10) || 0;
+    if (copiesNum >= 1) {
+      this._printAppccStickers(label, copiesNum, thermalFormat);
     }
+    return label;
+  }
+
+  _toggleAppccLabelStatus(labelId) {
+    const appcc = this._ensureAppccData();
+    const label = (appcc.labels || []).find(l => l.id === labelId);
+    if (!label) return null;
+    const nextConsumed = label.status !== 'consumed';
+    label.status = nextConsumed ? 'consumed' : 'active';
+    label.consumedAt = nextConsumed ? new Date().toISOString() : null;
+    appcc.updatedAt = Date.now();
+    this._save();
+    this._showSaveIndicator();
+    toast(nextConsumed ? `✔ Lote "${label.batchCode}" marcado como consumido` : `🔄 Lote "${label.batchCode}" reactivado`);
+    this._renderAppccTab();
     return label;
   }
 
@@ -15922,33 +16318,25 @@ ${ingsStr}`;
     this._renderAppccTab();
   }
 
-  _printAppccStickers(label, copies = 1) {
+  _printAppccStickers(label, copies = 1, formatOverride = null) {
     const container = document.getElementById('appcc-sticker-print');
     if (!container || !label) return;
-    const count = (copies === 2) ? 2 : 1;
-    const brandName = (this.db.brand && this.db.brand.restaurantName) ? this.db.brand.restaurantName.trim() : 'GastroCost PRO';
-    const allergenNames = (label.allergens || []).map(k => (ALLERGENS[k] ? ALLERGENS[k].name.toUpperCase() : k.toUpperCase()));
-    const allergenLine = allergenNames.length > 0 ? allergenNames.join(', ') : 'NINGUNO DECLARADO';
+    const count = Math.max(1, Math.min(20, parseInt(copies, 10) || 1));
+    const appcc = this._ensureAppccData();
+    const spec = this._getThermalFormatSpec(formatOverride || label.thermalFormat || appcc.thermalFormat || '60x40');
+    const cardHtml = this._buildThermalStickerHTML(label, spec.key);
 
-    const cardHtml = `
-      <div class="appcc-sticker-box">
-        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #000;padding-bottom:4px;margin-bottom:6px;font-size:11px;font-weight:800;">
-          <span>${escHtml(brandName)}</span>
-          <span>LOTE: ${escHtml(label.batchCode)}</span>
-        </div>
-        <div style="font-size:15px;font-weight:900;margin-bottom:6px;line-height:1.2;">${escHtml(label.dishName)}</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px;margin-bottom:6px;">
-          <div style="border:1px solid #000;padding:4px;"><strong>ELAB:</strong> ${escHtml(label.prepDate)}</div>
-          <div style="border:1px solid #000;padding:4px;"><strong>CAD:</strong> ${escHtml(label.expiryDate)}</div>
-        </div>
-        ${label.supplierLot ? `<div style="font-size:10px;margin-bottom:4px;"><strong>Lote MP:</strong> ${escHtml(label.supplierLot)}</div>` : ''}
-        <div style="font-size:10px;padding:4px;background:#f3f4f6;border:1px solid #000;margin-bottom:4px;"><strong>ALÉRGENOS:</strong> ${escHtml(allergenLine)}</div>
-        <div style="font-size:10px;display:flex;justify-content:space-between;">
-          <span>Resp: ${escHtml(label.responsible || 'Cocina')}</span>
-          <span>Conservar 0°C - 4°C</span>
-        </div>
-      </div>`;
+    if (document.head) {
+      let pageStyle = document.getElementById('appcc-thermal-page-style');
+      if (!pageStyle) {
+        pageStyle = document.createElement('style');
+        pageStyle.id = 'appcc-thermal-page-style';
+        document.head.appendChild(pageStyle);
+      }
+      pageStyle.textContent = `@media print { @page { size: ${spec.pageCss}; margin: 0; } }`;
+    }
 
+    container.dataset.thermalFormat = spec.key;
     container.innerHTML = Array.from({ length: count }, () => cardHtml).join('');
     document.body.classList.add('printing-appcc-sticker');
     const cleanup = () => document.body.classList.remove('printing-appcc-sticker');
@@ -15959,6 +16347,139 @@ ${ingsStr}`;
       if (typeof window.print === 'function') window.print();
       setTimeout(cleanup, 1200);
     }, 60);
+  }
+
+  async _exportAppccThermalPDF(labelObj = null) {
+    const appcc = this._ensureAppccData();
+    const fmtEl = document.getElementById('appcc-label-format');
+    const fmt = (fmtEl && fmtEl.value) || appcc.thermalFormat || '60x40';
+    const targetLabel = labelObj || this._getCurrentLabelDraft();
+    const spec = this._getThermalFormatSpec(fmt);
+    const html = this._buildThermalStickerHTML(targetLabel, spec.key);
+    const filename = `Etiqueta_${(targetLabel.batchCode || 'LOTE').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
+
+    let loaded = false;
+    try { loaded = await this._ensureHTML2PDF(); } catch { loaded = false; }
+    const wrap = document.getElementById('pdf-scratch');
+    if (!loaded || !window.html2pdf || !wrap) {
+      this._printAppccStickers(targetLabel, 1, spec.key);
+      return;
+    }
+    wrap.innerHTML = `<div style="padding:2mm;background:#fff;">${html}</div>`;
+    wrap.style.position = 'fixed';
+    wrap.style.top = '0';
+    wrap.style.left = '0';
+    wrap.style.width = spec.key === 'a4' ? '750px' : `${spec.widthMm + 6}mm`;
+    wrap.style.zIndex = '999999';
+    wrap.style.background = '#ffffff';
+    wrap.style.display = 'block';
+    const targetEl = wrap.firstElementChild || wrap;
+    try {
+      await window.html2pdf().set({
+        margin: [1, 1, 1, 1],
+        filename,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
+        jsPDF: {
+          unit: 'mm',
+          format: spec.pdfFormat,
+          orientation: Array.isArray(spec.pdfFormat) && spec.pdfFormat[0] > spec.pdfFormat[1] ? 'landscape' : 'portrait'
+        }
+      }).from(targetEl).save();
+      toast(`📄 PDF Térmico ${spec.label} generado ✓`);
+    } catch (err) {
+      console.warn('Thermal PDF fallback:', err);
+      this._printAppccStickers(targetLabel, 1, spec.key);
+    } finally {
+      wrap.innerHTML = '';
+      wrap.style.display = 'none';
+      wrap.style.zIndex = '-1';
+    }
+  }
+
+  _exportAppccTraceabilityCSV() {
+    const appcc = this._ensureAppccData();
+    const labels = appcc.labels || [];
+    const csvCell = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const headers = ['Lote Interno', 'Producto', 'Origen', 'Lote Proveedor', 'Fecha Elaboración', 'Caducidad Secundaria', 'Conservación', 'Cantidad', 'Alérgenos UE', 'Responsable', 'Estado', 'Formato'];
+    const lines = [headers.map(csvCell).join(';')];
+    labels.forEach(l => {
+      const algNames = (l.allergens || []).map(k => (ALLERGENS[k] ? ALLERGENS[k].name : k)).join(', ') || 'Ninguno';
+      const origMap = { recipe: 'Receta', subrecipe: 'Sub-receta', catalog: 'Catálogo Maestro', custom: 'Libre' };
+      lines.push([
+        l.batchCode || '',
+        l.dishName || '',
+        origMap[l.sourceType] || 'Receta',
+        l.supplierLot || '',
+        l.prepDate || '',
+        l.expiryDate || '',
+        l.storage || 'Refrigeración 0°C - 4°C',
+        l.quantity || '',
+        algNames,
+        l.responsible || '',
+        l.status === 'consumed' ? 'Consumido' : 'Activo',
+        l.thermalFormat || '60x40'
+      ].map(csvCell).join(';'));
+    });
+    const csv = '\uFEFF' + lines.join('\r\n');
+    const filename = `Trazabilidad_APPCC_${new Date().toISOString().slice(0, 10)}.csv`;
+    this._downloadBlob(csv, filename, 'text/csv;charset=utf-8;');
+    toast(`📊 Historial de trazabilidad exportado (${labels.length} lotes) ✓`);
+    return csv;
+  }
+
+  _renderAppccLabelsTable() {
+    const appcc = this._ensureAppccData();
+    const today = new Date().toISOString().slice(0, 10);
+    const lblBody = document.getElementById('appcc-labels-body');
+    if (!lblBody) return;
+
+    const searchInp = document.getElementById('appcc-trace-search');
+    const filterSel = document.getElementById('appcc-trace-filter');
+    const q = (searchInp && searchInp.value ? searchInp.value : '').toLowerCase().trim();
+    const fMode = (filterSel && filterSel.value) || 'all';
+
+    let rows = [...(appcc.labels || [])];
+    if (q) {
+      rows = rows.filter(l =>
+        (l.dishName || '').toLowerCase().includes(q) ||
+        (l.batchCode || '').toLowerCase().includes(q) ||
+        (l.supplierLot || '').toLowerCase().includes(q)
+      );
+    }
+    if (fMode === 'active') rows = rows.filter(l => l.status !== 'consumed');
+    else if (fMode === 'consumed') rows = rows.filter(l => l.status === 'consumed');
+    else if (fMode === 'expiring') rows = rows.filter(l => l.status !== 'consumed' && l.expiryDate && l.expiryDate <= today);
+
+    if (rows.length === 0) {
+      lblBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--t3);">Sin lotes que coincidan con el filtro actual.</td></tr>';
+      return;
+    }
+
+    lblBody.innerHTML = rows.slice(0, 60).map(l => {
+      const isConsumed = l.status === 'consumed';
+      const isExpired = !isConsumed && l.expiryDate && l.expiryDate < today;
+      const isToday = !isConsumed && l.expiryDate === today;
+      const expStyle = isConsumed ? 'color:var(--t3);text-decoration:line-through;' : isExpired ? 'color:#f87171;font-weight:800;' : isToday ? 'color:#fbbf24;font-weight:800;' : 'color:#4ade80;font-weight:700;';
+      const expTag = isConsumed ? ' (CONSUMIDO)' : isExpired ? ' (CADUCADO)' : isToday ? ' (HOY)' : '';
+      const algTxt = (l.allergens || []).map(k => (ALLERGENS[k] ? ALLERGENS[k].name : k)).join(', ') || 'Sin alérgenos';
+      const origBadge = l.sourceType === 'catalog' ? ' · Catálogo' : l.sourceType === 'subrecipe' ? ' · Base' : '';
+      return `
+        <tr style="${isConsumed ? 'opacity:0.65;' : ''}">
+          <td><div style="font-weight:800;color:var(--t1);">${escHtml(l.dishName)}${origBadge ? `<span style="font-size:0.68rem;color:var(--gold);margin-left:4px;">${origBadge}</span>` : ''}</div><div style="font-size:0.72rem;color:var(--cyan);font-family:'JetBrains Mono',monospace;">${escHtml(l.batchCode)}${l.supplierLot ? ' · MP: ' + escHtml(l.supplierLot) : ''}${l.quantity ? ' · ' + escHtml(l.quantity) : ''}</div></td>
+          <td>${escHtml(l.prepDate)}</td>
+          <td><div style="${expStyle}">${escHtml(l.expiryDate)}${expTag}</div><div style="font-size:0.7rem;color:var(--t3);margin-top:2px;">${escHtml(l.storage || 'Refrigeración 0°C - 4°C')}</div></td>
+          <td style="font-size:0.76rem;">${escHtml(algTxt)}</td>
+          <td>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button type="button" class="btn btn-ghost appcc-btn-reprint-1" data-label-id="${escHtml(l.id)}" style="min-height:44px;padding:4px 10px;font-size:0.74rem;" title="Imprimir etiqueta térmica">🖨️ x1</button>
+              <button type="button" class="btn btn-ghost appcc-btn-reprint-2" data-label-id="${escHtml(l.id)}" style="min-height:44px;padding:4px 10px;font-size:0.74rem;" title="Imprimir doble">🖨️ x2</button>
+              <button type="button" class="btn btn-ghost appcc-btn-toggle-label-status" data-label-id="${escHtml(l.id)}" style="min-height:44px;padding:4px 10px;font-size:0.74rem;color:${isConsumed ? 'var(--cyan)' : '#4ade80'};" title="Marcar consumido / reactivar">${isConsumed ? '🔄 Activar' : '✓ Consumido'}</button>
+              <button type="button" class="btn btn-ghost appcc-btn-del-label" data-label-id="${escHtml(l.id)}" title="Eliminar" style="min-height:44px;padding:4px 10px;font-size:0.74rem;color:#f87171;">✕</button>
+            </div>
+          </td>
+        </tr>`;
+    }).join('');
   }
 
   _toggleCleaningTask(taskId) {
@@ -16034,20 +16555,11 @@ ${ingsStr}`;
       respInp.value = appcc.responsible || '';
     }
 
-    // Populate recipe selector for labels
-    const recSel = document.getElementById('appcc-label-recipe');
-    if (recSel) {
-      const prevVal = recSel.value || '__custom__';
-      const opts = ['<option value="__custom__">— Elaboración Libre / Semielaborado —</option>'];
-      Object.values(this.db.recipes || {}).forEach(r => {
-        const nm = (r.config && r.config.dishName) ? r.config.dishName : 'Sin nombre';
-        opts.push(`<option value="${escHtml(r.id)}">${escHtml(nm)}${r.config && r.config.isSubRecipe ? ' (Base)' : ''}</option>`);
-      });
-      recSel.innerHTML = opts.join('');
-      if (prevVal && (prevVal === '__custom__' || this.db.recipes[prevVal])) {
-        recSel.value = prevVal;
-      }
-    }
+    // Populate recipe & catalog product selector for thermal labels
+    this._populateAppccProductSelect();
+
+    const fmtSel = document.getElementById('appcc-label-format');
+    if (fmtSel && appcc.thermalFormat) fmtSel.value = appcc.thermalFormat;
 
     const prepEl = document.getElementById('appcc-label-prep-date');
     if (prepEl && !prepEl.value) prepEl.value = today;
@@ -16060,6 +16572,7 @@ ${ingsStr}`;
     const batchEl = document.getElementById('appcc-label-batch');
     if (batchEl && !batchEl.value) batchEl.value = this._getAppccBatchCode();
     this._updateAppccLabelAllergens();
+    this._renderThermalPreview();
 
     // Update KPIs
     const todayLogs = (appcc.tempLogs || []).filter(l => (l.timestamp || '').slice(0, 10) === today);
@@ -16075,13 +16588,14 @@ ${ingsStr}`;
       kpiTempsSub.style.color = todayAlerts > 0 ? '#f87171' : '#4ade80';
     }
 
-    const activeLabels = appcc.labels || [];
+    const allLabels = appcc.labels || [];
+    const activeLabels = allLabels.filter(l => l.status !== 'consumed');
     const expSoonCount = activeLabels.filter(l => l.expiryDate && l.expiryDate <= today).length;
     const kpiLbl = document.getElementById('appcc-kpi-labels');
     const kpiLblSub = document.getElementById('appcc-kpi-labels-sub');
     if (kpiLbl) kpiLbl.textContent = String(activeLabels.length);
     if (kpiLblSub) {
-      kpiLblSub.textContent = expSoonCount > 0 ? `⚠️ ${expSoonCount} caducados o caducan hoy` : 'Todos los lotes vigentes';
+      kpiLblSub.textContent = expSoonCount > 0 ? `⚠️ ${expSoonCount} caducados o caducan hoy` : `${allLabels.length} totales (${activeLabels.length} vigentes)`;
       kpiLblSub.style.color = expSoonCount > 0 ? '#fbbf24' : 'var(--t3)';
     }
 
@@ -16147,34 +16661,7 @@ ${ingsStr}`;
     }
 
     // Render Traceability Labels
-    const lblBody = document.getElementById('appcc-labels-body');
-    if (lblBody) {
-      if (activeLabels.length === 0) {
-        lblBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--t3);">Sin lotes secundarios etiquetados. Crea uno arriba para controlar caducidades.</td></tr>';
-      } else {
-        lblBody.innerHTML = activeLabels.slice(0, 40).map(l => {
-          const isExpired = l.expiryDate && l.expiryDate < today;
-          const isToday = l.expiryDate === today;
-          const expStyle = isExpired ? 'color:#f87171;font-weight:800;' : isToday ? 'color:#fbbf24;font-weight:800;' : 'color:#4ade80;font-weight:700;';
-          const expTag = isExpired ? ' (CADUCADO)' : isToday ? ' (HOY)' : '';
-          const algTxt = (l.allergens || []).map(k => (ALLERGENS[k] ? ALLERGENS[k].name : k)).join(', ') || 'Sin alérgenos';
-          return `
-            <tr>
-              <td><div style="font-weight:800;color:var(--t1);">${escHtml(l.dishName)}</div><div style="font-size:0.72rem;color:var(--cyan);font-family:'JetBrains Mono',monospace;">${escHtml(l.batchCode)}${l.supplierLot ? ' · MP: ' + escHtml(l.supplierLot) : ''}</div></td>
-              <td>${escHtml(l.prepDate)}</td>
-              <td style="${expStyle}">${escHtml(l.expiryDate)}${expTag}</td>
-              <td style="font-size:0.76rem;">${escHtml(algTxt)}</td>
-              <td>
-                <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                  <button type="button" class="btn btn-ghost appcc-btn-reprint-1" data-label-id="${escHtml(l.id)}" style="min-height:40px;padding:4px 10px;font-size:0.74rem;">🖨️ x1</button>
-                  <button type="button" class="btn btn-ghost appcc-btn-reprint-2" data-label-id="${escHtml(l.id)}" style="min-height:40px;padding:4px 10px;font-size:0.74rem;">🖨️ x2</button>
-                  <button type="button" class="btn btn-ghost appcc-btn-del-label" data-label-id="${escHtml(l.id)}" title="Dar de baja" style="min-height:40px;padding:4px 10px;font-size:0.74rem;color:#f87171;">✕</button>
-                </div>
-              </td>
-            </tr>`;
-        }).join('');
-      }
-    }
+    this._renderAppccLabelsTable();
 
     // Render L+D Plan (Daily vs Periodic, 4 full columns with word-break:break-word, never truncated)
     const renderLdRows = (tasks) => tasks.map(t => {
@@ -16208,7 +16695,7 @@ ${ingsStr}`;
       : '<tr><td colspan="5">Sin lecturas de cámara registradas.</td></tr>';
 
     const labelRows = activeLabels.length
-      ? activeLabels.map(l => `<tr><td><strong>${escHtml(l.dishName)}</strong><br><small>${escHtml(l.batchCode)}</small></td><td>${escHtml(l.prepDate)}</td><td>${escHtml(l.expiryDate)}</td><td>${escHtml((l.allergens || []).map(k => ALLERGENS[k] ? ALLERGENS[k].name : k).join(', ') || 'Ninguno')}</td></tr>`).join('')
+      ? activeLabels.map(l => `<tr><td><strong>${escHtml(l.dishName)}</strong><br><small>${escHtml(l.batchCode)}${l.supplierLot ? ' · MP: ' + escHtml(l.supplierLot) : ''}</small></td><td>${escHtml(l.prepDate)}</td><td>${escHtml(l.expiryDate)}${l.status === 'consumed' ? ' (Consumido)' : ''}<br><small>${escHtml(l.storage || '')}</small></td><td>${escHtml((l.allergens || []).map(k => ALLERGENS[k] ? ALLERGENS[k].name : k).join(', ') || 'Ninguno')}</td></tr>`).join('')
       : '<tr><td colspan="4">Sin lotes activos en cámara.</td></tr>';
 
     const ldRows = (appcc.cleaningTasks || []).map(t => `
