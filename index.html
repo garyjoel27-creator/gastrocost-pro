@@ -5308,20 +5308,26 @@ Configuración centralizada de Inteligencia Artificial, Sincronización en la Nu
 
       <!-- Sección 1: Inteligencia Artificial -->
 <div style="border:1px solid var(--b1);border-radius:var(--r2);padding:14px;background:rgba(255,255,255,0.02);">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-<div style="display:flex;align-items:center;gap:8px;">
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;margin-bottom:8px;">
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
 <span style="font-size:1.1rem;">🤖</span>
-<strong style="color:var(--t1);font-size:0.85rem;">Motor de Inteligencia Artificial</strong>
+<strong style="color:var(--t1);font-size:0.88rem;">Motor de Inteligencia Artificial</strong>
+<span id="ai-key-status-badge" style="font-size:0.7rem;padding:2px 8px;border-radius:999px;background:rgba(148,163,184,0.14);border:1px solid var(--b2);color:var(--t3);font-weight:700;">⚪ Sin clave</span>
 </div>
-<a href="https://aistudio.google.com/" target="_blank" style="font-size:0.65rem;color:var(--cyan);text-decoration:none;">Obtener clave Google AI Studio ↗</a>
+<a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" style="font-size:0.74rem;color:var(--cyan);text-decoration:none;font-weight:700;">Obtener clave gratis ↗</a>
 </div>
-<div style="font-size:0.72rem;color:var(--t3);margin-bottom:8px;line-height:1.4;">
-Habilita el Asistente Culinario IA para auditar costes, sugerir mermas y crear recetas automáticamente.
+<div style="font-size:0.8rem;color:var(--t3);margin-bottom:10px;line-height:1.45;">
+Activa el OCR de fotos/PDF de Albaranes, el Asistente Culinario IA y la redacción de elaboraciones (se guarda solo en este dispositivo).
 </div>
-<div class="fg" style="margin-bottom:0;">
-<label class="fl" style="font-size:0.68rem;">Google Gemini API Key</label>
-<input class="fi" id="cfg-apikey" type="password" placeholder="AIzaSy..." style="margin-bottom:0;font-family:var(--mono);" autocomplete="off">
+<div class="fg" style="margin-bottom:8px;">
+<label class="fl" for="cfg-apikey">Google Gemini API Key</label>
+<div style="display:flex;gap:6px;flex-wrap:wrap;">
+<input class="fi" id="cfg-apikey" type="password" placeholder="AIzaSy..." style="flex:1;min-width:min(180px,100%);min-height:44px;margin-bottom:0;font-family:var(--mono);" autocomplete="off">
+<button type="button" class="btn btn-ghost" id="btn-toggle-apikey-vis" title="Mostrar u ocultar clave" style="min-height:44px;padding:0 12px;">👁️</button>
+<button type="button" class="btn btn-primary" id="btn-test-ai-key" style="min-height:44px;padding:6px 14px;">⚡ Probar Conexión IA</button>
 </div>
+</div>
+<div id="ai-test-feedback" style="font-size:0.78rem;color:var(--t3);min-height:18px;"></div>
 </div>
 
       <!-- Sección 2: Persistencia Blindada y Respaldo Multi-Nivel -->
@@ -8509,10 +8515,24 @@ class GC {
     /* V14.0 Gemini API Key & IA Chat Event Listeners */
     const apiKeyInput = document.getElementById('cfg-apikey');
     if (apiKeyInput) {
-      apiKeyInput.value = localStorage.getItem('gastrocost_gemini_api_key') || '';
+      const savedKey = (localStorage.getItem('gastrocost_gemini_api_key') || '').trim();
+      apiKeyInput.value = savedKey;
+      this._updateAiKeyStatusBadge(savedKey ? 'saved' : 'empty');
       apiKeyInput.addEventListener('input', () => {
-        localStorage.setItem('gastrocost_gemini_api_key', apiKeyInput.value.trim());
+        const v = apiKeyInput.value.trim();
+        localStorage.setItem('gastrocost_gemini_api_key', v);
+        this._updateAiKeyStatusBadge(v ? 'saved' : 'empty');
       });
+    }
+    const btnToggleVis = document.getElementById('btn-toggle-apikey-vis');
+    if (btnToggleVis && apiKeyInput) {
+      btnToggleVis.addEventListener('click', () => {
+        apiKeyInput.type = apiKeyInput.type === 'password' ? 'text' : 'password';
+      });
+    }
+    const btnTestAi = document.getElementById('btn-test-ai-key');
+    if (btnTestAi) {
+      btnTestAi.addEventListener('click', () => this._testGeminiConnection());
     }
 
     const aiTrigger = document.getElementById('ai-chat-trigger');
@@ -15951,6 +15971,52 @@ Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. 
     const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!txt) throw new Error('Respuesta vacía de Gemini.');
     return txt;
+  }
+
+  _updateAiKeyStatusBadge(state = 'empty', detail = '') {
+    const b = document.getElementById('ai-key-status-badge');
+    const fb = document.getElementById('ai-test-feedback');
+    const map = {
+      empty:   { txt: '⚪ Sin clave', col: 'var(--t3)', bg: 'rgba(148,163,184,0.14)', bd: 'var(--b2)' },
+      saved:   { txt: '🟡 Guardada', col: '#fbbf24', bg: 'rgba(245,158,11,0.15)', bd: 'rgba(245,158,11,0.45)' },
+      testing: { txt: '⏳ Probando...', col: 'var(--cyan)', bg: 'rgba(6,182,212,0.15)', bd: 'rgba(6,182,212,0.45)' },
+      ok:      { txt: '🟢 IA Conectada', col: '#4ade80', bg: 'rgba(34,197,94,0.16)', bd: 'rgba(34,197,94,0.45)' },
+      error:   { txt: '🔴 Clave / Red inválida', col: '#f87171', bg: 'rgba(239,68,68,0.16)', bd: 'rgba(239,68,68,0.45)' }
+    };
+    const cfg = map[state] || map.empty;
+    if (b) {
+      b.textContent = cfg.txt;
+      b.style.color = cfg.col;
+      b.style.background = cfg.bg;
+      b.style.borderColor = cfg.bd;
+    }
+    if (fb && detail !== undefined) {
+      fb.textContent = detail;
+      fb.style.color = cfg.col;
+    }
+  }
+
+  async _testGeminiConnection() {
+    const inp = document.getElementById('cfg-apikey');
+    const key = ((inp && inp.value) || localStorage.getItem('gastrocost_gemini_api_key') || '').trim();
+    if (!key) {
+      this._updateAiKeyStatusBadge('empty', 'Pega primero tu clave de Google AI Studio (AIzaSy...)');
+      toast('Pega primero tu Google Gemini API Key', 'w');
+      return false;
+    }
+    localStorage.setItem('gastrocost_gemini_api_key', key);
+    this._updateAiKeyStatusBadge('testing', 'Verificando conexión con Gemini 2.5 Flash...');
+    try {
+      await this._queryGemini('Responde únicamente OK.', 'Ping de conexión');
+      this._updateAiKeyStatusBadge('ok', '✔ Conexión verificada: Gemini 2.5 Flash listo para Albaranes OCR, Chat y Recetas.');
+      toast('🟢 API de Google Gemini conectada correctamente ✓');
+      return true;
+    } catch (err) {
+      const msg = (err && err.message) ? err.message : 'Error desconocido';
+      this._updateAiKeyStatusBadge('error', `✖ Error: ${msg}`);
+      toast(`Error al conectar Gemini: ${msg}`, 'e');
+      return false;
+    }
   }
 
   async _queryGeminiMultimodal(systemPrompt, userPrompt, base64DataUrl) {
