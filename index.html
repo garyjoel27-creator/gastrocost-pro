@@ -4722,7 +4722,7 @@ Recomendaciones de Consultoría de Chef Ejecutivo
 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
 <button type="button" id="btn-alb-take-photo" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#0284c7,#0369a1);">📷 Fotografiar Albarán</button>
 <button type="button" id="btn-alb-upload-file" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📎 Subir Foto / PDF / Excel</button>
-<button type="button" id="btn-alb-ocr-ai" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">🤖 Digitalizar con IA (Gemini 2.5)</button>
+<button type="button" id="btn-alb-ocr-ai" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">🤖 Digitalizar con IA (Gemini 3.8)</button>
 </div>
 <div id="alb-doc-preview" style="display:none;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px;"></div>
 <details id="alb-quick-paste-wrap" style="border-top:1px solid var(--b1);padding-top:8px;">
@@ -15943,29 +15943,75 @@ Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. 
     this._scrollChatToBottom();
   }
 
+  async _callGeminiWithAutoModel(apiKey, bodyObj) {
+    const postModel = async (model) => {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      return fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyObj)
+      });
+    };
+
+    const isUnavailable = async (res) => {
+      if (!res) return true;
+      if (res.status === 404) return true;
+      if (res.status === 400) {
+        const err = await res.clone().json().catch(() => ({}));
+        const msg = String(err?.error?.message || '').toLowerCase();
+        return msg.includes('no longer available') || msg.includes('not found');
+      }
+      return false;
+    };
+
+    const candidates = [...new Set([this._activeGeminiModel, 'gemini-3.8-flash', 'gemini-2.5-flash'].filter(Boolean))];
+    let lastResponse = null;
+    for (const model of candidates) {
+      const res = await postModel(model);
+      if (res.ok) {
+        this._activeGeminiModel = model;
+        return res;
+      }
+      lastResponse = res;
+      if (!(await isUnavailable(res))) return res;
+    }
+
+    // Dynamic ListModels discovery when all static candidates are retired/unavailable
+    try {
+      const mRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      if (mRes.ok) {
+        const mData = await mRes.json().catch(() => ({}));
+        const usable = (mData.models || []).filter(m =>
+          Array.isArray(m.supportedGenerationMethods) &&
+          m.supportedGenerationMethods.includes('generateContent') &&
+          /^models\/gemini-/i.test(m.name || '') &&
+          !/(embedding|imagen|veo|tts|aqa)/i.test(m.name || '')
+        );
+        const flashList = usable.filter(m => /flash/i.test(m.name)).sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
+        const ordered = flashList.length ? flashList : usable.sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
+        if (ordered.length) {
+          const discovered = ordered[0].name.replace(/^models\//, '');
+          const retryRes = await postModel(discovered);
+          if (retryRes.ok) this._activeGeminiModel = discovered;
+          return retryRes;
+        }
+      }
+    } catch {}
+    return lastResponse;
+  }
+
   async _queryGemini(systemPrompt, userPrompt) {
     const apiKey = localStorage.getItem('gastrocost_gemini_api_key');
     if (!apiKey) {
       throw new Error('API_KEY_MISSING');
     }
-    const callModel = async (model) => {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      return fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: userPrompt }] }],
-          systemInstruction: { parts: [{ text: systemPrompt }] }
-        })
-      });
-    };
-    let response = await callModel('gemini-2.5-flash');
-    if (response.status === 404) {
-      response = await callModel('gemini-2.0-flash');
-    }
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `HTTP ${response.status}`);
+    const response = await this._callGeminiWithAutoModel(apiKey, {
+      contents: [{ parts: [{ text: userPrompt }] }],
+      systemInstruction: { parts: [{ text: systemPrompt }] }
+    });
+    if (!response || !response.ok) {
+      const errData = response ? await response.json().catch(() => ({})) : {};
+      throw new Error(errData.error?.message || `HTTP ${response ? response.status : 'ERROR'}`);
     }
     const data = await response.json();
     const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -16005,10 +16051,11 @@ Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. 
       return false;
     }
     localStorage.setItem('gastrocost_gemini_api_key', key);
-    this._updateAiKeyStatusBadge('testing', 'Verificando conexión con Gemini 2.5 Flash...');
+    this._updateAiKeyStatusBadge('testing', 'Verificando conexión con Gemini 3.8 Flash...');
     try {
       await this._queryGemini('Responde únicamente OK.', 'Ping de conexión');
-      this._updateAiKeyStatusBadge('ok', '✔ Conexión verificada: Gemini 2.5 Flash listo para Albaranes OCR, Chat y Recetas.');
+      const activeM = this._activeGeminiModel || 'gemini-3.8-flash';
+      this._updateAiKeyStatusBadge('ok', `✔ Conexión verificada (${activeM}) listo para Albaranes OCR, Chat y Recetas.`);
       toast('🟢 API de Google Gemini conectada correctamente ✓');
       return true;
     } catch (err) {
@@ -16030,29 +16077,18 @@ Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. 
     }
     const mimeType = match[1];
     const b64Data = match[2].replace(/\s+/g, '');
-    const callModel = async (model) => {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      return fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [
-              { text: userPrompt },
-              { inlineData: { mimeType, data: b64Data } }
-            ]
-          }],
-          systemInstruction: { parts: [{ text: systemPrompt }] }
-        })
-      });
-    };
-    let response = await callModel('gemini-2.5-flash');
-    if (response.status === 404) {
-      response = await callModel('gemini-2.0-flash');
-    }
-    if (!response.ok) {
-      const errData = await response.json().catch(() => ({}));
-      throw new Error(errData.error?.message || `HTTP ${response.status}`);
+    const response = await this._callGeminiWithAutoModel(apiKey, {
+      contents: [{
+        parts: [
+          { text: userPrompt },
+          { inlineData: { mimeType, data: b64Data } }
+        ]
+      }],
+      systemInstruction: { parts: [{ text: systemPrompt }] }
+    });
+    if (!response || !response.ok) {
+      const errData = response ? await response.json().catch(() => ({})) : {};
+      throw new Error(errData.error?.message || `HTTP ${response ? response.status : 'ERROR'}`);
     }
     const data = await response.json();
     const txt = data.candidates?.[0]?.content?.parts?.[0]?.text;
@@ -16256,7 +16292,7 @@ ${ingsStr}`;
         } else if (tabId === 'tab-finanzas') {
           text = `La pestaña **Finanzas** analiza el margen real del plato, PVP de venta final, Matriz BCG de Ingeniería de Menú y umbral de rentabilidad.`;
         } else if (tabId === 'tab-albaranes') {
-          text = `La pestaña **Albaranes** digitaliza notas de entrega por foto/PDF (IA Gemini 2.5) o texto offline, detecta subidas de precios respecto al Catálogo, recalcula tus escandallos y sella la recepción sanitaria APPCC (CE 178/2002).`;
+          text = `La pestaña **Albaranes** digitaliza notas de entrega por foto/PDF (IA Gemini 3.8) o texto offline, detecta subidas de precios respecto al Catálogo, recalcula tus escandallos y sella la recepción sanitaria APPCC (CE 178/2002).`;
         } else if (tabId === 'tab-appcc') {
           text = `La pestaña **APPCC / Sanidad** registra temperaturas de cámaras PCC, etiquetas de trazabilidad y caducidad secundaria, y el Plan L+D oficial (CE 852/2004).`;
         } else {
@@ -17654,7 +17690,7 @@ ${ingsStr}`;
     const visual = draft.attachmentThumb
       ? `<img src="${draft.attachmentThumb}" alt="Albarán" class="alb-photo-preview">`
       : `<div style="padding:10px 14px;border:1px solid var(--cyan);border-radius:6px;background:rgba(6,182,212,0.1);color:var(--cyan);font-weight:700;">📄 ${escHtml(draft.attachmentName || 'Documento PDF')}</div>`;
-    box.innerHTML = `${visual}<div style="font-size:0.76rem;color:var(--t2);"><strong>${escHtml(draft.attachmentName || 'Documento adjunto')}</strong><div style="color:var(--t3);font-size:0.7rem;">Listo para OCR con Gemini 2.5 Flash y respaldo en acta PCC</div></div>`;
+    box.innerHTML = `${visual}<div style="font-size:0.76rem;color:var(--t2);"><strong>${escHtml(draft.attachmentName || 'Documento adjunto')}</strong><div style="color:var(--t3);font-size:0.7rem;">Listo para OCR con Gemini 3.8 Flash y respaldo en acta PCC</div></div>`;
   }
 
   async _scanAlbaranWithAI() {

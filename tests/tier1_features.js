@@ -1692,12 +1692,12 @@ function runTier1Tests(registerTest) {
     const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, 'manifest.json'), 'utf8'));
 
     assert(indexStat.size < 1100 * 1024, `index.html size (${indexStat.size} B) must be under 1.1 MB after image optimization`);
-    assert(html.includes('gemini-2.5-flash') && !html.includes('gemini-1.5-flash'), 'Must use active Gemini 2.5 Flash model');
+    assert(html.includes('gemini-3.8-flash') && html.includes('_callGeminiWithAutoModel') && !html.includes('gemini-1.5-flash') && !html.includes('gemini-2.0-flash'), 'Must use active Gemini 3.8 Flash model with auto-fallback');
     assert(html.includes('manifest.json') && html.includes('icon.svg'), 'index.html must link manifest.json and icon.svg');
     assert(html.includes('id="legal-modal"') && html.includes('id="btn-arsopol-wipe"'), 'Must include RGPD/ARSOPOL legal tools');
     assert(fs.existsSync(path.join(rootDir, 'icon.svg')), 'icon.svg must exist');
     assert.strictEqual(manifest.display, 'standalone', 'manifest.json must configure standalone PWA mode');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.1-cache'"), 'sw.js must bump cache version to v21.1');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.2-cache'"), 'sw.js must bump cache version to v21.2');
   });
 
   registerTest('T1.R10.6: Mobile & Tablet scroll architecture unblocks end-of-strip buttons and modals', () => {
@@ -1808,7 +1808,7 @@ function runTier1Tests(registerTest) {
 
     const sw = getServiceWorkerJs();
     assert(sw.includes("const CACHE_NAME = 'gastrocost-v16.8-cache'"), 'sw.js baseline comment must remain intact');
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.1-cache'"), 'sw.js cache version must be v21.1');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.2-cache'"), 'sw.js cache version must be v21.2');
   });
 
   registerTest('T1.R11.1: Albaranes Parser handles natural Spanish delivery notes, CSV & sanitary lots', () => {
@@ -2009,7 +2009,7 @@ function runTier1Tests(registerTest) {
     const indexStat = fs.statSync(path.join(rootDir, 'index.html'));
     assert(indexStat.size < 1100 * 1024, `index.html size (${indexStat.size} B) must stay under 1.1 MB`);
     const sw = getServiceWorkerJs();
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.1-cache'"), 'sw.js must run v21.1 cache');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.2-cache'"), 'sw.js must run v21.2 cache');
   });
 
   registerTest('T1.R11.6: Full-Viewport Responsive & Anti-Overflow Engine adapts from 360px mobile to desktop', () => {
@@ -2156,7 +2156,7 @@ function runTier1Tests(registerTest) {
     assert.strictEqual(cl.archivedLocal, true, 'Closure must mark archivedLocal = true after folder write');
 
     const sw = getServiceWorkerJs();
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.1-cache'"), 'sw.js must run v21.1 cache');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.2-cache'"), 'sw.js must run v21.2 cache');
   });
 
   registerTest('T1.R13.1: Quick Weekly Price Paste records purchase-to-purchase history & cascades recipes', () => {
@@ -2268,7 +2268,7 @@ function runTier1Tests(registerTest) {
     assert(html.includes('id="btn-test-ai-key"') && html.includes('_testGeminiConnection'), 'Settings must provide 1-click Gemini AI connection tester & status badge');
     assert(indexStat.size < 1100 * 1024, `index.html (${indexStat.size} B) must stay under 1.1 MB`);
     const sw = getServiceWorkerJs();
-    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.1-cache'"), 'sw.js must run v21.1 cache');
+    assert(sw.includes("const CACHE_NAME = 'gastrocost-v21.2-cache'"), 'sw.js must run v21.2 cache');
   });
 }
 
