@@ -2819,6 +2819,8 @@ body.theme-chef-imperial {
 --cyanD: #944e16;
 --cyanL: rgba(184, 106, 40, 0.12);
 --cyanG: rgba(184, 106, 40, 0.06);
+--gold: #8a5315;
+--gold-subtle: rgba(138, 83, 21, 0.12);
 
 --green: #10b981;
 --greenD: #047857;
@@ -2858,6 +2860,14 @@ radial-gradient(ellipse at 15% 50%, rgba(184, 106, 40, 0.035) 0%, transparent 55
 radial-gradient(ellipse at 85% 15%, rgba(217, 119, 6, 0.025) 0%, transparent 50%),
 radial-gradient(ellipse at 50% 95%, rgba(16, 185, 129, 0.02) 0%, transparent 45%);
 }
+body.theme-pearl-bronze .ux-drawer,
+body.theme-chef-imperial .ux-drawer { background: rgba(255,255,255,0.65); border-color: rgba(138,83,21,0.22); }
+body.theme-pearl-bronze .ux-subtab.active,
+body.theme-chef-imperial .ux-subtab.active { background: rgba(138,83,21,0.14); border-color: rgba(138,83,21,0.45); color: #7c450d; }
+body.theme-pearl-bronze .appcc-pill-ok,
+body.theme-chef-imperial .appcc-pill-ok { color: #047857; background: rgba(16,185,129,0.14); border-color: rgba(4,120,87,0.4); }
+body.theme-pearl-bronze .appcc-pill-pending,
+body.theme-chef-imperial .appcc-pill-pending { color: #92400e; background: rgba(217,119,6,0.14); border-color: rgba(146,64,14,0.4); }
 
 /* ⚓ TEMA 3: NAVY & PLATA (Executive Neomorphism) */
 body.theme-navy-silver,
@@ -3765,7 +3775,7 @@ body.printing-appcc-sticker #appcc-sticker-print { display:flex !important; flex
 <div class="hdr-left">
 <div class="logo">
 <span class="logo-mark"><em>Gastro</em>Cost PRO</span>
-<span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V21.5 COMMERCIAL SUITE</span>
+<span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V21.6 COMMERCIAL SUITE</span>
 </div>
 <span class="save-ind" id="save-ind">
 <span class="save-dot"></span> Guardado
@@ -3775,6 +3785,7 @@ body.printing-appcc-sticker #appcc-sticker-print { display:flex !important; flex
 <span class="visually-hidden">Dual-Save IDB</span>
 <span id="hdr-shield-label">Listo Offline</span>
 </span>
+<div id="hdr-smart-alerts" style="display:none;gap:6px;align-items:center;flex-wrap:wrap;"></div>
 </div>
 <div class="hdr-btns" id="hdr-btns">
 <input type="file" id="fi-import" class="visually-hidden" accept=".json">
@@ -3863,7 +3874,7 @@ Configuración
 <div style="display:flex;gap:8px;align-items:center">
 <div style="flex:1">
 <label class="fl" style="font-size:0.62rem;color:var(--cyan)">Rendimiento Medido</label>
-<input class="fi cfg" data-k="yieldQty" inputmode="decimal" id="cfg-yieldQty" inputmode="decimal" type="number" min="0.001" step="any" placeholder="1000" style="margin-bottom:0">
+<input class="fi cfg" data-k="yieldQty" id="cfg-yieldQty" inputmode="decimal" type="number" min="0.001" step="any" placeholder="1000" style="margin-bottom:0">
 </div>
 <div style="width:105px">
 <label class="fl" style="font-size:0.62rem;color:var(--cyan)">Unidad</label>
@@ -4047,6 +4058,16 @@ Configuración
 </div>
 <div class="fg" style="grid-column:1 / -1;">
 <details class="ux-drawer" style="margin-top:0;">
+<summary style="font-size:0.76rem;color:var(--gold);">📦 Calcular precio desde caja / botella <span>▾</span></summary>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:flex-end;">
+<div style="flex:1;min-width:110px;"><label class="fl">Precio envase</label><input class="fi" id="ing-pack-price" type="number" step="any" min="0.01" inputmode="decimal" placeholder="Ej. 18.50" style="margin-bottom:0;"></div>
+<div style="flex:1;min-width:110px;"><label class="fl">Contenido (kg / L / ud)</label><input class="fi" id="ing-pack-qty" type="number" step="any" min="0.001" inputmode="decimal" placeholder="Ej. 0.70 o 6" style="margin-bottom:0;"></div>
+<button type="button" class="btn btn-ghost" id="btn-ing-pack-calc" style="min-height:42px;border-color:rgba(212,175,55,0.45);color:var(--gold);">Aplicar €/kg·L</button>
+</div>
+</details>
+</div>
+<div class="fg" style="grid-column:1 / -1;">
+<details class="ux-drawer" style="margin-top:0;">
 <summary style="font-size:0.78rem;color:var(--t2);">⚠️ Alérgenos (14 UE 1169/2011) <span>▾</span></summary>
 <div class="allergen-select-grid" id="ing-allergens-grid" style="margin-top:8px;">
 <label class="allergen-option" data-a="gluten"><input type="checkbox" value="gluten">🌾 Gluten</label>
@@ -4168,12 +4189,12 @@ Configuración
 <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
 <span style="font-size:0.65rem;font-weight:800;letter-spacing:1px;color:var(--cyan);text-transform:uppercase;">ESCALADOR EN TIEMPO REAL</span>
 <div style="display:flex;align-items:center;gap:8px;">
-<button type="button" class="btn btn-ghost" id="btn-scale-minus" style="min-width:36px;height:36px;padding:0;font-size:1.2rem;font-weight:bold;color:#ffffff;" title="Restar ración">-</button>
+<button type="button" class="btn btn-ghost" id="btn-scale-minus" style="min-width:44px;height:44px;padding:0;font-size:1.25rem;font-weight:bold;color:#ffffff;" title="Restar ración">-</button>
 <div style="display:flex;align-items:baseline;gap:4px;min-width:64px;justify-content:center;">
 <span id="prod-current-portions" style="font-size:1.4rem;font-weight:800;font-family:var(--mono);color:var(--cyan);">4</span>
 <span style="font-size:0.7rem;color:var(--t3);">pax</span>
 </div>
-<button type="button" class="btn btn-ghost" id="btn-scale-plus" style="min-width:36px;height:36px;padding:0;font-size:1.2rem;font-weight:bold;color:#ffffff;" title="Sumar ración">+</button>
+<button type="button" class="btn btn-ghost" id="btn-scale-plus" style="min-width:44px;height:44px;padding:0;font-size:1.25rem;font-weight:bold;color:#ffffff;" title="Sumar ración">+</button>
 </div>
 </div>
 <div class="prod-scaler-presets" style="display:flex;flex-wrap:wrap;gap:6px;">
@@ -4384,58 +4405,46 @@ Configuración
 
     <!-- TAB 4: CATALOGO MAESTRO (V13) -->
 <div id="tab-catalogo" class="tab-content desktop-opt">
+<div class="ux-subtabs" data-subtab-group="catalogo" role="tablist">
+<button type="button" class="ux-subtab active" data-subtab-group="catalogo" data-subpanel="cat-panel-items">📦 Insumos</button>
+<button type="button" class="ux-subtab" data-subtab-group="catalogo" data-subpanel="cat-panel-recipes">📚 Mis Recetas</button>
+</div>
+
+<div id="cat-panel-items" class="ux-subpanel active" data-subtab-group="catalogo">
 <div class="card">
 <div class="card-hd" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-<div style="display:flex;align-items:center;gap:8px;">
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-<span>Administración del Catálogo Maestro</span>
-</div>
-<div id="vendor-dropzone" class="vendor-dropzone" style="display:flex;align-items:center;gap:8px;padding:4px 8px;cursor:pointer;" title="Subir o arrastrar archivo de tarifa Excel (.xlsx, .xls) o CSV (.csv)">
-<button type="button" class="btn btn-ghost" id="btn-vendor-import" style="display:inline-flex;align-items:center;gap:6px;color:var(--cyan);font-weight:600;font-size:0.75rem;padding:4px 8px;border:none;background:transparent;cursor:pointer;">
-📥 Importar Tarifa Proveedor (.xlsx / .csv)
-</button>
+<div style="display:flex;align-items:center;gap:8px;"><span>📦</span><span>Catálogo Maestro de Insumos</span></div>
+<div id="vendor-dropzone" class="vendor-dropzone" style="display:flex;align-items:center;gap:8px;padding:4px 8px;cursor:pointer;" title="Subir tarifa Excel (.xlsx) o CSV">
+<button type="button" class="btn btn-ghost" id="btn-vendor-import" style="display:inline-flex;align-items:center;gap:6px;color:var(--cyan);font-weight:600;font-size:0.76rem;padding:4px 8px;border:none;background:transparent;cursor:pointer;">📥 Importar Tarifa (.xlsx / .csv)</button>
 <input type="file" id="input-vendor-file" accept=".xlsx, .xls, .csv" style="display:none">
 <input type="file" id="vendor-file-input" accept=".xlsx, .xls, .csv" style="display:none">
 </div>
 </div>
-<div class="form-table-split">
-          <!-- Formulario agregar insumo maestro -->
-<form id="form-cat-add">
-<div class="fg">
-<label class="fl">Nombre del Insumo</label>
-<input class="fi" id="cat-add-name" type="text" required placeholder="Ej. Trufa Negra Fresca">
-</div>
-<div class="fg">
-<label class="fl">Categoría</label>
-<select class="fi" id="cat-add-cat">
-<option value="protein">🥩 Proteínas</option>
-<option value="vegetable">🥬 Vegetales</option>
-<option value="dairy">🧀 Lácteos</option>
-<option value="spice">🌶️ Especias / Condimentos</option>
-<option value="oil">🫒 Aceites / Grasas</option>
-<option value="other" selected>📦 Otros</option>
-</select>
-</div>
+
+<details id="cat-add-drawer" class="ux-drawer" style="margin:0 0 12px;">
+<summary style="color:var(--cyan);font-size:0.84rem;"><span>➕ Nuevo Insumo Maestro</span><span style="color:var(--t3);font-size:0.74rem;">Desplegar ▾</span></summary>
+<form id="form-cat-add" style="margin-top:10px;">
+<div class="fg"><label class="fl">Nombre del Insumo</label><input class="fi" id="cat-add-name" type="text" required placeholder="Ej. Trufa Negra Fresca"></div>
+<div class="fg"><label class="fl">Categoría</label><select class="fi" id="cat-add-cat"><option value="protein">🥩 Proteínas</option><option value="vegetable">🥬 Vegetales</option><option value="dairy">🧀 Lácteos</option><option value="spice">🌶️ Especias</option><option value="oil">🫒 Aceites</option><option value="other" selected>📦 Otros</option></select></div>
 <div class="fg3">
-<div class="fg">
-<label class="fl">Unidad</label>
-<select class="fi" id="cat-add-unit">
-<option value="g">g / ml</option>
-<option value="ud">ud</option>
-</select>
+<div class="fg"><label class="fl">Unidad</label><select class="fi" id="cat-add-unit"><option value="g">g / ml</option><option value="ud">ud</option></select></div>
+<div class="fg"><label class="fl">Merma (%)</label><input class="fi" id="cat-add-waste" inputmode="decimal" type="number" min="0" max="99" value="0"></div>
+<div class="fg"><label class="fl" id="lbl-cat-price">Precio (<span class="curr-sym">€</span>/kg)</label><input class="fi" id="cat-add-price" inputmode="decimal" type="number" required step="any" min="0.001" placeholder="95.00"></div>
 </div>
-<div class="fg">
-<label class="fl">Merma (%)</label>
-<input class="fi" id="cat-add-waste" inputmode="decimal" type="number" min="0" max="99" value="0">
+<div class="fg" style="grid-column:1 / -1;">
+<details class="ux-drawer" style="margin-top:0;">
+<summary style="font-size:0.76rem;color:var(--gold);">📦 Calcular precio desde caja / botella <span>▾</span></summary>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:flex-end;">
+<div style="flex:1;min-width:110px;"><label class="fl">Precio envase</label><input class="fi" id="cat-pack-price" type="number" step="any" min="0.01" inputmode="decimal" placeholder="Ej. 18.50" style="margin-bottom:0;"></div>
+<div style="flex:1;min-width:110px;"><label class="fl">Contenido (kg / L / ud)</label><input class="fi" id="cat-pack-qty" type="number" step="any" min="0.001" inputmode="decimal" placeholder="Ej. 0.70 o 6" style="margin-bottom:0;"></div>
+<button type="button" class="btn btn-ghost" id="btn-cat-pack-calc" style="min-height:42px;border-color:rgba(212,175,55,0.45);color:var(--gold);">Aplicar €/kg·L</button>
 </div>
-<div class="fg">
-<label class="fl" id="lbl-cat-price">Precio Maestro (<span class="curr-sym">€</span>/kg)</label>
-<input class="fi" id="cat-add-price" inputmode="decimal" type="number" required step="any" min="0.001" placeholder="95.00">
+</details>
 </div>
-</div>
-<div class="fg">
-<label class="fl">Alérgenos (14 Obligatorios UE 1169/2011)</label>
-<div class="allergen-select-grid" id="cat-add-allergens-grid">
+<div class="fg" style="grid-column:1 / -1;">
+<details class="ux-drawer" style="margin-top:0;">
+<summary style="font-size:0.78rem;color:var(--t2);">⚠️ Alérgenos (14 UE 1169/2011) <span>▾</span></summary>
+<div class="allergen-select-grid" id="cat-add-allergens-grid" style="margin-top:8px;">
 <label class="allergen-option" data-a="gluten"><input type="checkbox" value="gluten">🌾 Gluten</label>
 <label class="allergen-option" data-a="crustacean"><input type="checkbox" value="crustacean">🦞 Crustác.</label>
 <label class="allergen-option" data-a="egg"><input type="checkbox" value="egg">🥚 Huevo</label>
@@ -4451,79 +4460,41 @@ Configuración
 <label class="allergen-option" data-a="lupin"><input type="checkbox" value="lupin">🌼 Altramuces</label>
 <label class="allergen-option" data-a="molluscs"><input type="checkbox" value="molluscs">🐙 Moluscos</label>
 </div>
+</details>
 </div>
 <button type="submit" class="btn btn-primary" style="width:100%;margin-top:6px">+ Crear Insumo Maestro</button>
 </form>
+</details>
 
-          <!-- Tabla del catálogo con buscador -->
-<div style="min-width: 0 !important;">
-<div class="fg" style="margin-bottom:12px">
-<input class="lib-search" id="cat-search" type="text" placeholder="Buscar en el catálogo maestro..." style="margin-bottom:0;display:block">
-</div>
-<div class="tbl-wrap" style="max-height: 480px; overflow-y: auto">
+<div style="min-width:0 !important;">
+<div class="fg" style="margin-bottom:10px"><input class="lib-search" id="cat-search" type="text" placeholder="🔍 Buscar en el catálogo maestro..." style="margin-bottom:0;display:block"></div>
+<div class="tbl-wrap" style="max-height:480px;overflow-y:auto">
 <table>
-<thead>
-<tr>
-<th>Nombre Insumo</th>
-<th>Categoría</th>
-<th>Merma (%)</th>
-<th>Precio Maestro</th>
-<th>Alérgenos</th>
-<th style="width:32px"></th>
-</tr>
-</thead>
-<tbody id="cat-tbl-body">
-                  <!-- Javascript populated -->
-</tbody>
+<thead><tr><th>Nombre Insumo</th><th>Categoría</th><th>Merma (%)</th><th>Precio Maestro</th><th>Alérgenos</th><th style="width:32px"></th></tr></thead>
+<tbody id="cat-tbl-body"></tbody>
 </table>
 </div>
 </div>
 </div>
 </div>
 
-      <!-- V15.6 Catálogo de Fichas Técnicas & Recetario Maestro -->
-<div class="card" id="card-cat-recipes" style="margin-top:20px;">
+<div id="cat-panel-recipes" class="ux-subpanel" data-subtab-group="catalogo">
+<div class="card" id="card-cat-recipes">
 <div class="card-hd" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-<div style="display:flex;align-items:center;gap:8px;">
-<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>
-<span style="font-weight:700;letter-spacing:0.02em;">Catálogo de Fichas Técnicas Guardadas</span>
-</div>
+<div style="display:flex;align-items:center;gap:8px;"><span>📚</span><span style="font-weight:700;">Fichas Técnicas Guardadas</span></div>
 <div style="display:flex;align-items:center;gap:8px;">
 <span class="tag" id="cat-recipes-badge" style="background:var(--gold-subtle);color:var(--gold);border:1px solid var(--gold);font-weight:700;padding:3px 8px;font-size:0.7rem;">0 FICHAS</span>
-<button type="button" class="btn btn-primary" onclick="gc.openNewRecipeModal()" style="font-size:0.72rem;padding:5px 10px;display:inline-flex;align-items:center;gap:4px;" title="Crear nueva ficha técnica guiada">
-<span>➕ Nueva Ficha</span>
-</button>
+<button type="button" class="btn btn-primary" onclick="gc.openNewRecipeModal()" style="font-size:0.74rem;padding:6px 12px;display:inline-flex;align-items:center;gap:4px;"><span>➕ Nueva Ficha</span></button>
 </div>
 </div>
-
-<div style="margin-bottom:12px;">
-<input class="lib-search" id="cat-recipes-search" type="text" placeholder="Buscar ficha técnica por nombre..." style="margin-bottom:0;display:block;">
-</div>
-
-        <!-- Tabla en pantallas grandes / medianas -->
+<div style="margin-bottom:10px;"><input class="lib-search" id="cat-recipes-search" type="text" placeholder="🔍 Buscar ficha técnica por nombre..." style="margin-bottom:0;display:block;"></div>
 <div class="cat-recipes-table-wrap tbl-wrap" style="overflow-x:auto;">
 <table style="width:100%;">
-<thead>
-<tr>
-<th>Ficha Técnica</th>
-<th>Tipo</th>
-<th>Raciones</th>
-<th>Coste Lote</th>
-<th>Coste / Ración</th>
-<th>PVP Carta</th>
-<th>Food Cost</th>
-<th style="width:90px;text-align:center;">Acción</th>
-</tr>
-</thead>
-<tbody id="cat-recipes-tbl-body">
-              <!-- Renderizado dinámico -->
-</tbody>
+<thead><tr><th>Ficha Técnica</th><th>Tipo</th><th>Raciones</th><th>Coste Lote</th><th>Coste / Ración</th><th>PVP Carta</th><th>Food Cost</th><th style="width:90px;text-align:center;">Acción</th></tr></thead>
+<tbody id="cat-recipes-tbl-body"></tbody>
 </table>
 </div>
-
-        <!-- Lista de tarjetas táctiles optimizadas para móviles (Android / iPhone) -->
-<div class="cat-recipes-mobile-list" id="cat-recipes-mobile-list" style="display:none;flex-direction:column;gap:10px;">
-          <!-- Renderizado dinámico para móvil con botones táctiles de gran tamaño -->
+<div class="cat-recipes-mobile-list" id="cat-recipes-mobile-list" style="display:none;flex-direction:column;gap:10px;"></div>
 </div>
 </div>
 </div>
@@ -4843,7 +4814,7 @@ Configuración
 </div>
 </details>
 
-<details class="ux-drawer">
+<details id="appcc-trace-drawer" class="ux-drawer">
 <summary style="font-size:0.82rem;color:var(--t2);">📋 Lotes en Cámara e Historial de Trazabilidad <span>▾</span></summary>
 <div style="margin-top:10px;">
 <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -11804,53 +11775,13 @@ class GC {
   }
 
   async _exportRecipeBookPDF(recipeIds) {
-    const fullHtml = this._compileRecipeBook(recipeIds, 'html');
     toast('⏳ Preparando compilación PDF del libro...');
-    const loaded = await this._ensureHTML2PDF();
-    if (!loaded || !window.html2pdf) {
-      toast('html2pdf no disponible. Abriendo vista de impresión nativa...', 'w');
-      this._compileRecipeBook(recipeIds, 'print');
-      return;
-    }
-
-    const scratch = document.getElementById('pdf-scratch') || document.body;
-    scratch.style.position = 'fixed';
-    scratch.style.top = '0';
-    scratch.style.left = '0';
-    scratch.style.width = '794px';
-    scratch.style.zIndex = '999999';
-    scratch.style.background = '#ffffff';
-    scratch.style.display = 'block';
-
-    const tempContainer = document.createElement('div');
-    tempContainer.innerHTML = fullHtml;
-    scratch.appendChild(tempContainer);
-
-    try {
-      const opt = {
-        margin: [10, 10, 10, 10],
-        filename: `Libro_Maestro_Recetas_${new Date().toISOString().slice(0, 10)}.pdf`,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 1.8, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 794 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      await window.html2pdf().from(tempContainer).set(opt).save();
-      toast('PDF del Libro Digital generado ✓');
-    } catch (err) {
-      console.warn('html2pdf Recipe Book error, falling back to native print:', err);
-      toast('Fallo al generar PDF con html2pdf. Abriendo visor de impresión...', 'w');
-      this._compileRecipeBook(recipeIds, 'print');
-    } finally {
-      if (tempContainer.parentElement) tempContainer.parentElement.removeChild(tempContainer);
-      scratch.innerHTML = '';
-      scratch.style.display = 'none';
-      scratch.style.position = '';
-      scratch.style.top = '';
-      scratch.style.left = '';
-      scratch.style.width = '';
-      scratch.style.zIndex = '';
-      scratch.style.background = '';
-    }
+    return this._renderHtmlToPdf(
+      this._compileRecipeBook(recipeIds, 'html'),
+      `Libro_Maestro_Recetas_${new Date().toISOString().slice(0, 10)}.pdf`,
+      'PDF del Libro Digital generado ✓',
+      { scale: 1.8, onFallback: () => this._compileRecipeBook(recipeIds, 'print') }
+    );
   }
 
   _renderFinanceTab() {
@@ -12834,6 +12765,8 @@ class GC {
     }
     a.download = `GastroCost_Snapshot_${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
+    if (typeof localStorage !== 'undefined') localStorage.setItem('gc_last_backup_ts', String(Date.now()));
+    if (typeof this._renderHeaderSmartAlerts === 'function') this._renderHeaderSmartAlerts();
     toast('Snapshot JSON exportado ✓');
   }
 
@@ -12940,16 +12873,16 @@ class GC {
 
     try {
       const snapshot = this._createSnapshot(this.db);
-      const res = await fetch(cloudUrl.trim(), {
+      const res = await this._fetchWithTimeout(cloudUrl.trim(), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(snapshot)
-      });
+      }, 12000);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       toast('☁️ Copia enviada a la nube con éxito ✓');
       this._updateFichaStatus('cloud');
     } catch (err) {
-      toast('Error al enviar a la nube: ' + err.message, 'e');
+      toast('Error al enviar a la nube: ' + (err && err.name === 'AbortError' ? 'Tiempo de espera agotado (12s)' : err.message), 'e');
     } finally {
       if (btn) { btn.innerHTML = origText; btn.disabled = false; }
     }
@@ -12974,12 +12907,12 @@ class GC {
     if (btn) { btn.innerHTML = '⏳ Descargando…'; btn.disabled = true; }
 
     try {
-      const res = await fetch(cloudUrl.trim(), { method: 'GET' });
+      const res = await this._fetchWithTimeout(cloudUrl.trim(), { method: 'GET' }, 12000);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       this._promptImportMode(data);
     } catch (err) {
-      toast('Error al descargar de la nube: ' + err.message, 'e');
+      toast('Error al descargar de la nube: ' + (err && err.name === 'AbortError' ? 'Tiempo de espera agotado (12s)' : err.message), 'e');
     } finally {
       if (btn) { btn.innerHTML = origText; btn.disabled = false; }
     }
@@ -14166,84 +14099,16 @@ class GC {
     const orig = btn.innerHTML || '🍳 Ficha Cocina';
     btn.innerHTML = '⏳ Generando…';
     btn.disabled = true;
-
-    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
-    const cfg = r.config || {};
-    const html = this._buildKitchenFichaHTML();
-    const filename = this._safeFilename(cfg.dishName, 'Ficha_Cocina', 'pdf');
-
-    let loaded = false;
     try {
-      loaded = await this._ensureHTML2PDF();
-    } catch {
-      loaded = false;
-    }
-
-    if (!loaded || !window.html2pdf) {
-      btn.innerHTML = orig;
-      btn.disabled = false;
-      toast('html2pdf no disponible. Abriendo vista de impresión nativa...', 'w');
-      this._printKitchenFicha();
-      return;
-    }
-
-    const wrap = document.getElementById('pdf-scratch');
-    if (!wrap) {
-      this._printKitchenFicha();
-      btn.innerHTML = orig;
-      btn.disabled = false;
-      return;
-    }
-
-    wrap.innerHTML = html;
-    wrap.style.position = 'fixed';
-    wrap.style.top = '0';
-    wrap.style.left = '0';
-    wrap.style.width = '794px';
-    wrap.style.zIndex = '999999';
-    wrap.style.background = '#ffffff';
-    wrap.style.display = 'block';
-
-    const imgsToLoad = wrap.querySelectorAll('img');
-    await Promise.all(Array.from(imgsToLoad).map(img => {
-      if (img.complete) return Promise.resolve();
-      return new Promise(resolve => {
-        const timer = setTimeout(resolve, 3000);
-        img.onload = () => { clearTimeout(timer); resolve(); };
-        img.onerror = () => { clearTimeout(timer); resolve(); };
-      });
-    }));
-
-    const targetEl = wrap.firstElementChild || wrap;
-    try {
-      await window.html2pdf().set({
-        margin: [10, 10, 10, 10],
-        filename: filename,
-        image: { type:'jpeg', quality:.95 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: 794,
-          windowHeight: Math.max(1123, targetEl.scrollHeight || 1123)
-        },
-        jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
-      }).from(targetEl).save();
-      toast('Ficha de Cocina PDF generada ✓');
-    } catch (err) {
-      console.warn('html2pdf error, falling back to native print:', err);
-      toast('Fallo al generar con html2pdf. Abriendo visor de impresión...', 'w');
-      this._printKitchenFicha();
+      const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+      const cfg = r.config || {};
+      await this._renderHtmlToPdf(
+        this._buildKitchenFichaHTML(),
+        this._safeFilename(cfg.dishName, 'Ficha_Cocina', 'pdf'),
+        'Ficha de Cocina PDF generada ✓',
+        { onFallback: () => this._printKitchenFicha() }
+      );
     } finally {
-      wrap.innerHTML = '';
-      wrap.style.display = 'none';
-      wrap.style.position = '';
-      wrap.style.top = '';
-      wrap.style.left = '';
-      wrap.style.width = '';
-      wrap.style.zIndex = '';
-      wrap.style.background = '';
       btn.innerHTML = orig;
       btn.disabled = false;
     }
@@ -14254,84 +14119,16 @@ class GC {
     const orig = btn.innerHTML || '📄 Ficha Financiera';
     btn.innerHTML = '⏳ Generando…';
     btn.disabled = true;
-
-    const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
-    const cfg = r.config || {};
-    const html = this._buildFinancialFichaHTML();
-    const filename = this._safeFilename(cfg.dishName, 'Escandallo', 'pdf');
-
-    let loaded = false;
     try {
-      loaded = await this._ensureHTML2PDF();
-    } catch {
-      loaded = false;
-    }
-
-    if (!loaded || !window.html2pdf) {
-      btn.innerHTML = orig;
-      btn.disabled = false;
-      toast('html2pdf no disponible. Abriendo vista de impresión nativa...', 'w');
-      this._printFinancialFicha();
-      return;
-    }
-
-    const wrap = document.getElementById('pdf-scratch');
-    if (!wrap) {
-      this._printFinancialFicha();
-      btn.innerHTML = orig;
-      btn.disabled = false;
-      return;
-    }
-
-    wrap.innerHTML = html;
-    wrap.style.position = 'fixed';
-    wrap.style.top = '0';
-    wrap.style.left = '0';
-    wrap.style.width = '794px';
-    wrap.style.zIndex = '999999';
-    wrap.style.background = '#ffffff';
-    wrap.style.display = 'block';
-
-    const imgsToLoad = wrap.querySelectorAll('img');
-    await Promise.all(Array.from(imgsToLoad).map(img => {
-      if (img.complete) return Promise.resolve();
-      return new Promise(resolve => {
-        const timer = setTimeout(resolve, 3000);
-        img.onload = () => { clearTimeout(timer); resolve(); };
-        img.onerror = () => { clearTimeout(timer); resolve(); };
-      });
-    }));
-
-    const targetEl = wrap.firstElementChild || wrap;
-    try {
-      await window.html2pdf().set({
-        margin: [8, 8, 8, 8],
-        filename: filename,
-        image: { type:'jpeg', quality:.95 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: 794,
-          windowHeight: Math.max(1123, targetEl.scrollHeight || 1123)
-        },
-        jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
-      }).from(targetEl).save();
-      toast('PDF generado ✓');
-    } catch (err) {
-      console.warn('html2pdf error, falling back to native print:', err);
-      toast('Fallo al generar con html2pdf. Abriendo visor de impresión...', 'w');
-      this._printFinancialFicha();
+      const r = this.R || (this.db && this.db.recipes && this.db.recipes[this.db.activeId]) || {};
+      const cfg = r.config || {};
+      await this._renderHtmlToPdf(
+        this._buildFinancialFichaHTML(),
+        this._safeFilename(cfg.dishName, 'Escandallo', 'pdf'),
+        'PDF generado ✓',
+        { margin: [8, 8, 8, 8], onFallback: () => this._printFinancialFicha() }
+      );
     } finally {
-      wrap.innerHTML = '';
-      wrap.style.display = 'none';
-      wrap.style.position = '';
-      wrap.style.top = '';
-      wrap.style.left = '';
-      wrap.style.width = '';
-      wrap.style.zIndex = '';
-      wrap.style.background = '';
       btn.innerHTML = orig;
       btn.disabled = false;
     }
@@ -14754,85 +14551,11 @@ class GC {
   }
 
   async _generateKitchenPDFBlob() {
-    const html = this._buildKitchenFichaHTML();
-    const loaded = await this._ensureHTML2PDF().catch(() => false);
-    if (!loaded || !window.html2pdf) return null;
-    const wrap = document.getElementById('pdf-scratch');
-    if (!wrap) return null;
-
-    wrap.innerHTML = html;
-    wrap.style.display = 'block';
-    wrap.style.position = 'fixed';
-    wrap.style.top = '0';
-    wrap.style.left = '0';
-    wrap.style.width = '794px';
-    wrap.style.zIndex = '999999';
-    wrap.style.background = '#ffffff';
-
-    try {
-      const targetEl = wrap.firstElementChild || wrap;
-      const worker = window.html2pdf().set({
-        margin: [10, 10, 10, 10],
-        image: { type:'jpeg', quality:.95 },
-        html2canvas: { scale: 2, useCORS: true, windowWidth: 794, windowHeight: Math.max(1123, targetEl.scrollHeight || 1123) },
-        jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
-      }).from(targetEl);
-
-      let blob = null;
-      if (typeof worker.output === 'function') {
-        blob = await worker.output('blob');
-      } else if (typeof worker.outputPdf === 'function') {
-        blob = await worker.outputPdf('blob');
-      }
-      return blob;
-    } catch (e) {
-      console.warn('Kitchen PDF blob error:', e);
-      return null;
-    } finally {
-      wrap.innerHTML = '';
-      wrap.style.display = 'none';
-    }
+    return this._renderHtmlToPdf(this._buildKitchenFichaHTML(), 'Ficha_Cocina.pdf', '', { returnBlob: true });
   }
 
   async _generateFinancialPDFBlob() {
-    const html = this._buildFinancialFichaHTML();
-    const loaded = await this._ensureHTML2PDF().catch(() => false);
-    if (!loaded || !window.html2pdf) return null;
-    const wrap = document.getElementById('pdf-scratch');
-    if (!wrap) return null;
-
-    wrap.innerHTML = html;
-    wrap.style.display = 'block';
-    wrap.style.position = 'fixed';
-    wrap.style.top = '0';
-    wrap.style.left = '0';
-    wrap.style.width = '794px';
-    wrap.style.zIndex = '999999';
-    wrap.style.background = '#ffffff';
-
-    try {
-      const targetEl = wrap.firstElementChild || wrap;
-      const worker = window.html2pdf().set({
-        margin: [8, 8, 8, 8],
-        image: { type:'jpeg', quality:.95 },
-        html2canvas: { scale: 2, useCORS: true, windowWidth: 794, windowHeight: Math.max(1123, targetEl.scrollHeight || 1123) },
-        jsPDF: { unit:'mm', format:'a4', orientation:'portrait' }
-      }).from(targetEl);
-
-      let blob = null;
-      if (typeof worker.output === 'function') {
-        blob = await worker.output('blob');
-      } else if (typeof worker.outputPdf === 'function') {
-        blob = await worker.outputPdf('blob');
-      }
-      return blob;
-    } catch (e) {
-      console.warn('Financial PDF blob error:', e);
-      return null;
-    } finally {
-      wrap.innerHTML = '';
-      wrap.style.display = 'none';
-    }
+    return this._renderHtmlToPdf(this._buildFinancialFichaHTML(), 'Escandallo.pdf', '', { returnBlob: true, margin: [8, 8, 8, 8] });
   }
 
   async _generateExcelBlob() {
@@ -15694,11 +15417,12 @@ Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. 
   }
 
   async _fetchWithTimeout(url, opts = {}, timeoutMs = 10000) {
-    if (typeof AbortController === 'undefined') return fetch(url, opts);
+    const fn = (typeof window !== 'undefined' && typeof window.fetch === 'function') ? window.fetch.bind(window) : fetch;
+    if (typeof AbortController === 'undefined') return fn(url, opts);
     const ctrl = new AbortController();
     const tid = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
-      return await fetch(url, { ...opts, signal: ctrl.signal });
+      return await fn(url, { ...opts, signal: ctrl.signal });
     } finally {
       clearTimeout(tid);
     }
@@ -16760,43 +16484,22 @@ ${ingsStr}`;
     const html = this._buildThermalStickerHTML(targetLabel, spec.key);
     const filename = `Etiqueta_${(targetLabel.batchCode || 'LOTE').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
 
-    let loaded = false;
-    try { loaded = await this._ensureHTML2PDF(); } catch { loaded = false; }
-    const wrap = document.getElementById('pdf-scratch');
-    if (!loaded || !window.html2pdf || !wrap) {
-      this._printAppccStickers(targetLabel, 1, spec.key);
-      return;
-    }
-    wrap.innerHTML = `<div style="padding:2mm;background:#fff;">${html}</div>`;
-    wrap.style.position = 'fixed';
-    wrap.style.top = '0';
-    wrap.style.left = '0';
-    wrap.style.width = spec.key === 'a4' ? '750px' : `${spec.widthMm + 6}mm`;
-    wrap.style.zIndex = '999999';
-    wrap.style.background = '#ffffff';
-    wrap.style.display = 'block';
-    const targetEl = wrap.firstElementChild || wrap;
-    try {
-      await window.html2pdf().set({
+    return this._renderHtmlToPdf(
+      `<div style="padding:2mm;background:#fff;">${html}</div>`,
+      filename,
+      `📄 PDF Térmico ${spec.label} generado ✓`,
+      {
         margin: [1, 1, 1, 1],
-        filename,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0 },
+        quality: 0.98,
+        widthCss: spec.key === 'a4' ? '750px' : `${spec.widthMm + 6}mm`,
         jsPDF: {
           unit: 'mm',
           format: spec.pdfFormat,
           orientation: Array.isArray(spec.pdfFormat) && spec.pdfFormat[0] > spec.pdfFormat[1] ? 'landscape' : 'portrait'
-        }
-      }).from(targetEl).save();
-      toast(`📄 PDF Térmico ${spec.label} generado ✓`);
-    } catch (err) {
-      console.warn('Thermal PDF fallback:', err);
-      this._printAppccStickers(targetLabel, 1, spec.key);
-    } finally {
-      wrap.innerHTML = '';
-      wrap.style.display = 'none';
-      wrap.style.zIndex = '-1';
-    }
+        },
+        onFallback: () => this._printAppccStickers(targetLabel, 1, spec.key)
+      }
+    );
   }
 
   _exportAppccTraceabilityCSV() {
@@ -16951,6 +16654,7 @@ ${ingsStr}`;
   _renderAppccTab() {
     const appcc = this._ensureAppccData();
     const today = new Date().toISOString().slice(0, 10);
+    if (typeof this._renderHeaderSmartAlerts === 'function') this._renderHeaderSmartAlerts();
 
     const respInp = document.getElementById('appcc-responsible');
     if (respInp && respInp.value !== (appcc.responsible || '')) {
@@ -17162,11 +16866,12 @@ ${ingsStr}`;
       </div>`;
   }
 
-  async _renderHtmlToPdf(html, filename, successMsg) {
+  async _renderHtmlToPdf(html, filename, successMsg, opts = {}) {
     let loaded = false;
     try { loaded = await this._ensureHTML2PDF(); } catch { loaded = false; }
     const wrap = document.getElementById('pdf-scratch');
     const openFallback = () => {
+      if (typeof opts.onFallback === 'function') { opts.onFallback(); return; }
       const win = window.open('', '_blank', 'width=850,height=1000');
       if (win) {
         win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escHtml(filename)}</title></head><body>${html}</body></html>`);
@@ -17174,34 +16879,53 @@ ${ingsStr}`;
         try { win.focus(); win.print(); } catch {}
       }
     };
-    if (!loaded || !window.html2pdf || !wrap) { openFallback(); return; }
+    if (!loaded || !window.html2pdf || !wrap) {
+      if (opts.returnBlob) return null;
+      openFallback();
+      return;
+    }
     const prevX = window.scrollX || 0, prevY = window.scrollY || 0;
     try { window.scrollTo(0, 0); } catch {}
     wrap.innerHTML = html;
-    Object.assign(wrap.style, { position:'absolute', top:'0', left:'0', width:'794px', zIndex:'999999', background:'#ffffff', color:'#111827', display:'block' });
+    Object.assign(wrap.style, { position:'absolute', top:'0', left:'0', width: opts.widthCss || '794px', zIndex:'999999', background:'#ffffff', color:'#111827', display:'block' });
+    const imgs = wrap.querySelectorAll('img');
+    if (imgs.length) {
+      await Promise.all(Array.from(imgs).map(img => img.complete ? Promise.resolve() : new Promise(r => {
+        const t = setTimeout(r, 3000);
+        img.onload = () => { clearTimeout(t); r(); };
+        img.onerror = () => { clearTimeout(t); r(); };
+      })));
+    }
     if (typeof requestAnimationFrame === 'function') {
       await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
     }
     const targetEl = wrap.firstElementChild || wrap;
     const h = Math.max(1123, (targetEl.scrollHeight || 0) + 40);
+    const worker = window.html2pdf().set({
+      margin: opts.margin || [10, 10, 10, 10],
+      filename,
+      image: { type: 'jpeg', quality: opts.quality || 0.95 },
+      pagebreak: { mode: ['css', 'legacy'] },
+      html2canvas: { scale: opts.scale || 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0, x: 0, y: 0, windowWidth: 794, windowHeight: h },
+      jsPDF: opts.jsPDF || { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(targetEl);
     try {
-      await window.html2pdf().set({
-        margin: [10, 10, 10, 10],
-        filename,
-        image: { type: 'jpeg', quality: 0.95 },
-        pagebreak: { mode: ['css', 'legacy'] },
-        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0, x: 0, y: 0, windowWidth: 794, windowHeight: h },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      }).from(targetEl).save();
-      toast(successMsg);
+      if (opts.returnBlob) {
+        if (typeof worker.output === 'function') return await worker.output('blob');
+        if (typeof worker.outputPdf === 'function') return await worker.outputPdf('blob');
+        return null;
+      }
+      await worker.save();
+      if (successMsg) toast(successMsg);
     } catch (err) {
       console.warn('PDF export error:', err);
+      if (opts.returnBlob) return null;
       toast('Abriendo vista de impresión para guardar PDF...', 'w');
       openFallback();
     } finally {
       wrap.innerHTML = '';
       wrap.style.display = 'none';
-      wrap.style.position = ''; wrap.style.top = ''; wrap.style.left = ''; wrap.style.width = ''; wrap.style.zIndex = '-1';
+      wrap.style.position = ''; wrap.style.top = ''; wrap.style.left = ''; wrap.style.width = ''; wrap.style.zIndex = '-1'; wrap.style.background = '';
       try { window.scrollTo(prevX, prevY); } catch {}
     }
   }
@@ -17394,6 +17118,78 @@ ${ingsStr}`;
         document.querySelectorAll(`.ux-subpanel[data-subtab-group="${g}"]`).forEach(el => el.classList.toggle('active', el.id === p));
       });
     });
+
+    const wirePackCalc = (btnId, pId, qId, targetId) => {
+      const b = document.getElementById(btnId);
+      if (!b || b.dataset.packBound) return;
+      b.dataset.packBound = '1';
+      b.addEventListener('click', () => {
+        const pr = parseFloat(document.getElementById(pId)?.value);
+        const qt = parseFloat(document.getElementById(qId)?.value);
+        const tgt = document.getElementById(targetId);
+        if (!(pr > 0) || !(qt > 0) || !tgt) {
+          toast('Introduce precio de envase y contenido mayor que 0', 'w');
+          return;
+        }
+        const unitP = Math.round((pr / qt) * 1000) / 1000;
+        tgt.value = unitP;
+        tgt.dispatchEvent(new Event('input', { bubbles: true }));
+        toast(`📦 Precio unitario calculado: ${F2(unitP)} ✓`);
+      });
+    };
+    wirePackCalc('btn-ing-pack-calc', 'ing-pack-price', 'ing-pack-qty', 'ing-price');
+    wirePackCalc('btn-cat-pack-calc', 'cat-pack-price', 'cat-pack-qty', 'cat-add-price');
+    this._renderHeaderSmartAlerts();
+  }
+
+  _renderHeaderSmartAlerts() {
+    const box = document.getElementById('hdr-smart-alerts');
+    if (!box) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const appcc = this._ensureAppccData();
+    const expiringCount = (appcc.labels || []).filter(l => l && l.status !== 'consumed' && l.expiryDate && l.expiryDate <= today).length;
+
+    let needBackup = false;
+    if (typeof localStorage !== 'undefined') {
+      const now = Date.now();
+      let firstTs = parseInt(localStorage.getItem('gc_first_seen_ts') || '0', 10);
+      if (!firstTs) {
+        firstTs = now;
+        localStorage.setItem('gc_first_seen_ts', String(firstTs));
+      }
+      const lastBk = parseInt(localStorage.getItem('gc_last_backup_ts') || '0', 10);
+      const refTs = Math.max(firstTs, lastBk);
+      if ((now - refTs) > 7 * 86400000) needBackup = true;
+    }
+
+    const pills = [];
+    if (expiringCount > 0) {
+      pills.push(`<button type="button" id="btn-hdr-alert-exp" style="cursor:pointer;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid rgba(239,68,68,0.5);background:rgba(239,68,68,0.14);color:var(--red);">⚠️ ${expiringCount} lote${expiringCount === 1 ? '' : 's'} caduca${expiringCount === 1 ? '' : 'n'} hoy</button>`);
+    }
+    if (needBackup) {
+      pills.push(`<button type="button" id="btn-hdr-alert-bk" style="cursor:pointer;font-size:0.7rem;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid rgba(217,119,6,0.5);background:rgba(217,119,6,0.14);color:var(--amber);">💾 Hacer copia JSON</button>`);
+    }
+    if (!pills.length) {
+      box.style.display = 'none';
+      box.innerHTML = '';
+      return;
+    }
+    box.style.display = 'inline-flex';
+    box.innerHTML = pills.join('');
+    const bExp = document.getElementById('btn-hdr-alert-exp');
+    if (bExp) {
+      bExp.addEventListener('click', () => {
+        this.setTab('tab-appcc');
+        const lblTab = document.querySelector('.ux-subtab[data-subpanel="appcc-panel-labels"]');
+        if (lblTab) lblTab.click();
+        const dr = document.getElementById('appcc-trace-drawer');
+        if (dr) dr.open = true;
+        const flt = document.getElementById('appcc-trace-filter');
+        if (flt) { flt.value = 'expiring'; this._renderAppccLabelsTable(); }
+      });
+    }
+    const bBk = document.getElementById('btn-hdr-alert-bk');
+    if (bBk) bBk.addEventListener('click', () => this._exportBackup());
   }
 
   async _readAlbaranFile(file) {
@@ -18780,11 +18576,11 @@ function doPost(e) {
     const remaining = [];
     for (const item of appcc.outboxQueue) {
       try {
-        const res = await fetchFn(webhookUrl, {
+        const res = await this._fetchWithTimeout(webhookUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(item.payload)
-        });
+        }, 12000);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         synced++;
         const cl = appcc.dailyClosures.find(c => c.id === item.closureId);
