@@ -3715,6 +3715,15 @@ height: 46px !important;
 .appcc-preset-card { background:var(--s2); border:1px solid var(--b2); border-radius:8px; padding:10px; display:flex; flex-direction:column; gap:6px; min-width:0; max-width:100%; }
 .appcc-archive-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap:10px; margin-bottom:12px; }
 .appcc-archive-pill { padding:10px 12px; border-radius:8px; border:1px solid var(--b1); background:var(--s2); display:flex; flex-direction:column; gap:6px; min-width:0; max-width:100%; }
+/* V21.4 Mobile Progressive-Disclosure Subtabs & Drawers */
+.ux-subtabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; padding:4px; border-radius:10px; background:var(--s2); border:1px solid var(--b1); }
+.ux-subtab { flex:1; min-width:110px; min-height:44px; padding:8px 10px; border-radius:8px; border:1px solid transparent; background:transparent; color:var(--t2); font-weight:700; font-size:0.8rem; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:6px; }
+.ux-subtab.active { background:rgba(212,175,55,0.16); border-color:rgba(212,175,55,0.55); color:var(--gold); }
+.ux-subpanel { display:none; }
+.ux-subpanel.active { display:block; }
+.ux-drawer { border:1px solid var(--b1); border-radius:10px; padding:10px 12px; background:rgba(255,255,255,0.02); margin-top:10px; }
+.ux-drawer > summary { cursor:pointer; font-weight:700; min-height:36px; display:flex; align-items:center; justify-content:space-between; gap:8px; list-style:none; }
+.ux-drawer > summary::-webkit-details-marker { display:none; }
 /* V21.0 Visual Legibility, Contrast Floor & Service Briefing Cards */
 .appcc-section-card p, .consulting-tip, .rad-sub, .brief-body { font-size:0.88rem !important; line-height:1.55 !important; color:var(--t2) !important; }
 .appcc-ld-table th, .appcc-ld-table td, table th, table td { font-size:0.86rem; line-height:1.45; }
@@ -3755,7 +3764,7 @@ body.printing-appcc-sticker #appcc-sticker-print { display:flex !important; flex
 <div class="hdr-left">
 <div class="logo">
 <span class="logo-mark"><em>Gastro</em>Cost PRO</span>
-<span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V21.3 COMMERCIAL SUITE</span>
+<span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V21.4 COMMERCIAL SUITE</span>
 </div>
 <span class="save-ind" id="save-ind">
 <span class="save-dot"></span> Guardado
@@ -4682,65 +4691,54 @@ Recomendaciones de Consultoría de Chef Ejecutivo
 <div>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px;">
 <span style="font-size:1.25rem;">🧾</span>
-<h2 style="margin:0;font-size:1.1rem;font-weight:800;color:var(--t1);">Recepción y Digitalización de Albaranes</h2>
-<span style="font-size:0.65rem;padding:3px 8px;border-radius:4px;background:rgba(6,182,212,0.15);color:var(--cyan);border:1px solid rgba(6,182,212,0.35);font-weight:700;">Reg. CE 178/2002</span>
-<span style="font-size:0.65rem;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.35);font-weight:700;">APPCC PCC-1</span>
+<h2 style="margin:0;font-size:1.1rem;font-weight:800;color:var(--t1);">Recepción de Albaranes</h2>
+<span style="font-size:0.65rem;padding:3px 8px;border-radius:4px;background:rgba(6,182,212,0.15);color:var(--cyan);border:1px solid rgba(6,182,212,0.35);font-weight:700;">CE 178/2002 · PCC-1</span>
 </div>
-<p style="margin:0;font-size:0.78rem;color:var(--t3);">Captura albaranes por foto, PDF, Excel o texto; detecta subidas frente al Catálogo, recalcula tus escandallos y sella la recepción sanitaria.</p>
-</div>
-<div style="display:flex;gap:8px;flex-wrap:wrap;">
-<button type="button" id="btn-alb-export-csv" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(34,197,94,0.45);color:#4ade80;">📊 Exportar Libro Compras CSV</button>
-<button type="button" id="btn-alb-prune-photos" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(245,158,11,0.45);color:#fbbf24;">🧹 Limpiar Fotos Antiguas</button>
+<p style="margin:0;font-size:0.78rem;color:var(--t3);">Haz foto o sube el PDF/Excel del albarán. Si prefieres escribir o pegar la lista, despliega el modo manual.</p>
 </div>
 </div>
 
 <div class="appcc-kpi-strip">
-<div class="appcc-kpi-card">
-<span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Albaranes Digitalizados</span>
-<span class="appcc-kpi-val" id="alb-kpi-count">0</span>
-</div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Compras Mes Actual</span>
-<span class="appcc-kpi-val" id="alb-kpi-spend" style="color:var(--gold);">0,00 €</span>
-</div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Subidas Detectadas</span>
-<span class="appcc-kpi-val" id="alb-kpi-spikes" style="color:#f87171;">0</span>
-</div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Incidencias / Rechazos PCC</span>
-<span class="appcc-kpi-val" id="alb-kpi-incidents" style="color:#fbbf24;">0</span>
-</div>
+<div class="appcc-kpi-card"><span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Albaranes</span><span class="appcc-kpi-val" id="alb-kpi-count">0</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Compras Mes</span><span class="appcc-kpi-val" id="alb-kpi-spend" style="color:var(--gold);">0,00 €</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Subidas Precio</span><span class="appcc-kpi-val" id="alb-kpi-spikes" style="color:#f87171;">0</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Incidencias PCC</span><span class="appcc-kpi-val" id="alb-kpi-incidents" style="color:#fbbf24;">0</span></div>
 </div>
 
-<section class="appcc-section-card" id="alb-capture-card" aria-label="Captura y Digitalización de Albarán">
-<h3 style="margin:0 0 10px;font-size:0.95rem;color:var(--t1);font-weight:800;">📸 1. Captura, OCR y Control Sanitario de Descarga</h3>
+<div class="ux-subtabs" data-subtab-group="albaranes" role="tablist">
+<button type="button" class="ux-subtab active" data-subtab-group="albaranes" data-subpanel="alb-panel-new">🧾 Nuevo Albarán</button>
+<button type="button" class="ux-subtab" data-subtab-group="albaranes" data-subpanel="alb-panel-history">📚 Histórico</button>
+</div>
 
+<div id="alb-panel-new" class="ux-subpanel active" data-subtab-group="albaranes">
+<section class="appcc-section-card" id="alb-capture-card" aria-label="Captura de Albarán">
+<h3 style="margin:0 0 10px;font-size:0.95rem;color:var(--t1);font-weight:800;">📸 Captura Rápida</h3>
 <div class="alb-dropzone">
 <input type="file" id="alb-camera-input" class="visually-hidden" accept="image/*" capture="environment">
 <input type="file" id="alb-file-input" class="visually-hidden" accept="image/*,application/pdf,.csv,.xlsx,.xls">
-<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-<button type="button" id="btn-alb-take-photo" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#0284c7,#0369a1);">📷 Fotografiar Albarán</button>
-<button type="button" id="btn-alb-upload-file" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📎 Subir Foto / PDF / Excel</button>
-<button type="button" id="btn-alb-ocr-ai" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">🤖 Digitalizar con IA (Gemini 3.8)</button>
+<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:10px;width:100%;">
+<button type="button" id="btn-alb-take-photo" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#0284c7,#0369a1);">📷 Hacer Foto</button>
+<button type="button" id="btn-alb-upload-file" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📎 Subir PDF / Excel</button>
 </div>
-<div id="alb-doc-preview" style="display:none;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px;"></div>
-<details id="alb-quick-paste-wrap" style="border-top:1px solid var(--b1);padding-top:8px;">
-<summary style="cursor:pointer;font-size:0.78rem;color:var(--cyan);font-weight:700;">⚡ Pegado / Dictado Rápido Offline sin IA (1 línea por producto)</summary>
-<div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
-<textarea id="alb-paste-text" class="fi" rows="3" placeholder="Ej.&#10;Lomo de Atún Rojo 5kg 34.50 Lote AT-204&#10;Aceite de Oliva Virgen Extra; 10; L; 9.80; Lote AOV-12" style="width:100%;font-size:0.82rem;"></textarea>
-<button type="button" id="btn-alb-parse-text" class="btn btn-ghost appcc-touch-btn" style="align-self:flex-start;border-color:rgba(6,182,212,0.45);color:var(--cyan);">⚡ Extraer Líneas Offline</button>
+<div id="alb-ocr-action-wrap" style="display:none;flex-wrap:wrap;gap:10px;align-items:center;padding-top:6px;">
+<div id="alb-doc-preview" style="display:none;align-items:center;gap:10px;flex-wrap:wrap;flex:1;"></div>
+<button type="button" id="btn-alb-ocr-ai" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">🤖 Leer con IA</button>
 </div>
-</details>
 </div>
 
+<details id="alb-manual-drawer" class="ux-drawer">
+<summary>
+<span>✍️ Introducir Manualmente / Pegar Lista <span id="alb-drawer-badge" style="color:var(--gold);font-size:0.76rem;margin-left:6px;">(Vacío)</span></span>
+<span style="color:var(--t3);font-size:0.74rem;">Desplegar ▾</span>
+</summary>
+<div style="margin-top:12px;">
 <div class="alb-grid">
 <div>
 <label for="alb-supplier" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Proveedor *</label>
 <input type="text" id="alb-supplier" class="fi" placeholder="Ej. Pescados del Norte S.L." style="min-height:48px;width:100%;">
 </div>
 <div>
-<label for="alb-supplier-cif" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">NIF / CIF Proveedor</label>
+<label for="alb-supplier-cif" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">NIF / CIF</label>
 <input type="text" id="alb-supplier-cif" class="fi" placeholder="Ej. B12345678" style="min-height:48px;width:100%;">
 </div>
 <div>
@@ -4748,13 +4746,22 @@ Recomendaciones de Consultoría de Chef Ejecutivo
 <input type="text" id="alb-number" class="fi" placeholder="Ej. ALB-2026-0142" style="min-height:48px;width:100%;font-family:'JetBrains Mono',monospace;">
 </div>
 <div>
-<label for="alb-date" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Fecha de Recepción</label>
+<label for="alb-date" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Fecha</label>
 <input type="date" id="alb-date" class="fi" style="min-height:48px;width:100%;">
 </div>
 </div>
 
-<div style="padding:12px;border-radius:8px;border:1px solid var(--b1);background:rgba(255,255,255,0.02);margin-bottom:12px;">
-<div style="font-size:0.74rem;font-weight:800;color:var(--gold);margin-bottom:8px;text-transform:uppercase;">Control Sanitario PCC-1 en Descarga (Reg. CE 852/2004)</div>
+<details id="alb-quick-paste-wrap" class="ux-drawer" style="margin-bottom:10px;">
+<summary style="font-size:0.8rem;color:var(--cyan);">⚡ Pegar texto o lista rápida offline (Producto Cantidad Precio) <span>▾</span></summary>
+<div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
+<textarea id="alb-paste-text" class="fi" rows="3" placeholder="Ej.&#10;Lomo de Atún Rojo 5kg 34.50 Lote AT-204&#10;Aceite de Oliva Virgen Extra; 10; L; 9.80; Lote AOV-12" style="width:100%;font-size:0.82rem;"></textarea>
+<button type="button" id="btn-alb-parse-text" class="btn btn-ghost appcc-touch-btn" style="align-self:flex-start;border-color:rgba(6,182,212,0.45);color:var(--cyan);">⚡ Extraer Líneas Offline</button>
+</div>
+</details>
+
+<details class="ux-drawer" style="margin-bottom:12px;">
+<summary style="font-size:0.8rem;color:var(--gold);">🌡️ Control Sanitario PCC-1 en Descarga (Opcional / Temperatura) <span>▾</span></summary>
+<div style="margin-top:10px;">
 <div class="alb-grid" style="margin-bottom:8px;">
 <div>
 <label for="alb-temp-regime" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Régimen Térmico</label>
@@ -4766,11 +4773,11 @@ Recomendaciones de Consultoría de Chef Ejecutivo
 </select>
 </div>
 <div>
-<label for="alb-temp-val" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Temperatura Sonda (°C)</label>
+<label for="alb-temp-val" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Temperatura (°C)</label>
 <input type="number" step="0.1" id="alb-temp-val" class="fi" placeholder="Ej. 2.5" style="min-height:48px;width:100%;font-family:'JetBrains Mono',monospace;">
 </div>
 <div>
-<label for="alb-sanitary-status" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Dictamen de Recepción</label>
+<label for="alb-sanitary-status" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Dictamen</label>
 <select id="alb-sanitary-status" class="fi" style="min-height:48px;width:100%;">
 <option value="accepted">✔ Conforme / Aceptado</option>
 <option value="incident">⚠️ Aceptado con Incidencia</option>
@@ -4778,15 +4785,16 @@ Recomendaciones de Consultoría de Chef Ejecutivo
 </select>
 </div>
 <div>
-<label for="alb-incident-note" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Observaciones / Reclamación</label>
-<input type="text" id="alb-incident-note" class="fi" placeholder="Ej. Cadena frío OK / Envase dañado..." style="min-height:48px;width:100%;">
+<label for="alb-incident-note" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Observaciones</label>
+<input type="text" id="alb-incident-note" class="fi" placeholder="Ej. Cadena frío OK..." style="min-height:48px;width:100%;">
 </div>
 </div>
-<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.78rem;color:var(--t2);">
-<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-chk-integrity" checked> Envases íntegros y etiquetado legible</label>
-<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-chk-vehicle" checked> Vehículo higiénico y cadena de frío verificada</label>
+<div style="display:flex;gap:14px;flex-wrap:wrap;font-size:0.78rem;color:var(--t2);">
+<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-chk-integrity" checked> Envases íntegros</label>
+<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-chk-vehicle" checked> Vehículo higiénico OK</label>
 </div>
 </div>
+</details>
 
 <div id="alb-price-alert-banner" class="alert alert-warn" style="display:none;margin-bottom:12px;"></div>
 
@@ -4794,16 +4802,7 @@ Recomendaciones de Consultoría de Chef Ejecutivo
 <table class="appcc-ld-table" style="table-layout:auto;">
 <thead>
 <tr>
-<th>Producto (Albarán)</th>
-<th>Enlace Catálogo</th>
-<th>Cant.</th>
-<th>Ud</th>
-<th>Precio Ud</th>
-<th>Variación</th>
-<th>Impacto Escandallos</th>
-<th>Lote Prov.</th>
-<th>Caducidad</th>
-<th></th>
+<th>Producto</th><th>Catálogo</th><th>Cant.</th><th>Ud</th><th>Precio Ud</th><th>Variación</th><th>Impacto</th><th>Lote</th><th>Caducidad</th><th></th>
 </tr>
 </thead>
 <tbody id="alb-draft-lines-body"></tbody>
@@ -4811,25 +4810,37 @@ Recomendaciones de Consultoría de Chef Ejecutivo
 </div>
 
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-top:10px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--b1);">
-<button type="button" id="btn-alb-add-line" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">➕ Añadir Línea Manual</button>
-<div style="font-size:0.95rem;font-weight:800;color:var(--t1);font-family:'JetBrains Mono',monospace;">Total Albarán: <span id="alb-draft-total" style="color:var(--gold);">0,00 €</span></div>
+<button type="button" id="btn-alb-add-line" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">➕ Añadir Línea</button>
+<div style="font-size:0.95rem;font-weight:800;color:var(--t1);font-family:'JetBrains Mono',monospace;">Total: <span id="alb-draft-total" style="color:var(--gold);">0,00 €</span></div>
 </div>
 
-<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:8px;background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.28);">
-<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:0.78rem;color:var(--t2);">
-<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-opt-update-prices" checked> 📈 Actualizar Catálogo Maestro y recalcular escandallos en cascada</label>
-<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-opt-add-new" checked> ➕ Alta automática de insumos nuevos en Catálogo</label>
-<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-opt-send-appcc" checked> 🏷️ Registrar lotes en Trazabilidad APPCC (Etiquetas Térmicas)</label>
+<details class="ux-drawer" style="background:rgba(16,185,129,0.04);border-color:rgba(16,185,129,0.25);">
+<summary style="font-size:0.78rem;color:var(--t2);">⚙️ Opciones automáticas al guardar (Catálogo y APPCC activos) <span>▾</span></summary>
+<div style="display:flex;gap:14px;flex-wrap:wrap;font-size:0.78rem;color:var(--t2);margin-top:8px;">
+<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-opt-update-prices" checked> 📈 Actualizar Catálogo y recalcular escandallos</label>
+<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-opt-add-new" checked> ➕ Alta automática de nuevos insumos</label>
+<label style="display:inline-flex;align-items:center;gap:6px;cursor:pointer;min-height:36px;"><input type="checkbox" id="alb-opt-send-appcc" checked> 🏷️ Registrar lotes en Trazabilidad APPCC</label>
 </div>
-<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:4px;">
-<button type="button" id="btn-alb-commit" class="btn btn-primary appcc-touch-btn" style="flex:1;min-width:min(240px,100%);background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,0.5);">✅ Guardar Albarán, Sellar Hash y Actualizar Escandallos</button>
-<button type="button" id="btn-alb-reset-draft" class="btn btn-ghost appcc-touch-btn">↺ Limpiar Borrador</button>
+</details>
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+<button type="button" id="btn-alb-commit" class="btn btn-primary appcc-touch-btn" style="flex:1;min-width:min(240px,100%);background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,0.5);">✅ Guardar Albarán y Actualizar Escandallos</button>
+<button type="button" id="btn-alb-reset-draft" class="btn btn-ghost appcc-touch-btn">↺ Limpiar</button>
 </div>
 </div>
+</details>
 </section>
+</div>
 
+<div id="alb-panel-history" class="ux-subpanel" data-subtab-group="albaranes">
 <section class="appcc-section-card" aria-label="Histórico de Albaranes">
-<h3 style="margin:0 0 10px;font-size:0.95rem;color:var(--t1);font-weight:800;">📚 2. Archivo Digital de Albaranes e Historial de Precios</h3>
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+<h3 style="margin:0;font-size:0.95rem;color:var(--t1);font-weight:800;">📚 Archivo Digital de Albaranes</h3>
+<div style="display:flex;gap:8px;flex-wrap:wrap;">
+<button type="button" id="btn-alb-export-csv" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(34,197,94,0.45);color:#4ade80;">📊 Exportar CSV</button>
+<button type="button" id="btn-alb-prune-photos" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(245,158,11,0.45);color:#fbbf24;">🧹 Limpiar Fotos</button>
+</div>
+</div>
 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
 <input type="search" id="alb-history-search" class="fi" placeholder="🔍 Buscar proveedor, nº albarán, CIF o producto..." style="flex:1;min-width:min(220px,100%);min-height:48px;">
 <select id="alb-history-filter" class="fi" style="min-width:min(190px,100%);min-height:48px;">
@@ -4843,24 +4854,20 @@ Recomendaciones de Consultoría de Chef Ejecutivo
 <table class="appcc-ld-table" style="table-layout:auto;">
 <thead>
 <tr>
-<th>Fecha / Nº Albarán</th>
-<th>Proveedor</th>
-<th>Importe</th>
-<th>Control PCC / Temp</th>
-<th>Subidas / Recálculo</th>
-<th>Sello Integridad</th>
-<th>Acciones</th>
+<th>Fecha / Nº Albarán</th><th>Proveedor</th><th>Importe</th><th>Control PCC / Temp</th><th>Subidas / Recálculo</th><th>Sello</th><th>Acciones</th>
 </tr>
 </thead>
 <tbody id="alb-history-body"></tbody>
 </table>
 </div>
+<details class="ux-drawer">
+<summary style="font-size:0.8rem;color:var(--gold);">⚖️ Marco Legal de Conservación y Trazabilidad (CE 178/2002 y AEAT) <span>▾</span></summary>
+<div class="alb-legal-box" style="margin-top:8px;">
+<div>• <strong>Sanidad (Reg. CE 852/2004 y CE 178/2002):</strong> Proveedor, lote, temperatura e incidencias conforman el PCC-1 sanitario oficial.</div>
+<div>• <strong>AEAT / Sello SHA-256:</strong> Cada albarán incorpora sello criptográfico de integridad operativa; conserva los originales 4 años.</div>
+</div>
+</details>
 </section>
-
-<div class="alb-legal-box">
-<strong style="color:var(--gold);display:block;margin-bottom:4px;">⚖️ Marco Legal de Recepción, Trazabilidad y Conservación (ES / UE)</strong>
-<div>• <strong>Sanidad y Trazabilidad (Reg. CE 852/2004 y CE 178/2002):</strong> El registro de proveedor, lote de origen, temperatura en descarga e incidencias constituye el PCC-1 de recepción obligatoria ante inspección sanitaria.</div>
-<div>• <strong>Integridad Auditada (Sello SHA-256) y Fiscalidad AEAT / VeriFactu:</strong> Cada albarán recibe un sello criptográfico de inmutabilidad operativa y trazabilidad interna de costes. Conforme a la AEAT/LGT, esta digitalización agiliza tu gestión diaria e inventario; recuerda conservar los documentos originales en papel/factura electrónica durante 4 años salvo uso de software homologado de digitalización certificada.</div>
 </div>
 </div>
 
@@ -4870,386 +4877,259 @@ Recomendaciones de Consultoría de Chef Ejecutivo
 <div>
 <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
 <span style="font-size:1.25rem;">🛡️</span>
-<h2 style="margin:0;font-size:1.1rem;font-weight:800;color:var(--t1);">Control Oficial APPCC &amp; Trazabilidad</h2>
+<h2 style="margin:0;font-size:1.1rem;font-weight:800;color:var(--t1);">Control Oficial APPCC</h2>
 <span style="font-size:0.65rem;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.35);font-weight:700;">Reg. CE 852/2004</span>
 </div>
-<p style="margin:0;font-size:0.78rem;color:var(--t3);">Registros persistentes offline en cocina para inspecciones sanitarias: Temperaturas PCC, Etiquetado Secundario y Plan L+D.</p>
+<p style="margin:0;font-size:0.78rem;color:var(--t3);">Registros diarios en 1 toque por bloque: Frío, Etiquetas, Limpieza y Cierre.</p>
 </div>
-<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-<div style="display:flex;flex-direction:column;gap:3px;">
-<label for="appcc-responsible" style="font-size:0.68rem;color:var(--t3);font-weight:700;text-transform:uppercase;">Responsable de Turno</label>
-<input type="text" id="appcc-responsible" class="fi" placeholder="Ej. Chef Ejecutivo / Turno Tarde" style="min-width:min(210px,100%);min-height:48px;font-size:0.82rem;">
+<div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;">
+<div>
+<label for="appcc-responsible" style="font-size:0.68rem;color:var(--t3);font-weight:700;text-transform:uppercase;display:block;margin-bottom:3px;">Responsable</label>
+<input type="text" id="appcc-responsible" class="fi" placeholder="Ej. Chef / Turno Tarde" style="min-width:min(190px,100%);min-height:48px;font-size:0.82rem;">
 </div>
-<button type="button" id="btn-appcc-new-turn" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(245,158,11,0.45);color:#fbbf24;">🔄 Nuevo Turno (Reiniciar L+D)</button>
-<button type="button" id="btn-appcc-export-pdf" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">📄 Acta Oficial APPCC (PDF A4)</button>
+<button type="button" id="btn-appcc-export-pdf" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">📄 Acta Oficial PDF</button>
 </div>
 </div>
 
 <div class="appcc-kpi-strip">
-<div class="appcc-kpi-card">
-<span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Controles Frío Hoy</span>
-<span class="appcc-kpi-val" id="appcc-kpi-temps">0 / 0</span>
-<span id="appcc-kpi-temps-sub" style="font-size:0.72rem;color:var(--t3);">Sin incidencias PCC</span>
-</div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Lotes Activos en Cámara</span>
-<span class="appcc-kpi-val" id="appcc-kpi-labels">0</span>
-<span id="appcc-kpi-labels-sub" style="font-size:0.72rem;color:var(--t3);">0 próximos a caducar</span>
-</div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Plan L+D del Turno</span>
-<span class="appcc-kpi-val" id="appcc-kpi-ld">0%</span>
-<span id="appcc-kpi-ld-sub" style="font-size:0.72rem;color:var(--t3);">0 tareas verificadas</span>
-</div>
+<div class="appcc-kpi-card"><span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Frío Hoy</span><span class="appcc-kpi-val" id="appcc-kpi-temps">0 / 0</span><span id="appcc-kpi-temps-sub" style="font-size:0.72rem;color:var(--t3);">Sin incidencias PCC</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Lotes Activos</span><span class="appcc-kpi-val" id="appcc-kpi-labels">0</span><span id="appcc-kpi-labels-sub" style="font-size:0.72rem;color:var(--t3);">0 próximos a caducar</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.7rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Plan L+D</span><span class="appcc-kpi-val" id="appcc-kpi-ld">0%</span><span id="appcc-kpi-ld-sub" style="font-size:0.72rem;color:var(--t3);">0 tareas verificadas</span></div>
 </div>
 
-      <!-- SUB-BLOQUE 1: CONTROL DE TEMPERATURAS PCC -->
+<div class="ux-subtabs" data-subtab-group="appcc" role="tablist">
+<button type="button" class="ux-subtab active" data-subtab-group="appcc" data-subpanel="appcc-panel-temps">🌡️ Frío</button>
+<button type="button" class="ux-subtab" data-subtab-group="appcc" data-subpanel="appcc-panel-labels">🏷️ Etiquetas</button>
+<button type="button" class="ux-subtab" data-subtab-group="appcc" data-subpanel="appcc-panel-ld">🧼 Limpieza</button>
+<button type="button" class="ux-subtab" data-subtab-group="appcc" data-subpanel="appcc-panel-closures">🔒 Cierre y Archivo</button>
+</div>
+
+<div id="appcc-panel-temps" class="ux-subpanel active" data-subtab-group="appcc">
 <section class="appcc-section-card" aria-label="Control de Temperaturas PCC">
 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px;">
 <div>
-<h3 style="margin:0;font-size:0.95rem;color:var(--t1);font-weight:800;">🌡️ 1. Control Diario de Cámaras y Equipos de Frío (PCC)</h3>
-<p style="margin:3px 0 0;font-size:0.75rem;color:var(--t3);">Alerta automática si la temperatura supera el límite crítico sanitario. Registra en 1 toque cuando todo está correcto.</p>
+<h3 style="margin:0;font-size:0.95rem;color:var(--t1);font-weight:800;">🌡️ Control de Cámaras y Equipos de Frío</h3>
+<p style="margin:3px 0 0;font-size:0.75rem;color:var(--t3);">Registra todas las óptimas en 1 toque o anota la lectura individual.</p>
 </div>
-<button type="button" id="btn-appcc-log-all-optimal" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,0.5);">✓ Registrar Todas Óptimas (Turno Actual)</button>
+<button type="button" id="btn-appcc-log-all-optimal" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,0.5);">✓ Registrar Todas Óptimas</button>
 </div>
-
 <div id="appcc-chambers-grid" class="appcc-chambers-grid"></div>
-
-<details style="margin-top:14px;border-top:1px solid var(--b1);padding-top:10px;">
-<summary style="cursor:pointer;font-size:0.78rem;color:var(--cyan);font-weight:700;">➕ Añadir Cámara, Congelador o Mesa Fría</summary>
+<details class="ux-drawer">
+<summary style="color:var(--cyan);font-size:0.8rem;">➕ Añadir Cámara, Congelador o Mesa Fría <span>▾</span></summary>
 <div id="appcc-add-chamber-wrap" style="display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:10px;margin-top:10px;align-items:end;">
-<div>
-<label for="appcc-new-chamber-name" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Nombre del Equipo</label>
-<input type="text" id="appcc-new-chamber-name" class="fi" placeholder="Ej. Abatidor / Cámara Postres" style="min-height:48px;width:100%;">
-</div>
-<div>
-<label for="appcc-new-chamber-type" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Régimen Térmico</label>
-<select id="appcc-new-chamber-type" class="fi" style="min-height:48px;width:100%;">
-<option value="positive">Frío Positivo (Máx. 4°C)</option>
-<option value="protein">Pescado / Carne (Máx. 3°C)</option>
-<option value="freezer">Congelación (Máx. -18°C)</option>
-<option value="hot">Caliente / Paseo (Mín. 65°C)</option>
-</select>
-</div>
-<div>
-<label for="appcc-new-chamber-limit" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Límite Crítico (°C)</label>
-<input type="number" step="0.5" id="appcc-new-chamber-limit" class="fi" value="4" style="min-height:48px;width:100%;">
-</div>
+<div><label for="appcc-new-chamber-name" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Nombre del Equipo</label><input type="text" id="appcc-new-chamber-name" class="fi" placeholder="Ej. Abatidor" style="min-height:48px;width:100%;"></div>
+<div><label for="appcc-new-chamber-type" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Régimen</label><select id="appcc-new-chamber-type" class="fi" style="min-height:48px;width:100%;"><option value="positive">Frío Positivo (Máx. 4°C)</option><option value="protein">Pescado / Carne (Máx. 3°C)</option><option value="freezer">Congelación (Máx. -18°C)</option><option value="hot">Caliente (Mín. 65°C)</option></select></div>
+<div><label for="appcc-new-chamber-limit" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Límite (°C)</label><input type="number" step="0.5" id="appcc-new-chamber-limit" class="fi" value="4" style="min-height:48px;width:100%;"></div>
 <button type="button" id="btn-appcc-add-chamber" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">Añadir Equipo</button>
 </div>
 </details>
-
-<div class="appcc-table-scroll" style="margin-top:16px;">
-<div style="font-size:0.74rem;font-weight:700;color:var(--t2);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em;">Histórico Reciente de Temperaturas</div>
+<details class="ux-drawer">
+<summary style="font-size:0.8rem;color:var(--t2);">📋 Histórico Reciente de Temperaturas <span>▾</span></summary>
+<div class="appcc-table-scroll" style="margin-top:10px;">
 <table class="appcc-ld-table" style="table-layout:auto;">
-<thead>
-<tr>
-<th>Fecha / Hora</th>
-<th>Equipo</th>
-<th>Temp. Medida</th>
-<th>Estado / Acción Correctiva</th>
-<th>Responsable</th>
-</tr>
-</thead>
+<thead><tr><th>Fecha / Hora</th><th>Equipo</th><th>Temp.</th><th>Estado / Acción Correctiva</th><th>Responsable</th></tr></thead>
 <tbody id="appcc-temp-logs-body"></tbody>
 </table>
 </div>
+</details>
 </section>
+</div>
 
-      <!-- SUB-BLOQUE 2: ETIQUETADO DE TRAZABILIDAD Y PACK TÉRMICO -->
+<div id="appcc-panel-labels" class="ux-subpanel" data-subtab-group="appcc">
 <section class="appcc-section-card" aria-label="Etiquetado de Trazabilidad y Caducidad Secundaria">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
-<div>
-<h3 style="margin:0 0 4px;font-size:0.95rem;color:var(--t1);font-weight:800;">🏷️ 2. Pack Completo de Trazabilidad &amp; Etiquetas Térmicas</h3>
-<p style="margin:0;font-size:0.75rem;color:var(--t3);">Genera e imprime pegatinas térmicas (58mm / 80mm / 60×40mm / A4) con código de barras Code-39 desde tus platos, bases o catálogo maestro, con historial completo de trazabilidad.</p>
-</div>
-<button type="button" id="btn-appcc-export-trace-csv" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(34,197,94,0.45);color:#4ade80;font-size:0.78rem;">📊 Exportar Trazabilidad CSV</button>
-</div>
-
-<div style="margin-bottom:10px;">
-<label for="appcc-label-search" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Buscar en Recetas, Bases y Catálogo Maestro</label>
-<input type="search" id="appcc-label-search" class="fi" placeholder="🔍 Filtrar plato, elaboración base o ingrediente del catálogo..." style="min-height:48px;width:100%;">
-</div>
-
-<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:12px;">
-<div>
-<label for="appcc-label-recipe" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Producto / Escandallo de Origen</label>
-<select id="appcc-label-recipe" class="fi" style="min-height:48px;width:100%;">
-<option value="__custom__">— Producto / Elaboración Libre —</option>
-</select>
-</div>
-<div>
-<label for="appcc-label-custom-name" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Nombre Impreso en Etiqueta</label>
-<input type="text" id="appcc-label-custom-name" class="fi" placeholder="Ej. Fondo Oscuro de Ternera" style="min-height:48px;width:100%;">
-</div>
-<div>
-<label for="appcc-label-batch" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Código Lote Interno (Barcode)</label>
-<input type="text" id="appcc-label-batch" class="fi" style="min-height:48px;width:100%;font-family:'JetBrains Mono',monospace;">
-</div>
-<div>
-<label for="appcc-label-supplier-lot" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Lote Proveedor / Origen MP</label>
-<input type="text" id="appcc-label-supplier-lot" class="fi" placeholder="Ej. PROV-8821" style="min-height:48px;width:100%;">
-</div>
-<div>
-<label for="appcc-label-prep-date" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Fecha de Elaboración / Apertura</label>
-<input type="date" id="appcc-label-prep-date" class="fi" style="min-height:48px;width:100%;">
-</div>
-<div>
-<label for="appcc-label-expiry" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Fecha de Caducidad Secundaria</label>
-<input type="date" id="appcc-label-expiry" class="fi" style="min-height:48px;width:100%;">
-</div>
-<div>
-<label for="appcc-label-storage" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Conservación Sanitaria</label>
-<select id="appcc-label-storage" class="fi" style="min-height:48px;width:100%;">
-<option value="Refrigeración 0°C - 4°C">Refrigeración 0°C - 4°C</option>
-<option value="Carnes/Pescados 0°C - 3°C">Carnes/Pescados 0°C - 3°C</option>
-<option value="Congelación ≤ -18°C">Congelación ≤ -18°C</option>
-<option value="Abatido / Vacío 0°C - 3°C">Abatido / Vacío 0°C - 3°C</option>
-<option value="Ambiente / Secos < 22°C">Ambiente / Secos &lt; 22°C</option>
-</select>
-</div>
-<div>
-<label for="appcc-label-qty" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Envase / Cantidad (Opcional)</label>
-<input type="text" id="appcc-label-qty" class="fi" placeholder="Ej. 2 GN 1/3 · 1.5 kg" style="min-height:48px;width:100%;">
-</div>
-<div>
-<label for="appcc-label-format" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Formato Impresora Térmica</label>
-<select id="appcc-label-format" class="fi" style="min-height:48px;width:100%;">
-<option value="60x40">Térmica Estándar 60×40 mm (Cocina)</option>
-<option value="58mm">Rollo Térmico 58 mm (Ticket / Pegatina)</option>
-<option value="62x29">Brother QL 62×29 mm (Compacta)</option>
-<option value="80mm">Rollo Térmico Ancho 80 mm</option>
-<option value="a4">Hoja A4 Adhesivos (Multi-etiqueta)</option>
-</select>
-</div>
-<div>
-<label for="appcc-label-copies" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Copias a Imprimir</label>
-<input type="number" id="appcc-label-copies" class="fi" min="1" max="20" value="1" style="min-height:48px;width:100%;font-family:'JetBrains Mono',monospace;text-align:center;font-weight:700;">
-</div>
-</div>
-
-<div style="margin-top:10px;">
-<span style="font-size:0.72rem;color:var(--t3);font-weight:700;">Cálculo Rápido de Vida Útil desde Elaboración:</span>
-<div class="appcc-preset-group">
-<button type="button" class="appcc-preset-btn" data-appcc-days="1">+24h (1 día)</button>
-<button type="button" class="appcc-preset-btn" data-appcc-days="2">+48h (2 días)</button>
-<button type="button" class="appcc-preset-btn" data-appcc-days="3">+72h (3 días)</button>
-<button type="button" class="appcc-preset-btn" data-appcc-days="5">+5 días (Abatido)</button>
-<button type="button" class="appcc-preset-btn" data-appcc-days="30">+30 días (Congelado)</button>
-</div>
-</div>
-
-<div style="margin-top:12px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-<div style="flex:1;min-width:220px;">
-<span style="font-size:0.72rem;color:var(--t3);font-weight:700;display:block;margin-bottom:4px;">Alérgenos Heredados en Etiqueta (Obligatorio RD 126/2015):</span>
-<div id="appcc-label-allergens" style="display:flex;flex-wrap:wrap;gap:6px;font-size:0.76rem;color:var(--t2);">Sin alérgenos declarados</div>
-</div>
-<div style="display:flex;gap:8px;flex-wrap:wrap;">
-<button type="button" id="btn-appcc-save-label" class="btn btn-primary appcc-touch-btn">🏷️ Guardar Lote</button>
-<button type="button" id="btn-appcc-print-pack" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">🖨️ Imprimir Pack Térmico</button>
-<button type="button" id="btn-appcc-print-x1" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">🖨️ Pegatina x1</button>
-<button type="button" id="btn-appcc-print-x2" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">🖨️ Doble x2</button>
-<button type="button" id="btn-appcc-export-label-pdf" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📄 PDF Térmico</button>
-<button type="button" id="btn-appcc-save-preset" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(251,191,36,0.55);color:#fbbf24;">⭐ Guardar Plantilla del Local</button>
-</div>
-</div>
-
-<div class="appcc-presets-panel" id="appcc-presets-panel">
+<div class="appcc-presets-panel" id="appcc-presets-panel" style="margin-top:0;">
 <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
 <div>
-<strong style="font-size:0.84rem;color:var(--gold);">⭐ Etiquetas Favoritas / del Día (<span id="appcc-presets-venue">Local</span>)</strong>
-<div style="font-size:0.72rem;color:var(--t3);">Guarda tus elaboraciones habituales una sola vez: 1 toque crea un lote NUEVO con la fecha de HOY y caducidad automática.</div>
+<strong style="font-size:0.86rem;color:var(--gold);">⭐ Etiquetas Favoritas / del Día (<span id="appcc-presets-venue">Local</span>)</strong>
+<div style="font-size:0.72rem;color:var(--t3);">1 toque imprime un lote nuevo con fecha de HOY y caducidad automática.</div>
 </div>
 <button type="button" id="btn-appcc-print-all-presets" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);font-size:0.76rem;">🖨️ Pack Apertura (Todas)</button>
 </div>
 <div id="appcc-presets-grid" class="appcc-presets-grid"></div>
 </div>
 
-<div id="appcc-thermal-preview" class="appcc-thermal-preview-wrap" aria-live="polite">
-<div style="font-size:0.74rem;color:#475569;font-weight:700;">Vista previa en vivo de etiqueta térmica</div>
+<details id="appcc-label-builder-drawer" class="ux-drawer">
+<summary style="color:var(--cyan);font-size:0.84rem;">➕ Crear / Imprimir Nueva Etiqueta Térmica <span>▾</span></summary>
+<div style="margin-top:10px;">
+<div style="margin-bottom:10px;">
+<label for="appcc-label-search" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Buscar en Recetas, Bases y Catálogo</label>
+<input type="search" id="appcc-label-search" class="fi" placeholder="🔍 Filtrar plato, base o ingrediente..." style="min-height:48px;width:100%;">
 </div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px;">
+<div><label for="appcc-label-recipe" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Producto / Escandallo</label><select id="appcc-label-recipe" class="fi" style="min-height:48px;width:100%;"><option value="__custom__">— Producto / Elaboración Libre —</option></select></div>
+<div><label for="appcc-label-custom-name" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Nombre en Etiqueta</label><input type="text" id="appcc-label-custom-name" class="fi" placeholder="Ej. Fondo Oscuro" style="min-height:48px;width:100%;"></div>
+<div><label for="appcc-label-batch" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Lote Interno</label><input type="text" id="appcc-label-batch" class="fi" style="min-height:48px;width:100%;font-family:'JetBrains Mono',monospace;"></div>
+<div><label for="appcc-label-supplier-lot" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Lote Proveedor</label><input type="text" id="appcc-label-supplier-lot" class="fi" placeholder="Ej. PROV-8821" style="min-height:48px;width:100%;"></div>
+<div><label for="appcc-label-prep-date" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Elaboración</label><input type="date" id="appcc-label-prep-date" class="fi" style="min-height:48px;width:100%;"></div>
+<div><label for="appcc-label-expiry" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Caducidad</label><input type="date" id="appcc-label-expiry" class="fi" style="min-height:48px;width:100%;"></div>
+<div><label for="appcc-label-storage" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Conservación</label><select id="appcc-label-storage" class="fi" style="min-height:48px;width:100%;"><option value="Refrigeración 0°C - 4°C">Refrigeración 0°C - 4°C</option><option value="Carnes/Pescados 0°C - 3°C">Carnes/Pescados 0°C - 3°C</option><option value="Congelación ≤ -18°C">Congelación ≤ -18°C</option><option value="Abatido / Vacío 0°C - 3°C">Abatido / Vacío 0°C - 3°C</option><option value="Ambiente / Secos < 22°C">Ambiente / Secos &lt; 22°C</option></select></div>
+<div><label for="appcc-label-qty" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Cantidad (Opcional)</label><input type="text" id="appcc-label-qty" class="fi" placeholder="Ej. 2 GN 1/3 · 1.5 kg" style="min-height:48px;width:100%;"></div>
+<div><label for="appcc-label-format" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Formato Térmico</label><select id="appcc-label-format" class="fi" style="min-height:48px;width:100%;"><option value="60x40">Térmica Estándar 60×40 mm</option><option value="58mm">Rollo Térmico 58 mm</option><option value="62x29">Brother QL 62×29 mm</option><option value="80mm">Rollo Ancho 80 mm</option><option value="a4">Hoja A4 Adhesivos</option></select></div>
+<div><label for="appcc-label-copies" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Copias</label><input type="number" id="appcc-label-copies" class="fi" min="1" max="20" value="1" style="min-height:48px;width:100%;font-family:'JetBrains Mono',monospace;text-align:center;font-weight:700;"></div>
+</div>
+<div style="margin-top:10px;">
+<span style="font-size:0.72rem;color:var(--t3);font-weight:700;">Vida Útil Rápida:</span>
+<div class="appcc-preset-group">
+<button type="button" class="appcc-preset-btn" data-appcc-days="1">+24h</button>
+<button type="button" class="appcc-preset-btn" data-appcc-days="2">+48h</button>
+<button type="button" class="appcc-preset-btn" data-appcc-days="3">+72h</button>
+<button type="button" class="appcc-preset-btn" data-appcc-days="5">+5 días</button>
+<button type="button" class="appcc-preset-btn" data-appcc-days="30">+30 días</button>
+</div>
+</div>
+<div style="margin-top:10px;padding:10px 12px;border-radius:8px;background:rgba(255,255,255,0.03);border:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+<div style="flex:1;min-width:200px;">
+<span style="font-size:0.72rem;color:var(--t3);font-weight:700;display:block;margin-bottom:4px;">Alérgenos Heredados:</span>
+<div id="appcc-label-allergens" style="display:flex;flex-wrap:wrap;gap:6px;font-size:0.76rem;color:var(--t2);">Sin alérgenos declarados</div>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;">
+<button type="button" id="btn-appcc-save-label" class="btn btn-primary appcc-touch-btn">🏷️ Guardar Lote</button>
+<button type="button" id="btn-appcc-print-pack" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">🖨️ Imprimir Pack</button>
+</div>
+</div>
+<details class="ux-drawer">
+<summary style="font-size:0.76rem;color:var(--t2);">▸ Más formatos y guardar como favorita <span>▾</span></summary>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+<button type="button" id="btn-appcc-print-x1" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">🖨️ Pegatina x1</button>
+<button type="button" id="btn-appcc-print-x2" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">🖨️ Doble x2</button>
+<button type="button" id="btn-appcc-export-label-pdf" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📄 PDF Térmico</button>
+<button type="button" id="btn-appcc-save-preset" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(251,191,36,0.55);color:#fbbf24;">⭐ Guardar Plantilla</button>
+</div>
+</details>
+<div id="appcc-thermal-preview" class="appcc-thermal-preview-wrap" aria-live="polite"><div style="font-size:0.74rem;color:#475569;font-weight:700;">Vista previa en vivo de etiqueta térmica</div></div>
+</div>
+</details>
 
-<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
-<input type="search" id="appcc-trace-search" class="fi" placeholder="🔍 Buscar en trazabilidad (lote, producto o proveedor)..." style="flex:1;min-width:min(220px,100%);min-height:48px;">
-<select id="appcc-trace-filter" class="fi" style="min-width:min(190px,100%);min-height:48px;">
+<details class="ux-drawer">
+<summary style="font-size:0.82rem;color:var(--t2);">📋 Lotes en Cámara e Historial de Trazabilidad <span>▾</span></summary>
+<div style="margin-top:10px;">
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-bottom:10px;">
+<input type="search" id="appcc-trace-search" class="fi" placeholder="🔍 Buscar lote, producto o proveedor..." style="flex:1;min-width:min(200px,100%);min-height:48px;">
+<select id="appcc-trace-filter" class="fi" style="min-width:min(170px,100%);min-height:48px;">
 <option value="all">Todos los Lotes</option>
 <option value="active">Activos en Cámara</option>
 <option value="expiring">Caducan Hoy / Caducados</option>
 <option value="consumed">Consumidos / Cerrados</option>
 </select>
+<button type="button" id="btn-appcc-export-trace-csv" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(34,197,94,0.45);color:#4ade80;font-size:0.78rem;">📊 Trazabilidad CSV</button>
 </div>
-
-<div class="appcc-table-scroll" style="margin-top:10px;">
+<div class="appcc-table-scroll">
 <table class="appcc-ld-table" style="table-layout:auto;">
-<thead>
-<tr>
-<th>Lote y Producto</th>
-<th>Fecha Elab.</th>
-<th>Caducidad / Conserv.</th>
-<th>Alérgenos</th>
-<th>Acciones</th>
-</tr>
-</thead>
+<thead><tr><th>Lote y Producto</th><th>Fecha Elab.</th><th>Caducidad / Conserv.</th><th>Alérgenos</th><th>Acciones</th></tr></thead>
 <tbody id="appcc-labels-body"></tbody>
 </table>
 </div>
+</div>
+</details>
 </section>
+</div>
 
-      <!-- SUB-BLOQUE 3: PLAN DE LIMPIEZA Y DESINFECCIÓN (UNE-EN 13697 / Reg. CE 852/2004) -->
+<div id="appcc-panel-ld" class="ux-subpanel" data-subtab-group="appcc">
 <section class="appcc-section-card" aria-label="Plan de Limpieza y Desinfección">
 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
 <div>
-<h3 style="margin:0;font-size:0.95rem;color:var(--t1);font-weight:800;">🧼 3. Plan de Limpieza y Desinfección (POES / UNE-EN 13697)</h3>
-<p style="margin:3px 0 0;font-size:0.75rem;color:var(--t3);">Protocolos sanitarios sin abreviaturas ni truncamiento de texto, separados por puntos críticos diarios y zonas periódicas.</p>
+<h3 style="margin:0;font-size:0.95rem;color:var(--t1);font-weight:800;">🧼 Plan de Limpieza y Desinfección</h3>
+<p style="margin:3px 0 0;font-size:0.75rem;color:var(--t3);">Verifica los puntos críticos diarios en 1 toque.</p>
 </div>
+<button type="button" id="btn-appcc-new-turn" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(245,158,11,0.45);color:#fbbf24;">🔄 Nuevo Turno (Reiniciar L+D)</button>
 </div>
-
-<h4 style="margin:12px 0 6px;font-size:0.84rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.04em;">A) Puntos Críticos Diarios (Por Turno)</h4>
+<h4 style="margin:10px 0 6px;font-size:0.84rem;color:var(--gold);text-transform:uppercase;letter-spacing:0.04em;">A) Puntos Críticos Diarios (Por Turno)</h4>
 <div class="appcc-table-scroll">
 <table class="appcc-ld-table">
-<thead>
-<tr>
-<th style="width:24%;">Elemento / Zona</th>
-<th style="width:14%;">Frecuencia</th>
-<th style="width:42%;">Protocolo POES y Químicos Autorizados (Registro HA)</th>
-<th style="width:20%;">Verificación</th>
-</tr>
-</thead>
+<thead><tr><th style="width:24%;">Elemento / Zona</th><th style="width:14%;">Frecuencia</th><th style="width:42%;">Protocolo POES y Químicos HA</th><th style="width:20%;">Verificación</th></tr></thead>
 <tbody id="appcc-ld-daily-body"></tbody>
 </table>
 </div>
-
-<h4 style="margin:18px 0 6px;font-size:0.84rem;color:var(--cyan);text-transform:uppercase;letter-spacing:0.04em;">B) Zonas Periódicas (48h / Semanal / Mensual)</h4>
-<div class="appcc-table-scroll">
+<details class="ux-drawer">
+<summary style="font-size:0.82rem;color:var(--cyan);">📅 B) Zonas Periódicas (48h / Semanal / Mensual) <span>▾</span></summary>
+<div class="appcc-table-scroll" style="margin-top:8px;">
 <table class="appcc-ld-table">
-<thead>
-<tr>
-<th style="width:24%;">Elemento / Zona</th>
-<th style="width:14%;">Frecuencia</th>
-<th style="width:42%;">Protocolo POES y Químicos Autorizados (Registro HA)</th>
-<th style="width:20%;">Verificación</th>
-</tr>
-</thead>
+<thead><tr><th style="width:24%;">Elemento / Zona</th><th style="width:14%;">Frecuencia</th><th style="width:42%;">Protocolo POES y Químicos HA</th><th style="width:20%;">Verificación</th></tr></thead>
 <tbody id="appcc-ld-periodic-body"></tbody>
 </table>
 </div>
-
-<details style="margin-top:14px;border-top:1px solid var(--b1);padding-top:10px;">
-<summary style="cursor:pointer;font-size:0.78rem;color:var(--cyan);font-weight:700;">➕ Añadir Zona Personalizada al Plan L+D</summary>
+</details>
+<details class="ux-drawer">
+<summary style="font-size:0.8rem;color:var(--cyan);">➕ Añadir Zona Personalizada al Plan L+D <span>▾</span></summary>
 <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:10px;margin-top:10px;align-items:end;">
-<div>
-<label for="appcc-new-task-zone" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Elemento / Zona</label>
-<input type="text" id="appcc-new-task-zone" class="fi" placeholder="Ej. Cortadora de Fiambres" style="min-height:48px;width:100%;">
-</div>
-<div>
-<label for="appcc-new-task-freq" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Frecuencia</label>
-<select id="appcc-new-task-freq" class="fi" style="min-height:48px;width:100%;">
-<option value="daily">Diaria (Cada Turno)</option>
-<option value="periodic">Periódica (Semanal / 48h)</option>
-</select>
-</div>
-<div>
-<label for="appcc-new-task-protocol" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Protocolo y Químico HA</label>
-<input type="text" id="appcc-new-task-protocol" class="fi" placeholder="Desmontar disco, detergente alcalino + desinfectante HA 5 min, aclarado" style="min-height:48px;width:100%;">
-</div>
+<div><label for="appcc-new-task-zone" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Elemento / Zona</label><input type="text" id="appcc-new-task-zone" class="fi" placeholder="Ej. Cortadora de Fiambres" style="min-height:48px;width:100%;"></div>
+<div><label for="appcc-new-task-freq" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Frecuencia</label><select id="appcc-new-task-freq" class="fi" style="min-height:48px;width:100%;"><option value="daily">Diaria (Cada Turno)</option><option value="periodic">Periódica (Semanal / 48h)</option></select></div>
+<div><label for="appcc-new-task-protocol" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:4px;">Protocolo y Químico HA</label><input type="text" id="appcc-new-task-protocol" class="fi" placeholder="Detergente alcalino + desinfectante HA 5 min" style="min-height:48px;width:100%;"></div>
 <button type="button" id="btn-appcc-add-task" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">Añadir Zona</button>
 </div>
 </details>
 </section>
+</div>
 
-      <!-- SUB-BLOQUE 4: CIERRE DIARIO APPCC, CARPETA AUTOMÁTICA Y ARCHIVO EN NUBE (V20.0) -->
+<div id="appcc-panel-closures" class="ux-subpanel" data-subtab-group="appcc">
 <section class="appcc-section-card" id="appcc-closures-card" aria-label="Cierres Diarios APPCC y Auto-Archivo">
-<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
 <div>
-<h3 style="margin:0 0 4px;font-size:0.95rem;color:var(--t1);font-weight:800;">🔒 4. Cierres Diarios APPCC, Carpeta Automática y Google Drive</h3>
-<p style="margin:0;font-size:0.75rem;color:var(--t3);">Sella cada cierre de turno/día con Hash SHA-256 sin exportar a mano. Guárdalo en tu histórico offline (IndexedDB), en una carpeta fija del PC o automáticamente en Google Drive.</p>
+<h3 style="margin:0 0 4px;font-size:0.95rem;color:var(--t1);font-weight:800;">🔒 Cierre de Turno y Archivo</h3>
+<p style="margin:0;font-size:0.75rem;color:var(--t3);">Sella el cierre en 1 toque y elige dónde se guarda si lo deseas.</p>
 </div>
 <span id="appcc-outbox-badge" style="font-size:0.72rem;padding:4px 9px;border-radius:999px;background:rgba(34,197,94,0.12);border:1px solid rgba(34,197,94,0.35);color:#4ade80;font-weight:700;">Cola Nube: 0 pendientes</span>
 </div>
 
-<div class="appcc-archive-grid">
-<div class="appcc-archive-pill">
-<div style="font-size:0.74rem;font-weight:800;color:var(--cyan);">📂 Destino 1: Carpeta Automática del PC (Chrome/Edge)</div>
-<div id="appcc-folder-status" style="font-size:0.74rem;color:var(--t2);">Sin carpeta vinculada (archivo seguro en IndexedDB del navegador)</div>
-<button type="button" id="btn-appcc-link-folder" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📂 Vincular Carpeta Local / OneDrive</button>
-</div>
-<div class="appcc-archive-pill">
-<div style="font-size:0.74rem;font-weight:800;color:var(--gold);">☁️ Destino 2: Google Drive / Apps Script (Multi-dispositivo)</div>
-<div id="appcc-cloud-status" style="font-size:0.74rem;color:var(--t2);">Sin Webhook configurado (actívalo abajo si usas iPad/móvil)</div>
-<button type="button" id="btn-appcc-flush-outbox" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">☁️ Sincronizar Cola Offline</button>
-</div>
-</div>
-
 <div style="padding:12px;border-radius:8px;border:1px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.05);margin-bottom:12px;">
 <div class="alb-grid" style="margin-bottom:8px;">
-<div>
-<label for="appcc-closure-shift" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Turno de Cierre</label>
-<select id="appcc-closure-shift" class="fi" style="min-height:48px;width:100%;">
-<option value="Día Completo">Día Completo (Cierre Total)</option>
-<option value="Mañana / Comida">Turno Mañana / Comida</option>
-<option value="Tarde / Cena">Turno Tarde / Cena</option>
-</select>
-</div>
-<div>
-<label for="appcc-closure-notes" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Observaciones de Cierre / Incidencias</label>
-<input type="text" id="appcc-closure-notes" class="fi" placeholder="Ej. Cámaras OK, mermas retiradas, limpieza verificada" style="min-height:48px;width:100%;">
-</div>
+<div><label for="appcc-closure-shift" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Turno</label><select id="appcc-closure-shift" class="fi" style="min-height:48px;width:100%;"><option value="Día Completo">Día Completo (Cierre Total)</option><option value="Mañana / Comida">Turno Mañana / Comida</option><option value="Tarde / Cena">Turno Tarde / Cena</option></select></div>
+<div><label for="appcc-closure-notes" style="font-size:0.72rem;color:var(--t3);display:block;margin-bottom:4px;">Observaciones</label><input type="text" id="appcc-closure-notes" class="fi" placeholder="Ej. Cámaras OK, limpieza verificada" style="min-height:48px;width:100%;"></div>
 </div>
 <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-<button type="button" id="btn-appcc-close-day" class="btn btn-primary appcc-touch-btn" style="flex:1;min-width:min(240px,100%);background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,0.5);">🔒 Cerrar y Archivar Turno APPCC (Sello SHA-256)</button>
-<label style="display:inline-flex;align-items:center;gap:6px;font-size:0.76rem;color:var(--t2);cursor:pointer;min-height:36px;">
-<input type="checkbox" id="appcc-closure-reset-ld"> Reiniciar L+D diario tras cerrar
-</label>
+<button type="button" id="btn-appcc-close-day" class="btn btn-primary appcc-touch-btn" style="flex:1;min-width:min(240px,100%);background:linear-gradient(135deg,#10b981,#059669);border-color:rgba(16,185,129,0.5);">🔒 Cerrar y Archivar Turno APPCC</button>
+<label style="display:inline-flex;align-items:center;gap:6px;font-size:0.76rem;color:var(--t2);cursor:pointer;min-height:36px;"><input type="checkbox" id="appcc-closure-reset-ld"> Reiniciar L+D tras cerrar</label>
 </div>
 </div>
 
-<details id="appcc-gas-panel" style="margin-bottom:12px;border:1px solid var(--b1);border-radius:8px;padding:10px 12px;background:rgba(255,255,255,0.02);">
-<summary style="cursor:pointer;font-size:0.8rem;font-weight:700;color:var(--gold);">☁️ Configurar Auto-Guardado en tu Google Drive (Webhook + Script Listo para Copiar)</summary>
-<div style="margin-top:10px;display:flex;flex-direction:column;gap:8px;">
-<div style="display:flex;gap:8px;flex-wrap:wrap;">
-<input type="url" id="appcc-archive-webhook" class="fi" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;min-width:min(220px,100%);min-height:48px;">
+<details id="appcc-dest-drawer" class="ux-drawer" style="margin-bottom:12px;">
+<summary style="font-size:0.82rem;color:var(--cyan);">💾 Dónde guardar tus cierres (Dispositivo / Google Drive / Carpeta Local) <span>Elegir ▾</span></summary>
+<div style="margin-top:10px;">
+<div class="ux-subtabs" data-subtab-group="appcc-dest" style="margin-bottom:10px;">
+<button type="button" class="ux-subtab active" data-subtab-group="appcc-dest" data-subpanel="appcc-dest-device">📱 Dispositivo</button>
+<button type="button" class="ux-subtab" data-subtab-group="appcc-dest" data-subpanel="appcc-dest-drive">☁️ Google Drive</button>
+<button type="button" class="ux-subtab" data-subtab-group="appcc-dest" data-subpanel="appcc-dest-local">📂 Carpeta PC</button>
+</div>
+<div id="appcc-dest-device" class="ux-subpanel active" data-subtab-group="appcc-dest" style="font-size:0.78rem;color:var(--t2);padding:8px 10px;border-radius:8px;background:var(--s2);border:1px solid var(--b1);">
+✔ Todos los cierres se archivan automáticamente en este dispositivo (IndexedDB offline) aunque no configures Drive ni carpeta.
+</div>
+<div id="appcc-dest-drive" class="ux-subpanel" data-subtab-group="appcc-dest" style="padding:10px;border-radius:8px;background:var(--s2);border:1px solid var(--b1);">
+<div id="appcc-cloud-status" style="font-size:0.76rem;color:var(--t2);margin-bottom:8px;">Sin Webhook configurado</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+<input type="url" id="appcc-archive-webhook" class="fi" placeholder="https://script.google.com/macros/s/.../exec" style="flex:1;min-width:min(200px,100%);min-height:48px;">
 <button type="button" id="btn-appcc-save-webhook" class="btn btn-primary appcc-touch-btn">💾 Guardar URL</button>
-<button type="button" id="btn-appcc-copy-gas" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📋 Copiar Script Google Drive (Code.gs)</button>
+<button type="button" id="btn-appcc-flush-outbox" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">☁️ Sincronizar Cola</button>
 </div>
-<div style="font-size:0.72rem;color:var(--t3);line-height:1.45;">
-1) Ve a <strong>script.google.com</strong> → Nuevo proyecto → Pega este código.<br>
-2) Pulsa <strong>Implementar → Nueva implementación → Aplicación web</strong> (acceso: <em>Cualquier usuario</em>) y pega la URL arriba.<br>
-3) Cada cierre y albarán se guardará solo en Google Drive dentro de <code>GastroCost_APPCC/&lt;Local&gt;/&lt;Mes&gt;/</code> y registrará auditoría en <code>Shadow_Log</code>.
+<details id="appcc-gas-panel" class="ux-drawer" style="margin-top:4px;">
+<summary style="font-size:0.76rem;color:var(--gold);">📋 Ver / Copiar Script Google Drive (Code.gs) <span>▾</span></summary>
+<div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
+<button type="button" id="btn-appcc-copy-gas" class="btn btn-ghost appcc-touch-btn" style="align-self:flex-start;border-color:rgba(6,182,212,0.45);color:var(--cyan);">📋 Copiar Script Google Drive (Code.gs)</button>
+<div style="font-size:0.72rem;color:var(--t3);line-height:1.4;">1) En <strong>script.google.com</strong> crea proyecto y pega el script. 2) Implementar → Aplicación web (acceso: <em>Cualquier usuario</em>) y pega arriba la URL.</div>
+<pre id="appcc-gas-code" style="max-height:140px;overflow:auto;background:#060911;color:#cbd5e1;padding:10px;border-radius:6px;font-size:0.68rem;border:1px solid var(--b1);margin:0;white-space:pre-wrap;word-break:break-word;"></pre>
 </div>
-            <pre id="appcc-gas-code" style="max-height:140px;overflow:auto;background:#060911;color:#cbd5e1;padding:10px;border-radius:6px;font-size:0.68rem;border:1px solid var(--b1);margin:0;white-space:pre-wrap;word-break:break-word;"></pre>
+</details>
+</div>
+<div id="appcc-dest-local" class="ux-subpanel" data-subtab-group="appcc-dest" style="padding:10px;border-radius:8px;background:var(--s2);border:1px solid var(--b1);">
+<div id="appcc-folder-status" style="font-size:0.76rem;color:var(--t2);margin-bottom:8px;">Sin carpeta vinculada</div>
+<button type="button" id="btn-appcc-link-folder" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📂 Vincular Carpeta Local / OneDrive</button>
+</div>
 </div>
 </details>
 
 <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px;">
-<div>
-<label for="appcc-closure-from" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:3px;">Desde</label>
-<input type="date" id="appcc-closure-from" class="fi" style="min-height:44px;">
+<div><label for="appcc-closure-from" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:3px;">Desde</label><input type="date" id="appcc-closure-from" class="fi" style="min-height:44px;"></div>
+<div><label for="appcc-closure-to" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:3px;">Hasta</label><input type="date" id="appcc-closure-to" class="fi" style="min-height:44px;"></div>
+<button type="button" id="btn-appcc-export-range-pdf" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">📄 PDF Consolidado</button>
+<button type="button" id="btn-appcc-export-closures-csv" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(34,197,94,0.45);color:#4ade80;">📊 CSV Cierres</button>
 </div>
-<div>
-<label for="appcc-closure-to" style="font-size:0.7rem;color:var(--t3);display:block;margin-bottom:3px;">Hasta</label>
-<input type="date" id="appcc-closure-to" class="fi" style="min-height:44px;">
-</div>
-<button type="button" id="btn-appcc-export-range-pdf" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">📄 PDF Consolidado (Inspección)</button>
-<button type="button" id="btn-appcc-export-closures-csv" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(34,197,94,0.45);color:#4ade80;">📊 CSV Histórico Cierres</button>
-</div>
-
 <div class="appcc-table-scroll">
 <table class="appcc-ld-table" style="table-layout:auto;">
-<thead>
-<tr>
-<th>Fecha / Turno</th>
-<th>Local / Responsable</th>
-<th>Frío PCC</th>
-<th>Trazabilidad</th>
-<th>L+D</th>
-<th>Archivo &amp; Sello</th>
-<th>Acciones</th>
-</tr>
-</thead>
+<thead><tr><th>Fecha / Turno</th><th>Local / Resp.</th><th>Frío PCC</th><th>Trazabilidad</th><th>L+D</th><th>Archivo &amp; Sello</th><th>Acciones</th></tr></thead>
 <tbody id="appcc-closures-body"></tbody>
 </table>
 </div>
 </section>
+</div>
 </div>
 </main>
 <div id="appcc-sticker-print" aria-hidden="true"></div>
@@ -8293,6 +8173,9 @@ class GC {
         this._renderActiveTab();
       });
     });
+
+    /* V21.4 Progressive-Disclosure Subtabs */
+    this._bindSubtabGroups();
 
     /* V18.0 APPCC Control & Sanitary Compliance Events */
     this._bindAppccEvents();
@@ -15963,14 +15846,28 @@ Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. 
     this._scrollChatToBottom();
   }
 
+  async _fetchWithTimeout(url, opts = {}, timeoutMs = 10000) {
+    if (typeof AbortController === 'undefined') return fetch(url, opts);
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      return await fetch(url, { ...opts, signal: ctrl.signal });
+    } finally {
+      clearTimeout(tid);
+    }
+  }
+
   async _callGeminiWithAutoModel(apiKey, bodyObj) {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      throw new Error('Sin conexión a internet');
+    }
     const postModel = async (model) => {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-      return fetch(url, {
+      return this._fetchWithTimeout(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(bodyObj)
-      });
+      }, 10000);
     };
 
     const isUnavailable = async (res) => {
@@ -15984,39 +15881,50 @@ Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. 
       return false;
     };
 
-    const candidates = [...new Set([this._activeGeminiModel, 'gemini-3.8-flash', 'gemini-2.5-flash'].filter(Boolean))];
+    const candidates = [...new Set([this._activeGeminiModel, 'gemini-2.5-flash', 'gemini-3.8-flash', 'gemini-2.5-flash-lite'].filter(Boolean))];
     let lastResponse = null;
+    let lastErr = null;
     for (const model of candidates) {
-      const res = await postModel(model);
-      if (res.ok) {
-        this._activeGeminiModel = model;
-        return res;
+      try {
+        const res = await postModel(model);
+        if (res.ok) {
+          this._activeGeminiModel = model;
+          return res;
+        }
+        lastResponse = res;
+        if (!(await isUnavailable(res))) return res;
+      } catch (e) {
+        lastErr = e;
       }
-      lastResponse = res;
-      if (!(await isUnavailable(res))) return res;
     }
 
-    // Dynamic ListModels discovery when all static candidates are retired/unavailable
+    // Dynamic ListModels discovery when static candidates fail or are retired
     try {
-      const mRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+      const mRes = await this._fetchWithTimeout(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`, {}, 10000);
       if (mRes.ok) {
         const mData = await mRes.json().catch(() => ({}));
         const usable = (mData.models || []).filter(m =>
           Array.isArray(m.supportedGenerationMethods) &&
           m.supportedGenerationMethods.includes('generateContent') &&
           /^models\/gemini-/i.test(m.name || '') &&
-          !/(embedding|imagen|veo|tts|aqa)/i.test(m.name || '')
+          !/(embedding|imagen|image|veo|tts|aqa|audio|live|robotics|computer|deep-research|learnlm)/i.test(m.name || '')
         );
-        const flashList = usable.filter(m => /flash/i.test(m.name)).sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
-        const ordered = flashList.length ? flashList : usable.sort((a, b) => b.name.localeCompare(a.name, undefined, { numeric: true }));
-        if (ordered.length) {
-          const discovered = ordered[0].name.replace(/^models\//, '');
-          const retryRes = await postModel(discovered);
-          if (retryRes.ok) this._activeGeminiModel = discovered;
-          return retryRes;
+        const rank = m => (/flash/i.test(m.name) ? 2 : 0) + (/(preview|exp)/i.test(m.name) ? 0 : 1);
+        const ordered = usable.sort((a, b) => rank(b) - rank(a) || b.name.localeCompare(a.name, undefined, { numeric: true }));
+        for (const item of ordered.slice(0, 2)) {
+          const discovered = item.name.replace(/^models\//, '');
+          try {
+            const retryRes = await postModel(discovered);
+            if (retryRes.ok) {
+              this._activeGeminiModel = discovered;
+              return retryRes;
+            }
+            lastResponse = retryRes;
+          } catch (e) { lastErr = e; }
         }
       }
-    } catch {}
+    } catch (e) { lastErr = lastErr || e; }
+    if (!lastResponse && lastErr) throw lastErr;
     return lastResponse;
   }
 
@@ -16064,6 +15972,7 @@ Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. 
 
   async _testGeminiConnection() {
     const inp = document.getElementById('cfg-apikey');
+    const btn = document.getElementById('btn-test-ai-key');
     const key = ((inp && inp.value) || localStorage.getItem('gastrocost_gemini_api_key') || '').trim();
     if (!key) {
       this._updateAiKeyStatusBadge('empty', 'Pega primero tu clave de Google AI Studio (AIzaSy...)');
@@ -16071,18 +15980,23 @@ Usa un tono técnico, conciso, imperativo y profesional de cocina de alta gama. 
       return false;
     }
     localStorage.setItem('gastrocost_gemini_api_key', key);
-    this._updateAiKeyStatusBadge('testing', 'Verificando conexión con Gemini 3.8 Flash...');
+    if (btn) btn.disabled = true;
+    this._updateAiKeyStatusBadge('testing', 'Verificando conexión con Gemini...');
     try {
       await this._queryGemini('Responde únicamente OK.', 'Ping de conexión');
-      const activeM = this._activeGeminiModel || 'gemini-3.8-flash';
+      const activeM = this._activeGeminiModel || 'gemini-2.5-flash';
       this._updateAiKeyStatusBadge('ok', `✔ Conexión verificada (${activeM}) listo para Albaranes OCR, Chat y Recetas.`);
       toast('🟢 API de Google Gemini conectada correctamente ✓');
       return true;
     } catch (err) {
-      const msg = (err && err.message) ? err.message : 'Error desconocido';
+      const msg = (err && err.name === 'AbortError')
+        ? 'Tiempo de espera agotado (12s). Revisa tu conexión o clave API.'
+        : ((err && err.message) ? err.message : 'Error desconocido');
       this._updateAiKeyStatusBadge('error', `✖ Error: ${msg}`);
       toast(`Error al conectar Gemini: ${msg}`, 'e');
       return false;
+    } finally {
+      if (btn) btn.disabled = false;
     }
   }
 
@@ -17325,11 +17239,18 @@ ${ingsStr}`;
     if (perBody) perBody.innerHTML = renderLdRows((appcc.cleaningTasks || []).filter(t => t.frequencyGroup !== 'daily'));
   }
 
+  _appccThRow(cols, bg = '#e5e7eb', pad = '5px') {
+    return `<thead><tr style="background:${bg};">${cols.map(([w, t]) => `<th style="border:1px solid #d1d5db;padding:${pad};width:${w};">${t}</th>`).join('')}</tr></thead>`;
+  }
+
   _buildAppccAuditHTML() {
-    const appcc = this._ensureAppccData();
+    const appcc = this._ensureAppccV20(this._ensureAppccData());
     const today = new Date().toISOString().slice(0, 10);
     const brandName = (this.db.brand && this.db.brand.restaurantName) ? this.db.brand.restaurantName.trim() : 'GastroCost PRO';
     const chefName = appcc.responsible || (this.db.brand && this.db.brand.chefName) || 'Responsable de Cocina';
+    const sealedToday = (appcc.dailyClosures || []).find(c => c.date === today && (c.ldDone || 0) > 0 && Array.isArray(c.cleaningTasks) && c.cleaningTasks.length);
+    const liveHasDone = (appcc.cleaningTasks || []).some(t => t.done);
+    const ldSource = (!liveHasDone && sealedToday) ? sealedToday.cleaningTasks : (appcc.cleaningTasks || []);
     const recentLogs = (appcc.tempLogs || []).slice(0, 25);
     const activeLabels = (appcc.labels || []).slice(0, 25);
 
@@ -17341,13 +17262,11 @@ ${ingsStr}`;
       ? activeLabels.map(l => `<tr><td><strong>${escHtml(l.dishName)}</strong><br><small>${escHtml(l.batchCode)}${l.supplierLot ? ' · MP: ' + escHtml(l.supplierLot) : ''}</small></td><td>${escHtml(l.prepDate)}</td><td>${escHtml(l.expiryDate)}${l.status === 'consumed' ? ' (Consumido)' : ''}<br><small>${escHtml(l.storage || '')}</small></td><td>${escHtml((l.allergens || []).map(k => ALLERGENS[k] ? ALLERGENS[k].name : k).join(', ') || 'Ninguno')}</td></tr>`).join('')
       : '<tr><td colspan="4">Sin lotes activos en cámara.</td></tr>';
 
-    const ldRows = (appcc.cleaningTasks || []).map(t => `
-      <tr>
-        <td style="word-break:break-word;"><strong>${escHtml(t.zone)}</strong></td>
-        <td style="word-break:break-word;">${escHtml(t.frequencyLabel)}</td>
-        <td style="word-break:break-word;">${escHtml(t.protocol)}</td>
-        <td style="word-break:break-word;font-weight:700;color:${t.done ? '#15803d' : '#b45309'};">${t.done ? '✔ Conforme' : '⚠ Pendiente'}</td>
-      </tr>`).join('');
+    const ldRows = ldSource.map(t => {
+      const freqTxt = t.frequencyLabel || (t.frequencyGroup === 'daily' ? 'Diaria (Cada Turno)' : 'Periódica');
+      const protoTxt = t.protocol || 'Protocolo estándar L+D';
+      return `<tr><td style="word-break:break-word;"><strong>${escHtml(t.zone)}</strong></td><td style="word-break:break-word;">${escHtml(freqTxt)}</td><td style="word-break:break-word;">${escHtml(protoTxt)}</td><td style="word-break:break-word;font-weight:700;color:${t.done ? '#15803d' : '#b45309'};">${t.done ? '✔ Conforme' : '⚠ Pendiente'}</td></tr>`;
+    }).join('');
 
     const recentAlbaranes = (this.db.albaranes || []).slice(0, 20);
     const albRows = recentAlbaranes.length
@@ -17357,6 +17276,12 @@ ${ingsStr}`;
           return `<tr><td>${escHtml(a.date)}<br><small>${escHtml(a.number || '-')}</small></td><td><strong>${escHtml(a.supplier)}</strong></td><td style="text-align:center;">${escHtml(tempStr)}</td><td>${stLabel}${a.incidentNote ? '<br><small>' + escHtml(a.incidentNote) + '</small>' : ''}</td><td><small style="font-family:monospace;">${escHtml((a.auditHash || '').slice(0, 18))}</small></td></tr>`;
         }).join('')
       : '<tr><td colspan="5">Sin recepciones de albarán registradas.</td></tr>';
+
+    const sealedBanner = (!liveHasDone && sealedToday)
+      ? `<div style="margin-bottom:10px;padding:6px 10px;background:#ecfdf5;border:1px solid #10b981;border-radius:4px;font-size:10px;color:#065f46;"><strong>Nota:</strong> El Plan L+D refleja el último cierre sellado de hoy (${escHtml(sealedToday.shift)} · ${escHtml(sealedToday.auditHash)}).</div>`
+      : '';
+    const tblS = 'width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:12px;';
+    const h2S = 'font-size:13px;background:#f3f4f6;padding:6px 8px;margin:12px 0 6px;border-left:4px solid ';
 
     return `
       <div style="max-width:715px;width:100%;margin:0 auto;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#111827;background:#ffffff;padding:16px;font-size:11px;line-height:1.4;">
@@ -17370,30 +17295,18 @@ ${ingsStr}`;
             <div><strong>Responsable:</strong> ${escHtml(chefName)}</div>
           </div>
         </div>
+        ${sealedBanner}
+        <h2 style="${h2S}#0284c7;">1. Control de Temperaturas PCC (Cámaras y Equipos)</h2>
+        <table style="${tblS}">${this._appccThRow([['20%','Fecha/Hora'],['26%','Equipo'],['12%','Temp'],['27%','Estado / Acción Correctiva'],['15%','Resp.']])}<tbody>${tempRows}</tbody></table>
 
-        <h2 style="font-size:13px;background:#f3f4f6;padding:6px 8px;border-left:4px solid #0284c7;margin:12px 0 6px;">1. Control de Temperaturas PCC (Cámaras y Equipos)</h2>
-        <table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:12px;">
-          <thead><tr style="background:#e5e7eb;"><th style="border:1px solid #d1d5db;padding:5px;width:20%;">Fecha/Hora</th><th style="border:1px solid #d1d5db;padding:5px;width:26%;">Equipo</th><th style="border:1px solid #d1d5db;padding:5px;width:12%;">Temp</th><th style="border:1px solid #d1d5db;padding:5px;width:27%;">Estado / Acción Correctiva</th><th style="border:1px solid #d1d5db;padding:5px;width:15%;">Resp.</th></tr></thead>
-          <tbody>${tempRows}</tbody>
-        </table>
+        <h2 style="${h2S}#d4af37;">2. Trazabilidad Interna y Caducidad Secundaria</h2>
+        <table style="${tblS}">${this._appccThRow([['32%','Elaboración / Lote'],['16%','Elaboración'],['16%','Caducidad'],['36%','Alérgenos (UE 1169/2011)']])}<tbody>${labelRows}</tbody></table>
 
-        <h2 style="font-size:13px;background:#f3f4f6;padding:6px 8px;border-left:4px solid #d4af37;margin:12px 0 6px;">2. Trazabilidad Interna y Caducidad Secundaria</h2>
-        <table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:12px;">
-          <thead><tr style="background:#e5e7eb;"><th style="border:1px solid #d1d5db;padding:5px;width:32%;">Elaboración / Lote</th><th style="border:1px solid #d1d5db;padding:5px;width:16%;">Elaboración</th><th style="border:1px solid #d1d5db;padding:5px;width:16%;">Caducidad</th><th style="border:1px solid #d1d5db;padding:5px;width:36%;">Alérgenos (UE 1169/2011)</th></tr></thead>
-          <tbody>${labelRows}</tbody>
-        </table>
+        <h2 style="${h2S}#059669;">3. Plan de Limpieza y Desinfección (UNE-EN 13697)</h2>
+        <table style="${tblS}">${this._appccThRow([['22%','Elemento / Zona'],['14%','Frecuencia'],['48%','Protocolo POES y Químicos HA'],['16%','Estado']])}<tbody>${ldRows}</tbody></table>
 
-        <h2 style="font-size:13px;background:#f3f4f6;padding:6px 8px;border-left:4px solid #059669;margin:12px 0 6px;">3. Plan de Limpieza y Desinfección (UNE-EN 13697)</h2>
-        <table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:14px;">
-          <thead><tr style="background:#e5e7eb;"><th style="border:1px solid #d1d5db;padding:5px;width:22%;">Elemento / Zona</th><th style="border:1px solid #d1d5db;padding:5px;width:14%;">Frecuencia</th><th style="border:1px solid #d1d5db;padding:5px;width:48%;">Protocolo POES y Químicos HA</th><th style="border:1px solid #d1d5db;padding:5px;width:16%;">Estado</th></tr></thead>
-          <tbody>${ldRows}</tbody>
-        </table>
-
-        <h2 style="font-size:13px;background:#f3f4f6;padding:6px 8px;border-left:4px solid #6366f1;margin:12px 0 6px;">4. Registro de Recepción de Mercancías y Albaranes (Reg. CE 178/2002)</h2>
-        <table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:14px;">
-          <thead><tr style="background:#e5e7eb;"><th style="border:1px solid #d1d5db;padding:5px;width:18%;">Fecha / Nº</th><th style="border:1px solid #d1d5db;padding:5px;width:28%;">Proveedor</th><th style="border:1px solid #d1d5db;padding:5px;width:14%;">Temp. PCC</th><th style="border:1px solid #d1d5db;padding:5px;width:24%;">Dictamen Sanitario</th><th style="border:1px solid #d1d5db;padding:5px;width:16%;">Sello</th></tr></thead>
-          <tbody>${albRows}</tbody>
-        </table>
+        <h2 style="${h2S}#6366f1;">4. Registro de Recepción de Mercancías y Albaranes (Reg. CE 178/2002)</h2>
+        <table style="${tblS}">${this._appccThRow([['18%','Fecha / Nº'],['28%','Proveedor'],['14%','Temp. PCC'],['24%','Dictamen Sanitario'],['16%','Sello']])}<tbody>${albRows}</tbody></table>
 
         <div style="margin-top:16px;padding-top:10px;border-top:1px dashed #9ca3af;display:flex;justify-content:space-between;font-size:10px;color:#4b5563;">
           <span>Documento generado localmente sin transmisión a terceros · GastroCost PRO</span>
@@ -17402,49 +17315,56 @@ ${ingsStr}`;
       </div>`;
   }
 
-  async _exportAppccPDF() {
-    const html = this._buildAppccAuditHTML();
-    const filename = `Acta_APPCC_${new Date().toISOString().slice(0, 10)}.pdf`;
+  async _renderHtmlToPdf(html, filename, successMsg) {
     let loaded = false;
     try { loaded = await this._ensureHTML2PDF(); } catch { loaded = false; }
     const wrap = document.getElementById('pdf-scratch');
-    if (!loaded || !window.html2pdf || !wrap) {
+    const openFallback = () => {
       const win = window.open('', '_blank', 'width=850,height=1000');
       if (win) {
-        win.document.write(`<!DOCTYPE html><html><head><title>Acta APPCC</title></head><body>${html}</body></html>`);
+        win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${escHtml(filename)}</title></head><body>${html}</body></html>`);
         win.document.close();
-        win.focus();
-        win.print();
+        try { win.focus(); win.print(); } catch {}
       }
-      return;
-    }
+    };
+    if (!loaded || !window.html2pdf || !wrap) { openFallback(); return; }
+    const prevX = window.scrollX || 0, prevY = window.scrollY || 0;
+    try { window.scrollTo(0, 0); } catch {}
     wrap.innerHTML = html;
-    wrap.style.position = 'fixed';
-    wrap.style.top = '0';
-    wrap.style.left = '0';
-    wrap.style.width = '750px';
-    wrap.style.zIndex = '999999';
-    wrap.style.background = '#ffffff';
-    wrap.style.display = 'block';
+    Object.assign(wrap.style, { position:'absolute', top:'0', left:'0', width:'794px', zIndex:'999999', background:'#ffffff', color:'#111827', display:'block' });
+    if (typeof requestAnimationFrame === 'function') {
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+    }
     const targetEl = wrap.firstElementChild || wrap;
+    const h = Math.max(1123, (targetEl.scrollHeight || 0) + 40);
     try {
       await window.html2pdf().set({
         margin: [10, 10, 10, 10],
         filename,
         image: { type: 'jpeg', quality: 0.95 },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-        html2canvas: { scale: 2, useCORS: true, scrollX: 0, scrollY: 0, windowWidth: 750 },
+        pagebreak: { mode: ['css', 'legacy'] },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollX: 0, scrollY: 0, x: 0, y: 0, windowWidth: 794, windowHeight: h },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       }).from(targetEl).save();
-      toast('📄 Acta Oficial APPCC (PDF A4) generada ✓');
+      toast(successMsg);
     } catch (err) {
-      console.warn('APPCC PDF error:', err);
-      toast('Error generando PDF, usa impresión del navegador', 'w');
+      console.warn('PDF export error:', err);
+      toast('Abriendo vista de impresión para guardar PDF...', 'w');
+      openFallback();
     } finally {
       wrap.innerHTML = '';
       wrap.style.display = 'none';
-      wrap.style.zIndex = '-1';
+      wrap.style.position = ''; wrap.style.top = ''; wrap.style.left = ''; wrap.style.width = ''; wrap.style.zIndex = '-1';
+      try { window.scrollTo(prevX, prevY); } catch {}
     }
+  }
+
+  async _exportAppccPDF() {
+    return this._renderHtmlToPdf(
+      this._buildAppccAuditHTML(),
+      `Acta_APPCC_${new Date().toISOString().slice(0, 10)}.pdf`,
+      '📄 Acta Oficial APPCC (PDF A4) generada ✓'
+    );
   }
 
   /* ═══════════════════════════════════════════════
@@ -17616,6 +17536,19 @@ ${ingsStr}`;
     }
   }
 
+  _bindSubtabGroups() {
+    document.querySelectorAll('.ux-subtab[data-subtab-group]').forEach(btn => {
+      if (btn.dataset.subtabBound) return;
+      btn.dataset.subtabBound = '1';
+      btn.addEventListener('click', () => {
+        const g = btn.dataset.subtabGroup;
+        const p = btn.dataset.subpanel;
+        document.querySelectorAll(`.ux-subtab[data-subtab-group="${g}"]`).forEach(b => b.classList.toggle('active', b === btn));
+        document.querySelectorAll(`.ux-subpanel[data-subtab-group="${g}"]`).forEach(el => el.classList.toggle('active', el.id === p));
+      });
+    });
+  }
+
   async _readAlbaranFile(file) {
     if (!file) return;
     const draft = this._ensureAlbaranDraft();
@@ -17640,6 +17573,8 @@ ${ingsStr}`;
           draft.attachmentName = fname;
           this._renderAlbaranDraftLines();
           this._renderAlbaranDocPreview();
+          const dr = document.getElementById('alb-manual-drawer');
+          if (dr) dr.open = true;
           toast(`📊 ${parsed.length} líneas importadas desde ${fname} ✓`);
         } else {
           toast('No se encontraron líneas con producto y precio en el archivo', 'w');
@@ -17650,6 +17585,12 @@ ${ingsStr}`;
       return;
     }
 
+    const maybeAutoOcr = () => {
+      if (typeof localStorage !== 'undefined' && (localStorage.getItem('gastrocost_gemini_api_key') || '').trim()) {
+        this._scanAlbaranWithAI();
+      }
+    };
+
     if (file.type === 'application/pdf' || lower.endsWith('.pdf')) {
       const reader = new FileReader();
       reader.onload = e => {
@@ -17658,7 +17599,8 @@ ${ingsStr}`;
         draft.attachmentName = fname;
         draft.attachmentMime = 'application/pdf';
         this._renderAlbaranDocPreview();
-        toast('📄 PDF cargado. Pulsa "🤖 Digitalizar con IA" para extraer las líneas ✓');
+        toast('📄 PDF cargado. Pulsa "🤖 Leer con IA" o completa manualmente ✓');
+        maybeAutoOcr();
       };
       reader.readAsDataURL(file);
       return;
@@ -17685,12 +17627,14 @@ ${ingsStr}`;
         draft.attachmentName = fname;
         draft.attachmentMime = 'image/jpeg';
         this._renderAlbaranDocPreview();
-        toast('📷 Foto de albarán optimizada. Pulsa "🤖 Digitalizar con IA" ✓');
+        toast('📷 Foto optimizada. Pulsa "🤖 Leer con IA" para extraer las líneas ✓');
+        maybeAutoOcr();
       };
       img.onerror = () => {
         draft.attachmentRawForOcr = e.target.result || '';
         draft.attachmentName = fname;
         this._renderAlbaranDocPreview();
+        maybeAutoOcr();
       };
       img.src = e.target.result;
     };
@@ -17699,24 +17643,27 @@ ${ingsStr}`;
 
   _renderAlbaranDocPreview() {
     const box = document.getElementById('alb-doc-preview');
+    const wrap = document.getElementById('alb-ocr-action-wrap');
     if (!box) return;
     const draft = this._ensureAlbaranDraft();
     if (!draft.attachmentRawForOcr && !draft.attachmentName) {
       box.style.display = 'none';
       box.innerHTML = '';
+      if (wrap) wrap.style.display = 'none';
       return;
     }
+    if (wrap) wrap.style.display = 'flex';
     box.style.display = 'flex';
     const visual = draft.attachmentThumb
       ? `<img src="${draft.attachmentThumb}" alt="Albarán" class="alb-photo-preview">`
       : `<div style="padding:10px 14px;border:1px solid var(--cyan);border-radius:6px;background:rgba(6,182,212,0.1);color:var(--cyan);font-weight:700;">📄 ${escHtml(draft.attachmentName || 'Documento PDF')}</div>`;
-    box.innerHTML = `${visual}<div style="font-size:0.76rem;color:var(--t2);"><strong>${escHtml(draft.attachmentName || 'Documento adjunto')}</strong><div style="color:var(--t3);font-size:0.7rem;">Listo para OCR con Gemini 3.8 Flash y respaldo en acta PCC</div></div>`;
+    box.innerHTML = `${visual}<div style="font-size:0.76rem;color:var(--t2);"><strong>${escHtml(draft.attachmentName || 'Documento adjunto')}</strong><div style="color:var(--t3);font-size:0.7rem;">Listo para lectura IA y respaldo PCC</div></div>`;
   }
 
   async _scanAlbaranWithAI() {
     const draft = this._ensureAlbaranDraft();
     if (!draft.attachmentRawForOcr) {
-      toast('Primero fotografia o sube una imagen/PDF de albarán (o usa Pegado Rápido Offline)', 'w');
+      toast('Primero fotografia o sube una imagen/PDF de albarán (o despliega el modo manual)', 'w');
       return null;
     }
     const btn = document.getElementById('btn-alb-ocr-ai');
@@ -17749,13 +17696,17 @@ ${ingsStr}`;
       }
       this._syncAlbaranDraftInputs();
       this._renderAlbaranDraftLines();
+      const dr = document.getElementById('alb-manual-drawer');
+      if (dr) dr.open = true;
       toast(`🤖 Albarán digitalizado con IA: ${(parsed.lines || []).length} líneas extraídas ✓`);
       return parsed;
     } catch (err) {
       if (err.message === 'API_KEY_MISSING') {
-        toast('Configura tu Google Gemini API Key en ⚙️ Ajustes para OCR automático, o usa ⚡ Pegado Rápido Offline', 'w');
-        const det = document.getElementById('alb-quick-paste-wrap');
-        if (det) det.open = true;
+        toast('Configura tu Google Gemini API Key en ⚙️ Ajustes para OCR automático, o usa Pegado Rápido Offline', 'w');
+        ['alb-manual-drawer', 'alb-quick-paste-wrap'].forEach(id => {
+          const el = document.getElementById(id);
+          if (el) el.open = true;
+        });
       } else {
         toast(`Error OCR IA: ${err.message}`, 'e');
       }
@@ -18212,6 +18163,8 @@ ${ingsStr}`;
     this._syncAlbaranDraftInputs();
     this._renderAlbaranDocPreview();
     this._renderAlbaranDraftLines();
+    const dr = document.getElementById('alb-manual-drawer');
+    if (dr) dr.open = false;
     if (showMsg) toast('Borrador de albarán limpiado');
   }
 
@@ -18312,24 +18265,11 @@ ${ingsStr}`;
   async _exportAlbaranAuditPDF(receiptId) {
     const receipt = (this.db.albaranes || []).find(a => a.id === receiptId);
     if (!receipt) return;
-    const html = this._buildAlbaranReceiptPDFHTML(receipt);
-    const filename = `Acta_Albaran_${(receipt.number || 'REC').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`;
-    let loaded = false;
-    try { loaded = await this._ensureHTML2PDF(); } catch { loaded = false; }
-    const wrap = document.getElementById('pdf-scratch');
-    if (!loaded || !window.html2pdf || !wrap) {
-      const win = window.open('', '_blank', 'width=850,height=1000');
-      if (win) { win.document.write(`<!DOCTYPE html><html><body>${html}</body></html>`); win.document.close(); win.print(); }
-      return;
-    }
-    wrap.innerHTML = html;
-    wrap.style.position = 'fixed'; wrap.style.top = '0'; wrap.style.left = '0'; wrap.style.width = '750px'; wrap.style.zIndex = '999999'; wrap.style.background = '#fff'; wrap.style.display = 'block';
-    try {
-      await window.html2pdf().set({ margin: [10, 10, 10, 10], filename, image: { type: 'jpeg', quality: 0.95 }, pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(wrap.firstElementChild || wrap).save();
-      toast(`📄 Acta de Albarán ${receipt.number} generada ✓`);
-    } finally {
-      wrap.innerHTML = ''; wrap.style.display = 'none'; wrap.style.zIndex = '-1';
-    }
+    return this._renderHtmlToPdf(
+      this._buildAlbaranReceiptPDFHTML(receipt),
+      `Acta_Albaran_${(receipt.number || 'REC').replace(/[^a-zA-Z0-9_-]/g, '_')}.pdf`,
+      `📄 Acta de Albarán ${receipt.number} generada ✓`
+    );
   }
 
   _renderAlbaranesTab() {
@@ -18408,6 +18348,12 @@ ${ingsStr}`;
     }
 
     if (totalEl) totalEl.textContent = EUR.format(total);
+    const badgeEl = document.getElementById('alb-drawer-badge');
+    if (badgeEl) badgeEl.textContent = draft.lines.length ? `(${draft.lines.length} línea${draft.lines.length === 1 ? '' : 's'})` : '(Vacío)';
+    if (draft.lines.length > 0) {
+      const dr = document.getElementById('alb-manual-drawer');
+      if (dr) dr.open = true;
+    }
     if (bannerEl) {
       if (spikeWarnings.length > 0) {
         bannerEl.style.display = 'block';
@@ -18800,7 +18746,11 @@ function doPost(e) {
 
   async _linkAppccLocalFolder() {
     if (typeof window === 'undefined' || typeof window.showDirectoryPicker !== 'function') {
-      toast('Tu navegador móvil no permite acceso directo a carpetas locales; activa abajo Google Drive o usa el Histórico Interno', 'w');
+      toast('Tu navegador móvil no permite acceso directo a carpetas locales; activa Google Drive o usa el Histórico Interno', 'w');
+      const dd = document.getElementById('appcc-dest-drawer');
+      if (dd) dd.open = true;
+      const driveTab = document.querySelector('.ux-subtab[data-subpanel="appcc-dest-drive"]');
+      if (driveTab) driveTab.click();
       const det = document.getElementById('appcc-gas-panel');
       if (det) det.open = true;
       return null;
@@ -19024,6 +18974,30 @@ function doPost(e) {
       </tr>`).join('');
 
     const notesHtml = closures.filter(c => c.notes).map(c => `<li><strong>${escHtml(c.date)} (${escHtml(c.shift)}):</strong> ${escHtml(c.notes)}</li>`).join('');
+
+    const tblS = 'width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:8px;';
+    const detailsHtml = closures.slice(0, singleClosure ? 1 : 5).map(c => {
+      const tRows = (c.tempLogs || []).length
+        ? c.tempLogs.slice(0, 20).map(l => `<tr><td>${escHtml((l.timestamp || '').replace('T', ' ').slice(0, 16))}</td><td>${escHtml(l.chamberName)}</td><td style="text-align:center;"><strong>${escHtml(l.temp)}°C</strong></td><td>${l.isAlert ? '⚠️ ' + escHtml(l.correctiveAction || 'Alerta') : '✔ Conforme'}</td></tr>`).join('')
+        : '<tr><td colspan="4">Sin lecturas PCC registradas en este cierre.</td></tr>';
+      const lRows = (c.cleaningTasks || []).length
+        ? c.cleaningTasks.map(t => `<tr><td><strong>${escHtml(t.zone)}</strong></td><td>${t.frequencyGroup === 'daily' ? 'Diaria' : 'Periódica'}</td><td style="font-weight:700;color:${t.done ? '#15803d' : '#b45309'};">${t.done ? `✔ Conforme${t.verifiedAt ? ' (' + escHtml(String(t.verifiedAt).slice(11, 16)) + ')' : ''}` : '⚠ Pendiente'}</td></tr>`).join('')
+        : '<tr><td colspan="3">Sin tareas L+D registradas.</td></tr>';
+      const lblBlock = (c.labels || []).length
+        ? `<h4 style="margin:8px 0 4px;font-size:11px;color:#b45309;">🏷️ Lotes y Trazabilidad del Día (${c.labels.length})</h4><table style="${tblS}">${this._appccThRow([['44%','Elaboración'],['28%','Lote'],['28%','Caducidad']],'#f3f4f6','4px')}<tbody>${c.labels.slice(0, 20).map(l => `<tr><td>${escHtml(l.dishName)}</td><td style="font-family:monospace;">${escHtml(l.batchCode)}</td><td>${escHtml(l.expiryDate)}</td></tr>`).join('')}</tbody></table>` : '';
+      const albBlock = (c.albaranes || []).length
+        ? `<h4 style="margin:8px 0 4px;font-size:11px;color:#4f46e5;">🧾 Albaranes Recibidos (${c.albaranes.length})</h4><table style="${tblS}">${this._appccThRow([['30%','Nº Albarán'],['44%','Proveedor'],['26%','Dictamen']],'#f3f4f6','4px')}<tbody>${c.albaranes.map(a => `<tr><td>${escHtml(a.number || '-')}</td><td>${escHtml(a.supplier)}</td><td>${a.sanitaryStatus === 'rejected' ? '🚫 Rechazado' : a.sanitaryStatus === 'incident' ? '⚠️ Incidencia' : '✔ Conforme'}</td></tr>`).join('')}</tbody></table>` : '';
+      return `
+        <div style="border-top:2px solid #e5e7eb;padding-top:10px;margin-top:12px;">
+          <h3 style="margin:0 0 6px;font-size:12px;background:#f3f4f6;padding:5px 8px;border-left:4px solid #d4af37;">Detalle Cierre: ${escHtml(c.date)} — ${escHtml(c.shift)} (${escHtml(c.responsible)})</h3>
+          <h4 style="margin:6px 0 4px;font-size:11px;color:#0284c7;">🌡️ Lecturas de Frío PCC</h4>
+          <table style="${tblS}">${this._appccThRow([['24%','Fecha/Hora'],['32%','Equipo'],['14%','Temp'],['30%','Estado']],'#f3f4f6','4px')}<tbody>${tRows}</tbody></table>
+          <h4 style="margin:8px 0 4px;font-size:11px;color:#059669;">🧼 Plan de Limpieza y Desinfección (L+D)</h4>
+          <table style="${tblS}">${this._appccThRow([['54%','Zona / Equipo'],['20%','Frecuencia'],['26%','Estado']],'#f3f4f6','4px')}<tbody>${lRows}</tbody></table>
+          ${lblBlock}${albBlock}
+        </div>`;
+    }).join('');
+
     return `
       <div style="max-width:715px;width:100%;margin:0 auto;box-sizing:border-box;font-family:Arial,Helvetica,sans-serif;color:#111827;background:#ffffff;padding:16px;font-size:11px;line-height:1.4;">
         <div style="border-bottom:3px solid #d4af37;padding-bottom:10px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;">
@@ -19041,7 +19015,8 @@ function doPost(e) {
           <tbody>${rows}</tbody>
         </table>
         ${notesHtml ? `<div style="margin-bottom:12px;"><strong>Observaciones / Acciones Correctivas de Cierre:</strong><ul style="margin:4px 0 0 18px;">${notesHtml}</ul></div>` : ''}
-        <div style="border-top:1px dashed #9ca3af;padding-top:8px;font-size:9px;color:#4b5563;display:flex;justify-content:space-between;">
+        ${detailsHtml}
+        <div style="border-top:1px dashed #9ca3af;padding-top:8px;margin-top:10px;font-size:9px;color:#4b5563;display:flex;justify-content:space-between;">
           <span>Registros sellados cronológicamente para inspección sanitaria oficial</span>
           <span>Visto Bueno Dirección: _______________________</span>
         </div>
@@ -19051,24 +19026,11 @@ function doPost(e) {
   async _exportAppccClosuresRangePDF(fromOverride = null, toOverride = null, singleClosure = null) {
     const fromDate = fromOverride !== null ? fromOverride : (document.getElementById('appcc-closure-from')?.value || '');
     const toDate = toOverride !== null ? toOverride : (document.getElementById('appcc-closure-to')?.value || '');
-    const html = this._buildAppccRangeAuditHTML(fromDate, toDate, singleClosure);
-    const filename = singleClosure ? `Cierre_APPCC_${singleClosure.date}.pdf` : `Historico_APPCC_${fromDate || 'todo'}_${toDate || 'hoy'}.pdf`;
-    let loaded = false;
-    try { loaded = await this._ensureHTML2PDF(); } catch { loaded = false; }
-    const wrap = document.getElementById('pdf-scratch');
-    if (!loaded || !window.html2pdf || !wrap) {
-      const win = window.open('', '_blank', 'width=850,height=1000');
-      if (win) { win.document.write(`<!DOCTYPE html><html><body>${html}</body></html>`); win.document.close(); win.print(); }
-      return;
-    }
-    wrap.innerHTML = html;
-    wrap.style.position = 'fixed'; wrap.style.top = '0'; wrap.style.left = '0'; wrap.style.width = '750px'; wrap.style.zIndex = '999999'; wrap.style.background = '#fff'; wrap.style.display = 'block';
-    try {
-      await window.html2pdf().set({ margin: [10, 10, 10, 10], filename, image: { type: 'jpeg', quality: 0.95 }, pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(wrap.firstElementChild || wrap).save();
-      toast('📄 PDF Consolidado de Cierres APPCC generado ✓');
-    } finally {
-      wrap.innerHTML = ''; wrap.style.display = 'none'; wrap.style.zIndex = '-1';
-    }
+    return this._renderHtmlToPdf(
+      this._buildAppccRangeAuditHTML(fromDate, toDate, singleClosure),
+      singleClosure ? `Cierre_APPCC_${singleClosure.date}.pdf` : `Historico_APPCC_${fromDate || 'todo'}_${toDate || 'hoy'}.pdf`,
+      '📄 PDF Consolidado de Cierres APPCC generado ✓'
+    );
   }
 
   _exportAppccClosuresCSV() {
@@ -19459,23 +19421,11 @@ function doPost(e) {
   }
 
   async _exportBriefingPDF() {
-    const html = this._buildBriefingPDFHTML();
-    const wrap = document.getElementById('pdf-scratch');
-    let loaded = false;
-    try { loaded = await this._ensureHTML2PDF(); } catch { loaded = false; }
-    if (!loaded || !window.html2pdf || !wrap) {
-      const win = window.open('', '_blank', 'width=850,height=900');
-      if (win) { win.document.write(`<!DOCTYPE html><html><body>${html}</body></html>`); win.document.close(); win.print(); }
-      return;
-    }
-    wrap.innerHTML = html;
-    wrap.style.position = 'fixed'; wrap.style.top = '0'; wrap.style.left = '0'; wrap.style.width = '750px'; wrap.style.zIndex = '999999'; wrap.style.background = '#fff'; wrap.style.display = 'block';
-    try {
-      await window.html2pdf().set({ margin: [10, 10, 10, 10], filename: `Briefing_Cocina_Sala_${new Date().toISOString().slice(0, 10)}.pdf`, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } }).from(wrap.firstElementChild || wrap).save();
-      toast('📄 PDF Briefing Cocina + Sala generado ✓');
-    } finally {
-      wrap.innerHTML = ''; wrap.style.display = 'none'; wrap.style.zIndex = '-1';
-    }
+    return this._renderHtmlToPdf(
+      this._buildBriefingPDFHTML(),
+      `Briefing_Cocina_Sala_${new Date().toISOString().slice(0, 10)}.pdf`,
+      '📄 PDF Briefing Cocina + Sala generado ✓'
+    );
   }
 
   _renderWeeklyRadarSection() {
