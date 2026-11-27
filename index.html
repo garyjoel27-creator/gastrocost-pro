@@ -3290,7 +3290,8 @@ background: transparent !important;
 border-color: transparent !important;
 box-shadow: none !important;
 }
-#tab-escandallo.mode-consult #form-ing {
+#tab-escandallo.mode-consult #form-ing,
+#tab-escandallo.mode-consult #esc-add-ing-drawer {
 display: none !important;
 }
 #tab-escandallo.mode-consult .form-table-split {
@@ -3764,7 +3765,7 @@ body.printing-appcc-sticker #appcc-sticker-print { display:flex !important; flex
 <div class="hdr-left">
 <div class="logo">
 <span class="logo-mark"><em>Gastro</em>Cost PRO</span>
-<span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V21.4 COMMERCIAL SUITE</span>
+<span class="logo-badge" style="background:linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.4);color:var(--gold);font-weight:700;letter-spacing:0.04em;">V21.5 COMMERCIAL SUITE</span>
 </div>
 <span class="save-ind" id="save-ind">
 <span class="save-dot"></span> Guardado
@@ -3964,7 +3965,6 @@ Configuración
 
     <!-- TAB 1: ESCANDALLO -->
 <div id="tab-escandallo" class="tab-content active desktop-opt">
-      <!-- V16.3 Ficha Command Bar Sticky -->
 <div class="ficha-cmd-bar" id="cmd-bar-ficha">
 <div class="cmd-bar-left">
 <div class="cmd-title-row">
@@ -3979,129 +3979,36 @@ Configuración
 </div>
 <div class="cmd-bar-right">
 <div class="cmd-mode-switch" role="group" aria-label="Modo de trabajo">
-<button type="button" class="cmd-mode-btn" id="btn-mode-consult" title="Modo Consulta: protección contra toques accidentales">👁️ Modo Consulta</button>
-<button type="button" class="cmd-mode-btn active" id="btn-mode-edit" title="Modo Edición: teclado rápido y edición de valores">✏️ Modo Edición</button>
+<button type="button" class="cmd-mode-btn" id="btn-mode-consult" title="Modo Consulta">👁️ Consulta</button>
+<button type="button" class="cmd-mode-btn active" id="btn-mode-edit" title="Modo Edición">✏️ Edición</button>
 </div>
-<button type="button" class="btn btn-ghost cmd-export-btn" id="btn-cmd-export" onclick="gc.toggleExportModal(true)" title="Exportar Documentos (PDF, Excel, Word)" style="display:inline-flex;align-items:center;gap:6px;font-size:0.84rem;font-weight:700;padding:8px 16px;min-height:44px;border:1.5px solid var(--cyan);color:var(--cyan);background:rgba(6,182,212,0.08);border-radius:var(--r);cursor:pointer;transition:all 0.15s ease;">
-<span>📤 Exportar / Compartir</span>
-</button>
-<button type="button" class="btn btn-primary cmd-save-btn" id="btn-cmd-save" title="Guardar Plato en Base de Datos (Ctrl+S)">
-<span id="cmd-save-btn-text">💾 Guardar Plato / Receta</span>
-</button>
+<button type="button" class="btn btn-ghost cmd-export-btn" id="btn-cmd-export" onclick="gc.toggleExportModal(true)" style="display:inline-flex;align-items:center;gap:6px;font-size:0.84rem;font-weight:700;padding:8px 14px;min-height:44px;border:1.5px solid var(--cyan);color:var(--cyan);background:rgba(6,182,212,0.08);border-radius:var(--r);cursor:pointer;"><span>📤 Exportar</span></button>
+<button type="button" class="btn btn-primary cmd-save-btn" id="btn-cmd-save" title="Guardar Plato (Ctrl+S)"><span id="cmd-save-btn-text">💾 Guardar Ficha</span></button>
 </div>
 </div>
 
-      <!-- V15.9 Centralized Smart Sync Banner -->
 <div id="sync-prices-banner" class="alert alert-warn" style="display:none;margin-bottom:12px;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
-<div style="display:flex;align-items:center;gap:8px">
-<span style="font-size:1.1rem">⚠️</span>
-<span>Hay insumos con precios distintos al <strong>Catálogo Maestro</strong> original.</span>
-</div>
+<div style="display:flex;align-items:center;gap:8px"><span style="font-size:1.1rem">⚠️</span><span>Hay insumos con precios distintos al <strong>Catálogo Maestro</strong>.</span></div>
 <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-<button type="button" class="btn btn-primary" id="btn-sync-all-to-cat" style="padding:4px 10px;font-size:0.72rem;font-weight:600">⬆️ Guardar todos en Catálogo</button>
-<button type="button" class="btn btn-ghost" id="btn-sync-all-from-cat" style="padding:4px 10px;font-size:0.72rem;font-weight:600">⬇️ Usar precios de Catálogo</button>
-</div>
-</div>
-      <!-- V16.1 Profitability Speedometer & Pricing Assistant Card -->
-<div class="pricing-assistant-card">
-<div class="pa-header">
-<div class="pa-title-wrap">
-<span class="pa-badge">ASISTENTE DE PRECIOS & RENTABILIDAD</span>
-<h3 class="pa-title">Control Financiero del Plato</h3>
-</div>
-<div class="pa-presets-wrap">
-<span class="pa-presets-lbl">Objetivos de Negocio:</span>
-<div class="pa-presets-pills" role="group" aria-label="Presets de Food Cost">
-<button type="button" class="pa-preset-pill" data-fc="35" title="Aplicar objetivo Tapas (35% FC)">🍺 Tapas 35%</button>
-<button type="button" class="pa-preset-pill" data-fc="30" title="Aplicar objetivo Casual Dining (30% FC)">🍽️ Casual 30%</button>
-<button type="button" class="pa-preset-pill" data-fc="28" title="Aplicar objetivo Gastrobar (28% FC)">🍷 Gastro 28%</button>
-<button type="button" class="pa-preset-pill" data-fc="22" title="Aplicar objetivo Alta Cocina (22% FC)">⭐ Alta Cocina 22%</button>
-</div>
+<button type="button" class="btn btn-primary" id="btn-sync-all-to-cat" style="padding:4px 10px;font-size:0.72rem;font-weight:600">⬆️ Guardar en Catálogo</button>
+<button type="button" class="btn btn-ghost" id="btn-sync-all-from-cat" style="padding:4px 10px;font-size:0.72rem;font-weight:600">⬇️ Usar Catálogo</button>
 </div>
 </div>
 
-<div class="pa-body">
-          <!-- Speedometer Health Gauge -->
-<div class="pa-gauge-section">
-<div class="pa-speedometer-box">
-<svg viewBox="0 0 200 120" class="pa-gauge-svg">
-                <!-- Background track -->
-<path d="M 25 105 A 75 75 0 0 1 175 105" fill="none" stroke="var(--s4)" stroke-width="12" stroke-linecap="round" />
-                <!-- Green Zone (0 to 28% FC) -->
-<path id="pa-arc-green" d="M 25 105 A 75 75 0 0 1 92 31" fill="none" stroke="var(--green)" stroke-width="12" stroke-linecap="round" opacity="0.35" />
-                <!-- Amber Zone (28 to 35% FC) -->
-<path id="pa-arc-amber" d="M 94 31 A 75 75 0 0 1 118 33" fill="none" stroke="var(--amber)" stroke-width="12" opacity="0.35" />
-                <!-- Red Zone (35 to 60%+ FC) -->
-<path id="pa-arc-red" d="M 120 33 A 75 75 0 0 1 175 105" fill="none" stroke="var(--red)" stroke-width="12" stroke-linecap="round" opacity="0.35" />
-                <!-- Speedometer Needle Pointer -->
-<g id="pa-needle-group" transform="rotate(-6, 100, 105)" style="transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);">
-<circle cx="100" cy="105" r="7" fill="var(--t1)" stroke="var(--s1)" stroke-width="2" />
-<polygon points="98,105 102,105 100.5,35 99.5,35" fill="var(--gold)" />
-<circle cx="100" cy="35" r="3.5" fill="var(--gold)" />
-</g>
-</svg>
-<div class="pa-gauge-value-box">
-<span class="pa-gauge-fc" id="pa-gauge-fc">28.0%</span>
-<span class="pa-gauge-badge" id="pa-gauge-badge" style="background:var(--greenL);color:var(--green)">EXCELENTE</span>
-</div>
-</div>
-<div class="pa-gauge-legend">
-<span class="pa-leg-item"><span class="pa-leg-dot bg-green"></span> ≤28% Excelente</span>
-<span class="pa-leg-item"><span class="pa-leg-dot bg-amber"></span> 29-35% Aceptable</span>
-<span class="pa-leg-item"><span class="pa-leg-dot bg-red"></span> &gt;35% Crítico</span>
-</div>
+<div class="ux-subtabs" data-subtab-group="escandallo" role="tablist">
+<button type="button" class="ux-subtab active" data-subtab-group="escandallo" data-subpanel="esc-panel-ings">🥗 Ingredientes</button>
+<button type="button" class="ux-subtab" data-subtab-group="escandallo" data-subpanel="esc-panel-pricing">💰 Rentabilidad y PVP</button>
 </div>
 
-          <!-- Financial Core Metrics -->
-<div class="pa-metrics-section">
-<div class="pa-metric-card">
-<span class="pa-metric-lbl">💰 Coste Materia Prima</span>
-<div class="pa-metric-val c-cyan" id="pa-cost-unit">0,00 €</div>
-<span class="pa-metric-sub">Por ración neta</span>
-</div>
-
-<div class="pa-metric-card pa-metric-card-interactive">
-<div class="pa-metric-lbl-wrap">
-<span class="pa-metric-lbl">🏷️ PVP Carta</span>
-<span class="pa-tax-tag" id="pa-tax-tag">IVA 10%</span>
-</div>
-<div class="pa-input-group">
-<input type="number" step="0.10" min="0" id="pa-input-pvp" inputmode="decimal" class="pa-pvp-input" placeholder="0.00">
-<span class="pa-curr-sym curr-sym">€</span>
-</div>
-<span class="pa-metric-sub" id="pa-pvp-net-sub">Neto: 0,00 €</span>
-</div>
-
-<div class="pa-metric-card">
-<span class="pa-metric-lbl">✨ Ganancia Neta Limpia</span>
-<div class="pa-metric-val c-green" id="pa-net-profit">+0,00 €</div>
-<span class="pa-metric-sub" id="pa-margin-sub">Margen sobre PVP</span>
-</div>
-</div>
-</div>
-
-        <!-- Human Kitchen Language Diagnostic Translation -->
-<div class="pa-diagnosis-banner" id="pa-diagnosis-banner">
-<div class="pa-diag-icon" id="pa-diag-icon">🟢</div>
-<div class="pa-diag-text" id="pa-diag-text">
-<strong>Ganancia neta: +0,00 € / plato</strong> — Margen Excelente (28.0% FC)
-</div>
-</div>
-</div>
-      <!-- Ingredients -->
+<div id="esc-panel-ings" class="ux-subpanel active" data-subtab-group="escandallo">
 <div class="card">
 <div class="card-hd" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-<div style="display:flex;align-items:center;gap:6px">
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
-<span>Desglose de Insumos</span>
-</div>
+<div style="display:flex;align-items:center;gap:6px"><span>🥗</span><span>Insumos de la Ficha</span></div>
 <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-<button type="button" class="btn btn-ghost btn-sm" id="btn-voice-dictation-top" style="border-color:var(--cyan);color:var(--cyan);display:none;align-items:center;gap:6px;font-size:0.75rem;padding:4px 10px;" title="Dictáfono Culinario por Voz">
-<span>🎙️</span> <span>Dictar Insumos</span>
-</button>
-<div class="view-mode-toggle" id="ing-view-mode-toggle" role="group" aria-label="Modo de visualización de insumos">
-<button type="button" class="view-mode-btn active" id="btn-view-table" data-mode="table" title="Vista en Tabla detallada">📋 Tabla Detallada</button>
-<button type="button" class="view-mode-btn" id="btn-view-cards" data-mode="cards" title="Vista en Tarjetas táctiles ergonómicas">📇 Tarjetas Táctiles</button>
+<button type="button" class="btn btn-ghost btn-sm" id="btn-voice-dictation-top" style="border-color:var(--cyan);color:var(--cyan);display:none;align-items:center;gap:6px;font-size:0.75rem;padding:4px 10px;"><span>🎙️</span><span>Dictar</span></button>
+<div class="view-mode-toggle" id="ing-view-mode-toggle" role="group" aria-label="Vista de insumos">
+<button type="button" class="view-mode-btn active" id="btn-view-table" data-mode="table">📋 Tabla</button>
+<button type="button" class="view-mode-btn" id="btn-view-cards" data-mode="cards">📇 Tarjetas</button>
 </div>
 </div>
 <div class="esc-mobile-shortcuts">
@@ -4109,10 +4016,10 @@ Configuración
 <button type="button" class="btn btn-ghost" onclick="document.getElementById('btn-open-recipe-import') && document.getElementById('btn-open-recipe-import').click()" style="flex:1;min-height:44px;font-size:0.76rem;border-color:rgba(34,197,94,0.35);color:var(--green);">📥 Importar Excel</button>
 </div>
 </div>
-<div class="form-table-split">
 
-          <!-- Add ingredient form -->
-<form id="form-ing">
+<details id="esc-add-ing-drawer" class="ux-drawer" style="margin:0 0 12px;">
+<summary style="color:var(--cyan);font-size:0.84rem;"><span>➕ Añadir Insumo a esta Ficha</span><span style="color:var(--t3);font-size:0.74rem;">Desplegar ▾</span></summary>
+<form id="form-ing" style="margin-top:10px;">
 <div class="fg ac-wrap">
 <label class="fl">Ingrediente / Material</label>
 <input class="fi" id="ing-name" type="text" required autocomplete="off" placeholder="Ej. Atún rojo" enterkeyhint="next">
@@ -4124,35 +4031,24 @@ Configuración
 <option value="protein">🥩 Proteínas</option>
 <option value="vegetable">🥬 Vegetales</option>
 <option value="dairy">🧀 Lácteos</option>
-<option value="spice">🌶️ Especias / Condimentos</option>
-<option value="oil">🫒 Aceites / Grasas</option>
+<option value="spice">🌶️ Especias</option>
+<option value="oil">🫒 Aceites</option>
 <option value="other" selected>📦 Otros</option>
 </select>
 </div>
 <div class="fg3">
-<div class="fg">
-<label class="fl">Unidad</label>
-<select class="fi" id="ing-unit">
-<option value="g">g / ml</option>
-<option value="ud">ud</option>
-</select>
+<div class="fg"><label class="fl">Unidad</label><select class="fi" id="ing-unit"><option value="g">g / ml</option><option value="ud">ud</option></select></div>
+<div class="fg"><label class="fl" id="lbl-ing-net">Neto (g/ml)</label><input class="fi" id="ing-net" inputmode="decimal" type="number" required step="any" min="0.01" placeholder="200"></div>
+<div class="fg"><label class="fl">Merma (%)</label><input class="fi" id="ing-waste" inputmode="decimal" type="number" min="0" max="99" value="0" placeholder="0"></div>
 </div>
 <div class="fg">
-<label class="fl" id="lbl-ing-net">Cantidad Neta (g/ml)</label>
-<input class="fi" id="ing-net" inputmode="decimal" type="number" required step="any" min="0.01" placeholder="200">
-</div>
-<div class="fg">
-<label class="fl">Merma (%)</label>
-<input class="fi" id="ing-waste" inputmode="decimal" type="number" min="0" max="99" value="0" placeholder="0">
-</div>
-</div>
-<div class="fg">
-<label class="fl" id="lbl-ing-price">Precio de Mercado (<span class="curr-sym">€</span> / kg o L)</label>
+<label class="fl" id="lbl-ing-price">Precio (<span class="curr-sym">€</span> / kg o L)</label>
 <input class="fi" id="ing-price" inputmode="decimal" type="number" required step="any" min="0.001" placeholder="28.00">
 </div>
-<div class="fg">
-<label class="fl">Alérgenos (14 Obligatorios UE 1169/2011)</label>
-<div class="allergen-select-grid" id="ing-allergens-grid">
+<div class="fg" style="grid-column:1 / -1;">
+<details class="ux-drawer" style="margin-top:0;">
+<summary style="font-size:0.78rem;color:var(--t2);">⚠️ Alérgenos (14 UE 1169/2011) <span>▾</span></summary>
+<div class="allergen-select-grid" id="ing-allergens-grid" style="margin-top:8px;">
 <label class="allergen-option" data-a="gluten"><input type="checkbox" value="gluten">🌾 Gluten</label>
 <label class="allergen-option" data-a="crustacean"><input type="checkbox" value="crustacean">🦞 Crustác.</label>
 <label class="allergen-option" data-a="egg"><input type="checkbox" value="egg">🥚 Huevo</label>
@@ -4168,45 +4064,87 @@ Configuración
 <label class="allergen-option" data-a="lupin"><input type="checkbox" value="lupin">🌼 Altramuces</label>
 <label class="allergen-option" data-a="molluscs"><input type="checkbox" value="molluscs">🐙 Moluscos</label>
 </div>
+</details>
 </div>
-<div style="display:flex;gap:8px;margin-top:6px;">
+<div style="display:flex;gap:8px;margin-top:6px;grid-column:1 / -1;">
 <button type="submit" class="btn btn-primary" style="flex:1;">+ Añadir Insumo</button>
-<button type="button" class="btn btn-ghost" id="btn-voice-dictation" style="border-color:var(--cyan);color:var(--cyan);display:flex;align-items:center;justify-content:center;gap:6px;padding:0 14px;" title="Dictáfono Culinario por Voz">
-<span>🎙️</span> <span>Dictar Insumos</span>
-</button>
+<button type="button" class="btn btn-ghost" id="btn-voice-dictation" style="border-color:var(--cyan);color:var(--cyan);display:flex;align-items:center;justify-content:center;gap:6px;padding:0 14px;"><span>🎙️</span><span>Dictar</span></button>
 </div>
 </form>
+</details>
 
-          <!-- Ingredients display container (Dual Mode) -->
 <div class="ing-display-container" style="display:flex;flex-direction:column;gap:8px;min-width:0">
-            <!-- Table View -->
 <div class="tbl-wrap" id="ing-table-wrap">
 <table>
-<thead>
-<tr>
-<th style="width:28px"></th>
-<th>Ingrediente</th>
-<th>Neto × escala</th>
-<th>Merma</th>
-<th>Bruto</th>
-<th><span class="curr-sym">€</span> / kg</th>
-<th>Costo (<span class="curr-sym">€</span>)</th>
-<th>% Costo</th>
-<th style="width:32px"></th>
-</tr>
-</thead>
+<thead><tr><th style="width:28px"></th><th>Ingrediente</th><th>Neto × escala</th><th>Merma</th><th>Bruto</th><th><span class="curr-sym">€</span> / kg</th><th>Costo (<span class="curr-sym">€</span>)</th><th>% Costo</th><th style="width:32px"></th></tr></thead>
 <tbody id="tbl-body"></tbody>
 <tfoot id="tbl-foot"></tfoot>
 </table>
 </div>
-
-            <!-- Tactile Cards View (Ergonomic Mobile / Tablet View) -->
 <div class="ing-cards-wrap" id="ing-cards-wrap" style="display:none">
 <div class="ing-cards-list" id="ing-cards-list"></div>
 <div class="ing-cards-footer" id="ing-cards-foot"></div>
 </div>
 </div>
+</div>
+</div>
 
+<div id="esc-panel-pricing" class="ux-subpanel" data-subtab-group="escandallo">
+<div class="pricing-assistant-card">
+<div class="pa-header">
+<div class="pa-title-wrap">
+<span class="pa-badge">RENTABILIDAD &amp; PVP</span>
+<h3 class="pa-title">Control Financiero del Plato</h3>
+</div>
+<div class="pa-presets-wrap">
+<span class="pa-presets-lbl">Objetivos de Negocio:</span>
+<div class="pa-presets-pills" role="group" aria-label="Presets de Food Cost">
+<button type="button" class="pa-preset-pill" data-fc="35">🍺 Tapas 35%</button>
+<button type="button" class="pa-preset-pill" data-fc="30">🍽️ Casual 30%</button>
+<button type="button" class="pa-preset-pill" data-fc="28">🍷 Gastro 28%</button>
+<button type="button" class="pa-preset-pill" data-fc="22">⭐ Alta Cocina 22%</button>
+</div>
+</div>
+</div>
+<div class="pa-body">
+<div class="pa-gauge-section">
+<div class="pa-speedometer-box">
+<svg viewBox="0 0 200 120" class="pa-gauge-svg">
+<path d="M 25 105 A 75 75 0 0 1 175 105" fill="none" stroke="var(--s4)" stroke-width="12" stroke-linecap="round" />
+<path id="pa-arc-green" d="M 25 105 A 75 75 0 0 1 92 31" fill="none" stroke="var(--green)" stroke-width="12" stroke-linecap="round" opacity="0.35" />
+<path id="pa-arc-amber" d="M 94 31 A 75 75 0 0 1 118 33" fill="none" stroke="var(--amber)" stroke-width="12" opacity="0.35" />
+<path id="pa-arc-red" d="M 120 33 A 75 75 0 0 1 175 105" fill="none" stroke="var(--red)" stroke-width="12" stroke-linecap="round" opacity="0.35" />
+<g id="pa-needle-group" transform="rotate(-6, 100, 105)" style="transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);">
+<circle cx="100" cy="105" r="7" fill="var(--t1)" stroke="var(--s1)" stroke-width="2" />
+<polygon points="98,105 102,105 100.5,35 99.5,35" fill="var(--gold)" />
+<circle cx="100" cy="35" r="3.5" fill="var(--gold)" />
+</g>
+</svg>
+<div class="pa-gauge-value-box">
+<span class="pa-gauge-fc" id="pa-gauge-fc">28.0%</span>
+<span class="pa-gauge-badge" id="pa-gauge-badge" style="background:var(--greenL);color:var(--green)">EXCELENTE</span>
+</div>
+</div>
+<div class="pa-gauge-legend">
+<span class="pa-leg-item"><span class="pa-leg-dot bg-green"></span> ≤28%</span>
+<span class="pa-leg-item"><span class="pa-leg-dot bg-amber"></span> 29-35%</span>
+<span class="pa-leg-item"><span class="pa-leg-dot bg-red"></span> &gt;35%</span>
+</div>
+</div>
+<div class="pa-metrics-section">
+<div class="pa-metric-card"><span class="pa-metric-lbl">💰 Coste Materia Prima</span><div class="pa-metric-val c-cyan" id="pa-cost-unit">0,00 €</div><span class="pa-metric-sub">Por ración neta</span></div>
+<div class="pa-metric-card pa-metric-card-interactive">
+<div class="pa-metric-lbl-wrap"><span class="pa-metric-lbl">🏷️ PVP Carta</span><span class="pa-tax-tag" id="pa-tax-tag">IVA 10%</span></div>
+<div class="pa-input-group"><input type="number" step="0.10" min="0" id="pa-input-pvp" inputmode="decimal" class="pa-pvp-input" placeholder="0.00"><span class="pa-curr-sym curr-sym">€</span></div>
+<span class="pa-metric-sub" id="pa-pvp-net-sub">Neto: 0,00 €</span>
+</div>
+<div class="pa-metric-card"><span class="pa-metric-lbl">✨ Ganancia Neta</span><div class="pa-metric-val c-green" id="pa-net-profit">+0,00 €</div><span class="pa-metric-sub" id="pa-margin-sub">Margen sobre PVP</span></div>
+</div>
+</div>
+<div class="pa-diagnosis-banner" id="pa-diagnosis-banner">
+<div class="pa-diag-icon" id="pa-diag-icon">🟢</div>
+<div class="pa-diag-text" id="pa-diag-text"><strong>Ganancia neta: +0,00 € / plato</strong> — Margen Excelente (28.0% FC)</div>
+</div>
 </div>
 </div>
 </div>
@@ -4304,58 +4242,30 @@ Configuración
 
     <!-- TAB 3: FINANZAS Y ANALISIS DE MARGENES -->
 <div id="tab-finanzas" class="tab-content desktop-opt">
-<div style="display:flex;flex-direction:column;gap:16px">
-        <!-- KPIs -->
+<div class="ux-subtabs" data-subtab-group="finanzas" role="tablist">
+<button type="button" class="ux-subtab active" data-subtab-group="finanzas" data-subpanel="fin-panel-overview">📊 Resumen</button>
+<button type="button" class="ux-subtab" data-subtab-group="finanzas" data-subpanel="fin-panel-radar">📡 Radar Subidas</button>
+<button type="button" class="ux-subtab" data-subtab-group="finanzas" data-subpanel="fin-panel-briefing">📢 Briefing</button>
+<button type="button" class="ux-subtab" data-subtab-group="finanzas" data-subpanel="fin-panel-bcg">🏆 Matriz BCG</button>
+</div>
+
+<div id="fin-panel-overview" class="ux-subpanel active" data-subtab-group="finanzas">
+<div style="display:flex;flex-direction:column;gap:14px">
 <div class="card">
-<div class="card-hd">
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-Motor Financiero
-</div>
+<div class="card-hd"><span>📊</span><span>Motor Financiero del Plato</span></div>
 <div class="kpi-grid">
-<div class="kpi">
-<div class="kpi-lbl">Costo Lote</div>
-<div class="kpi-val c-cyan" id="k-lote">0,00 €</div>
-<div class="kpi-sub" id="k-scale-lbl">Escala ×1</div>
-</div>
-<div class="kpi">
-<div class="kpi-lbl">Costo / Ración</div>
-<div class="kpi-val c-dim" id="k-unit">0,00 €</div>
-<div class="kpi-sub" id="k-portions-lbl">— raciones</div>
-</div>
-<div class="kpi k-pvp">
-<div class="kpi-lbl">PVP Carta (con impuesto)</div>
-<div class="kpi-val c-green" id="k-pvp">0,00 €</div>
-<div class="kpi-sub" id="k-pvp-net">Neto: 0,00 €</div>
-</div>
-<div class="kpi k-margin">
-<div class="kpi-lbl">Margen Bruto / Ración</div>
-<div class="kpi-val c-purple" id="k-margin">0,00 €</div>
-<div class="kpi-sub" id="k-margin-batch">Lote: 0,00 €</div>
-</div>
-<div class="kpi k-fc">
-<div class="kpi-lbl">Food Cost Real</div>
-<div class="kpi-val c-cyan" id="k-fc">0%</div>
-<div class="bar-track"><div class="bar-fill" id="k-fc-bar" style="width:0%"></div></div>
-<div class="kpi-sub" id="k-fc-goal">Objetivo: —%</div>
-</div>
-<div class="kpi k-sim">
-<div class="kpi-lbl">Simulación PVP Manual</div>
-<div class="kpi-val c-amber" id="k-sim">—</div>
-<div class="kpi-sub" id="k-sim-sub">Introduce un PVP manual</div>
-</div>
+<div class="kpi"><div class="kpi-lbl">Costo Lote</div><div class="kpi-val c-cyan" id="k-lote">0,00 €</div><div class="kpi-sub" id="k-scale-lbl">Escala ×1</div></div>
+<div class="kpi"><div class="kpi-lbl">Costo / Ración</div><div class="kpi-val c-dim" id="k-unit">0,00 €</div><div class="kpi-sub" id="k-portions-lbl">— raciones</div></div>
+<div class="kpi k-pvp"><div class="kpi-lbl">PVP Carta</div><div class="kpi-val c-green" id="k-pvp">0,00 €</div><div class="kpi-sub" id="k-pvp-net">Neto: 0,00 €</div></div>
+<div class="kpi k-margin"><div class="kpi-lbl">Margen Bruto</div><div class="kpi-val c-purple" id="k-margin">0,00 €</div><div class="kpi-sub" id="k-margin-batch">Lote: 0,00 €</div></div>
+<div class="kpi k-fc"><div class="kpi-lbl">Food Cost Real</div><div class="kpi-val c-cyan" id="k-fc">0%</div><div class="bar-track"><div class="bar-fill" id="k-fc-bar" style="width:0%"></div></div><div class="kpi-sub" id="k-fc-goal">Objetivo: —%</div></div>
+<div class="kpi k-sim"><div class="kpi-lbl">Simulación PVP</div><div class="kpi-val c-amber" id="k-sim">—</div><div class="kpi-sub" id="k-sim-sub">Introduce PVP manual</div></div>
 </div>
 <div id="alert" style="display:none;margin-top:12px"></div>
 </div>
 
-        <!-- Advanced cost & break-even panel -->
 <div class="card">
-<div class="card-hd">
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-Análisis de Margen y Umbral Operativo
-</div>
-
-          <!-- Donut chart breakdown V13.2 -->
-<label class="fl">Estructura de Costes de la Receta</label>
+<div class="card-hd"><span>🍩</span><span>Estructura de Costes y Equilibrio</span></div>
 <div class="finance-chart-section">
 <div class="donut-chart-container">
 <svg viewBox="0 0 100 100" class="donut-chart" id="finance-donut-chart">
@@ -4368,122 +4278,80 @@ Análisis de Margen y Umbral Operativo
 <div class="cost-legend-grid" id="finance-legend"></div>
 </div>
 
-          <!-- Break-even inputs -->
-<div style="margin-top: 20px; border-top: 1px solid var(--b1); padding-top: 16px">
-<label class="fl" style="color:var(--cyan)">Simulador de Punto de Equilibrio Operativo</label>
-<div class="fin-be-grid" style="margin-top: 8px">
-<div class="fg">
-<label class="fl">Costes Fijos Cocina (Mensual)</label>
-<input class="fi" id="fin-fixed-costs" inputmode="decimal" type="number" min="0" step="10" placeholder="Ej. 3000">
+<details class="ux-drawer">
+<summary style="color:var(--cyan);font-size:0.84rem;">🧮 Simulador de Punto de Equilibrio <span>▾</span></summary>
+<div style="margin-top:10px;">
+<div class="fin-be-grid">
+<div class="fg"><label class="fl">Costes Fijos Cocina (Mensual)</label><input class="fi" id="fin-fixed-costs" inputmode="decimal" type="number" min="0" step="10" placeholder="Ej. 3000"></div>
+<div class="fg"><label class="fl">Ventas Estimadas (Platos/Mes)</label><input class="fi" id="fin-target-sales" inputmode="decimal" type="number" min="1" step="10" placeholder="Ej. 500"></div>
 </div>
-<div class="fg">
-<label class="fl">Ventas Estimadas (Platos/Mes)</label>
-<input class="fi" id="fin-target-sales" inputmode="decimal" type="number" min="1" step="10" placeholder="Ej. 500">
+<div class="kpi-grid fin-be-kpis" style="margin-top:10px;">
+<div class="kpi" style="padding:12px 14px;background:var(--s1)"><div class="kpi-lbl">Margen Contribución</div><div class="kpi-val" id="fin-mcu" style="font-size:1.15rem;color:var(--green)">0,00 €</div><div class="kpi-sub" id="fin-mcu-pct">Ratio: 0%</div></div>
+<div class="kpi" style="padding:12px 14px;background:var(--s1)"><div class="kpi-lbl">Umbral Rentabilidad</div><div class="kpi-val" id="fin-be-units" style="font-size:1.15rem;color:var(--purple)">0 raciones</div><div class="kpi-sub" id="fin-be-revenue">Facturación BE: 0,00 €</div></div>
 </div>
 </div>
+</details>
 
-<div class="kpi-grid fin-be-kpis" style="margin-top: 10px;">
-<div class="kpi" style="padding: 12px 14px; background: var(--s1)">
-<div class="kpi-lbl">Margen Contribución Unitario</div>
-<div class="kpi-val" id="fin-mcu" style="font-size: 1.15rem; color: var(--green)">0,00 €</div>
-<div class="kpi-sub" id="fin-mcu-pct">Ratio: 0%</div>
+<details class="ux-drawer">
+<summary style="color:var(--gold);font-size:0.84rem;">💡 Consejos de Consultoría de Chef Ejecutivo <span>▾</span></summary>
+<div class="consulting-box" style="margin-top:8px;">
+<div class="consulting-tips" id="consulting-tips-list"></div>
 </div>
-<div class="kpi" style="padding: 12px 14px; background: var(--s1)">
-<div class="kpi-lbl">Umbral Rentabilidad (Ventas)</div>
-<div class="kpi-val" id="fin-be-units" style="font-size: 1.15rem; color: var(--purple)">0 raciones</div>
-<div class="kpi-sub" id="fin-be-revenue">Facturación BE: 0,00 €</div>
+</details>
 </div>
 </div>
 </div>
 
-          <!-- Consulting block -->
-<div class="consulting-box">
-<div class="consulting-title">
-<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/><path d="M12 6a1.5 1.5 0 1 0 1.5 1.5A1.5 1.5 0 0 0 12 6zm-1 5h2v6h-2z"/></svg>
-Recomendaciones de Consultoría de Chef Ejecutivo
-</div>
-<div class="consulting-tips" id="consulting-tips-list">
-              <!-- Dynamically populated -->
-</div>
-</div>
-
-</div>
-</div>
-
-      <!-- V21.0 Radar de Subidas Compra-a-Compra, Diagnóstico Accionable & Briefing Cocina/Sala -->
-<div class="card" id="weekly-radar-card" style="margin-top:16px;">
+<div id="fin-panel-radar" class="ux-subpanel" data-subtab-group="finanzas">
+<div class="card" id="weekly-radar-card">
 <div class="card-hd" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-<span>📡</span>
-<span>Radar de Subidas &amp; Diagnóstico Accionable (Compra a Compra)</span>
-</div>
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span>📡</span><span>Radar de Subidas (Compra a Compra)</span></div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-<button type="button" class="btn btn-ghost appcc-touch-btn" id="btn-rad-toggle-paste" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">⚡ Pegar Precios Semanales</button>
-<button type="button" class="btn btn-ghost appcc-touch-btn" onclick="gc.setTab('tab-albaranes')" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">🧾 Subir Albarán Foto/IA</button>
+<button type="button" class="btn btn-ghost appcc-touch-btn" id="btn-rad-toggle-paste" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">⚡ Pegar Precios</button>
+<button type="button" class="btn btn-ghost appcc-touch-btn" onclick="gc.setTab('tab-albaranes')" style="border-color:rgba(212,175,55,0.45);color:var(--gold);">🧾 Subir Albarán</button>
 </div>
 </div>
-<p class="rad-sub" style="margin:0 0 10px;">Compara cada ingrediente frente a su compra inmediatamente anterior, calcula cuánto pierdes al mes en cada plato y te da acciones exactas para Dirección, Cocina y Sala.</p>
-
+<p class="rad-sub" style="margin:0 0 10px;">Compara cada insumo frente a su compra anterior y calcula el impacto mensual con 3 palancas de acción.</p>
 <div id="rad-quick-paste-wrap" style="display:none;padding:12px;border-radius:10px;border:1px solid rgba(6,182,212,0.35);background:var(--s2);margin-bottom:14px;">
 <label for="fin-quick-prices-text" style="display:block;margin-bottom:6px;">Pega tu lista semanal / WhatsApp del proveedor (1 producto por línea):</label>
-<textarea id="fin-quick-prices-text" class="fi" rows="3" placeholder="Ej.&#10;Atún rojo 5kg 34.50&#10;Aceite de oliva virgen extra; 10; L; 10.20" style="width:100%;margin-bottom:8px;"></textarea>
-<button type="button" id="btn-fin-apply-weekly-prices" class="btn btn-primary appcc-touch-btn">⚡ Actualizar Precios y Recalcular Radar</button>
+<textarea id="fin-quick-prices-text" class="fi" rows="3" placeholder="Ej.&#10;Atún rojo 5kg 34.50&#10;Aceite oliva; 10; L; 10.20" style="width:100%;margin-bottom:8px;"></textarea>
+<button type="button" id="btn-fin-apply-weekly-prices" class="btn btn-primary appcc-touch-btn">⚡ Actualizar Precios y Radar</button>
 </div>
-
 <div class="appcc-kpi-strip" style="margin-bottom:14px;">
-<div class="appcc-kpi-card">
-<span style="font-size:0.74rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Platos Afectados</span>
-<span class="appcc-kpi-val" id="rad-kpi-count">0</span>
+<div class="appcc-kpi-card"><span style="font-size:0.74rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Platos Afectados</span><span class="appcc-kpi-val" id="rad-kpi-count">0</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.74rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Impacto / Mes</span><span class="appcc-kpi-val" id="rad-kpi-monthly-loss" style="color:#f87171;">0,00 €/mes</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.74rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Insumo Crítico</span><span class="appcc-kpi-val" id="rad-kpi-top-ing" style="font-size:1rem;color:var(--amber);">Sin subidas</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.74rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Rentabilidad</span><span class="appcc-kpi-val" id="rad-kpi-health" style="font-size:1rem;color:#4ade80;">Óptima</span></div>
 </div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.74rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Impacto Mensual (€)</span>
-<span class="appcc-kpi-val" id="rad-kpi-monthly-loss" style="color:#f87171;">0,00 €/mes</span>
-</div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.74rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Insumo Crítico</span>
-<span class="appcc-kpi-val" id="rad-kpi-top-ing" style="font-size:1rem;color:var(--amber);">Sin subidas</span>
-</div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.74rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Estado Rentabilidad</span>
-<span class="appcc-kpi-val" id="rad-kpi-health" style="font-size:1rem;color:#4ade80;">Óptima</span>
-</div>
-</div>
-
-<div class="appcc-table-scroll" style="margin-bottom:16px;">
+<div class="appcc-table-scroll">
 <table class="appcc-ld-table" style="table-layout:auto;">
-<thead>
-<tr>
-<th>Plato (Ventas/Mes)</th>
-<th>Coste Ant. → Hoy</th>
-<th>Impacto Mensual</th>
-<th>Palanca 1: Precio (Carta)</th>
-<th>Palanca 2: Cocina (Gramaje)</th>
-<th>Palanca 3: Compra (Insumo)</th>
-</tr>
-</thead>
+<thead><tr><th>Plato (Ventas/Mes)</th><th>Coste Ant. → Hoy</th><th>Impacto Mensual</th><th>Palanca 1: Precio</th><th>Palanca 2: Cocina</th><th>Palanca 3: Compra</th></tr></thead>
 <tbody id="rad-dishes-body"></tbody>
 </table>
 </div>
+</div>
+</div>
 
-<div id="briefing-section" style="border-top:1px solid var(--b1);padding-top:14px;">
-<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
-<strong style="font-size:0.94rem;color:var(--gold);">📢 Briefing Semanal de Servicio (Cocina + Sala)</strong>
+<div id="fin-panel-briefing" class="ux-subpanel" data-subtab-group="finanzas">
+<div class="card" id="briefing-section">
+<div class="card-hd" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+<div style="display:flex;align-items:center;gap:8px;"><span>📢</span><span>Briefing Semanal (Cocina + Sala)</span></div>
 <div style="display:flex;gap:8px;flex-wrap:wrap;">
-<button type="button" id="btn-briefing-share" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📲 Compartir Briefing</button>
-<button type="button" id="btn-briefing-pdf" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">📄 PDF Paseo (A4)</button>
+<button type="button" id="btn-briefing-share" class="btn btn-ghost appcc-touch-btn" style="border-color:rgba(6,182,212,0.45);color:var(--cyan);">📲 Compartir</button>
+<button type="button" id="btn-briefing-pdf" class="btn btn-primary appcc-touch-btn" style="background:linear-gradient(135deg,#d4af37,#b45309);border-color:rgba(212,175,55,0.6);color:#060911;">📄 PDF Paseo</button>
 </div>
 </div>
 <div class="fg2-resp">
 <div class="brief-card" style="border-color:rgba(245,158,11,0.4);">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
-<strong style="color:var(--amber);font-size:0.9rem;">🧑‍🍳 Briefing COCINA (Operativa y Gramajes)</strong>
+<strong style="color:var(--amber);font-size:0.9rem;">🧑‍🍳 Briefing COCINA</strong>
 <button type="button" id="btn-briefing-copy-kitchen" class="btn btn-ghost" style="min-height:38px;font-size:0.78rem;">📋 WhatsApp Cocina</button>
 </div>
 <div id="briefing-cocina-box" class="brief-body"></div>
 </div>
 <div class="brief-card" style="border-color:rgba(34,197,94,0.4);">
 <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;">
-<strong style="color:#4ade80;font-size:0.9rem;">🍽️ Briefing SALA (Qué Recomendar Hoy)</strong>
+<strong style="color:#4ade80;font-size:0.9rem;">🍽️ Briefing SALA</strong>
 <button type="button" id="btn-briefing-copy-sala" class="btn btn-ghost" style="min-height:38px;font-size:0.78rem;">📋 WhatsApp Sala</button>
 </div>
 <div id="briefing-sala-box" class="brief-body"></div>
@@ -4492,49 +4360,24 @@ Recomendaciones de Consultoría de Chef Ejecutivo
 </div>
 </div>
 
-      <!-- V18.0 Menu Engineering (Matriz BCG Kasavana-Smith) -->
-<div class="card" id="bcg-matrix-card" style="margin-top:16px;">
+<div id="fin-panel-bcg" class="ux-subpanel" data-subtab-group="finanzas">
+<div class="card" id="bcg-matrix-card">
 <div class="card-hd" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-<div style="display:flex;align-items:center;gap:8px;">
-<span>📊</span>
-<span>Ingeniería de Menú — Matriz BCG (Kasavana-Smith)</span>
-</div>
-<span style="font-size:0.72rem;color:var(--t3);font-weight:500;">Popularidad vs Rentabilidad real de tu carta</span>
+<div style="display:flex;align-items:center;gap:8px;"><span>🏆</span><span>Ingeniería de Menú — Matriz BCG</span></div>
+<span style="font-size:0.72rem;color:var(--t3);font-weight:500;">Popularidad vs Rentabilidad</span>
 </div>
 <div class="appcc-kpi-strip" style="margin-bottom:14px;">
-<div class="appcc-kpi-card">
-<span style="font-size:0.68rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Facturación Estimada / Mes</span>
-<span class="appcc-kpi-val" id="bcg-total-revenue">0,00 €</span>
-</div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.68rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Beneficio Bruto Carta / Mes</span>
-<span class="appcc-kpi-val" id="bcg-total-profit" style="color:var(--green);">0,00 €</span>
-</div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.68rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Popularidad Media</span>
-<span class="appcc-kpi-val" id="bcg-avg-popularity" style="color:var(--cyan);">0 rac/mes</span>
-</div>
-<div class="appcc-kpi-card">
-<span style="font-size:0.68rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Margen Contribución Medio</span>
-<span class="appcc-kpi-val" id="bcg-avg-margin" style="color:var(--gold);">0,00 €</span>
-</div>
+<div class="appcc-kpi-card"><span style="font-size:0.68rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Facturación / Mes</span><span class="appcc-kpi-val" id="bcg-total-revenue">0,00 €</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.68rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Beneficio Bruto / Mes</span><span class="appcc-kpi-val" id="bcg-total-profit" style="color:var(--green);">0,00 €</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.68rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Popularidad Media</span><span class="appcc-kpi-val" id="bcg-avg-popularity" style="color:var(--cyan);">0 rac/mes</span></div>
+<div class="appcc-kpi-card"><span style="font-size:0.68rem;color:var(--t3);text-transform:uppercase;font-weight:700;">Margen Medio</span><span class="appcc-kpi-val" id="bcg-avg-margin" style="color:var(--gold);">0,00 €</span></div>
 </div>
 <div class="appcc-table-scroll">
 <table class="appcc-ld-table" style="table-layout:auto;">
-<thead>
-<tr>
-<th>Plato</th>
-<th>Coste / Rac.</th>
-<th>PVP Carta</th>
-<th>Margen Unit.</th>
-<th>Ventas / Mes</th>
-<th>Margen Mensual</th>
-<th>Categoría BCG</th>
-<th>Acción Recomendada</th>
-</tr>
-</thead>
+<thead><tr><th>Plato</th><th>Coste / Rac.</th><th>PVP Carta</th><th>Margen Unit.</th><th>Ventas / Mes</th><th>Margen Mensual</th><th>Categoría BCG</th><th>Acción</th></tr></thead>
 <tbody id="bcg-table-body"></tbody>
 </table>
+</div>
 </div>
 </div>
 </div>
@@ -12370,6 +12213,10 @@ class GC {
         try { dishNameInp.select(); } catch (e) {}
       }
     } else {
+      const ingTab = document.querySelector('.ux-subtab[data-subpanel="esc-panel-ings"]');
+      if (ingTab) ingTab.click();
+      const dr = document.getElementById('esc-add-ing-drawer');
+      if (dr) dr.open = true;
       const ingNameInp = document.getElementById('ing-name');
       if (ingNameInp) {
         try { ingNameInp.focus(); } catch (e) {}
@@ -13633,7 +13480,7 @@ class GC {
       const unitLabel = item.unit === 'ud' ? 'ud' : (item.unit === 'ml' ? 'L' : 'kg');
       const allgStr = item.allergens && item.allergens.length ? item.allergens.map(a => ALLERGENS[a] ? ALLERGENS[a].emoji : a).join(' ') : '';
       return `
-        <div class="quick-cat-item" onclick="if(document.getElementById('ing-name')){ document.getElementById('ing-name').value='${item.name.replace(/'/g, "\\\'")}'; document.getElementById('ing-price').value=${item.price}; document.getElementById('ing-waste').value=${item.waste||0}; window.gc.closeQuickCatalog(); document.getElementById('ing-net').focus(); toast('Insumo cargado en el formulario ✓'); }">
+        <div class="quick-cat-item" onclick="if(document.getElementById('ing-name')){ const t=document.querySelector('.ux-subtab[data-subpanel=&quot;esc-panel-ings&quot;]'); if(t)t.click(); const d=document.getElementById('esc-add-ing-drawer'); if(d)d.open=true; document.getElementById('ing-name').value='${item.name.replace(/'/g, "\\\'")}'; document.getElementById('ing-price').value=${item.price}; document.getElementById('ing-waste').value=${item.waste||0}; window.gc.closeQuickCatalog(); document.getElementById('ing-net').focus(); toast('Insumo cargado en el formulario ✓'); }">
           <div style="flex:1;">
             <div style="font-weight:700;font-size:0.85rem;color:var(--t1)">${escHtml(item.name)} ${allgStr ? '<span style="font-size:0.75rem;margin-left:4px">' + allgStr + '</span>' : ''}</div>
             <div style="font-size:0.7rem;color:var(--t3)">${escHtml(item.category || 'General')} · Merma habitual: ${item.waste || 0}%</div>
